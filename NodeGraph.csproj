@@ -35,6 +35,33 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Livet, Version=3.2.2.2, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
+      <HintPath>packages\LivetCask.3.2.2.2\lib\net452\Livet.dll</HintPath>
+    </Reference>
+    <Reference Include="Livet.Behaviors, Version=3.2.2.2, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
+      <HintPath>packages\LivetCask.Behaviors.3.2.2.2\lib\net452\Livet.Behaviors.dll</HintPath>
+    </Reference>
+    <Reference Include="Livet.Collections, Version=3.2.2.2, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
+      <HintPath>packages\LivetCask.Collections.3.2.2.2\lib\net452\Livet.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Livet.Converters, Version=3.2.2.2, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
+      <HintPath>packages\LivetCask.Converters.3.2.2.2\lib\net452\Livet.Converters.dll</HintPath>
+    </Reference>
+    <Reference Include="Livet.Core, Version=3.2.2.2, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
+      <HintPath>packages\LivetCask.Core.3.2.2.2\lib\net452\Livet.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Livet.EventListeners, Version=3.2.2.2, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
+      <HintPath>packages\LivetCask.EventListeners.3.2.2.2\lib\net452\Livet.EventListeners.dll</HintPath>
+    </Reference>
+    <Reference Include="Livet.Messaging, Version=3.2.2.2, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
+      <HintPath>packages\LivetCask.Messaging.3.2.2.2\lib\net452\Livet.Messaging.dll</HintPath>
+    </Reference>
+    <Reference Include="Livet.Mvvm, Version=3.2.2.2, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
+      <HintPath>packages\LivetCask.Mvvm.3.2.2.2\lib\net452\Livet.Mvvm.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Xaml.Behaviors.Wpf.1.1.3\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -86,6 +113,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
