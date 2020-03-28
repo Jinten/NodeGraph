@@ -1,0 +1,9 @@
+﻿<Application x:Class="NodeGraph.PreviewTest.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:NodeGraph.PreviewTest"
+             StartupUri="Views/MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary Source="/NodeGraph.PreviewTest;component/ResourceDictionary.xaml"/>
+    </Application.Resources>
+</Application>
