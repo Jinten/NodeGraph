@@ -8,15 +8,21 @@
         <ResourceDictionary Source="/NodeGraph;component/Controls/NodeOutput.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <ControlTemplate x:Key="__NodeTemplate__" TargetType="{x:Type local:Node}">
+	<Style TargetType="{x:Type local:Node}">
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="BorderBrush" Value="Black"/>
+		<Setter Property="Background" Value="DarkGray"/>
+	</Style>
+
+	<ControlTemplate x:Key="__NodeTemplate__" TargetType="{x:Type local:Node}">
         <Border Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
                 <local:NodeInput Panel.ZIndex="1" 
                                   x:Name="__NodeInput__"
-                                  InputLayout="{Binding InputLayout, Mode=OneWay}"                                  
-                                  InputMargin="{Binding InputMargin, Mode=OneWay}"
+                                  ConnectorLayout="{Binding InputLayout, Mode=OneWay}"                                  
+                                  ConnectorMargin="{Binding InputMargin, Mode=OneWay}"
                                   ItemsSource="{Binding Inputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                   ItemContainerStyle="{Binding InputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
 
@@ -24,8 +30,8 @@
 
                 <local:NodeOutput Panel.ZIndex="2" 
                                   x:Name="__NodeOutput__"
-                                  OutputLayout="{Binding OutputLayout, Mode=OneWay}"                                  
-                                  OutputMargin="{Binding OutputMargin, Mode=OneWay}"
+                                  ConnectorLayout="{Binding OutputLayout, Mode=OneWay}"                                  
+                                  ConnectorMargin="{Binding OutputMargin, Mode=OneWay}"
                                   ItemsSource="{Binding Outputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                   ItemContainerStyle="{Binding OutputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
             </DockPanel>

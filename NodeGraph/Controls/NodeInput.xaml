@@ -7,7 +7,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
-                <Ellipse Width="13" Height="13" StrokeThickness="1" Stroke="Blue" Fill="Gray"/>
+				<Ellipse Tag="{x:Static local:StaticDefinition.Connector}" Width="13" Height="13" StrokeThickness="1" Stroke="Blue" Fill="Gray"/>
                 <Label Content="{TemplateBinding Content}"/>
             </DockPanel>
         </Border>

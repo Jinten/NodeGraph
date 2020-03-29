@@ -19,199 +19,203 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
-    public enum InputLayoutType
-    {
-        Top,
-        Center,
-        Bottom,
-    }
+	public class Node : Control, INode, IDisposable
+	{
+		public ConnectorLayoutType InputLayout
+		{
+			get => (ConnectorLayoutType)GetValue(InputLayoutProperty);
+			set => SetValue(InputLayoutProperty, value);
+		}
+		public static readonly DependencyProperty InputLayoutProperty = DependencyProperty.Register(
+			nameof(InputLayout),
+			typeof(ConnectorLayoutType),
+			typeof(Node),
+			new FrameworkPropertyMetadata(ConnectorLayoutType.Top));
 
-    public enum OutputLayoutType
-    {
-        Top,
-        Center,
-        Bottom,
-    }
+		public double InputMargin
+		{
+			get => (double)GetValue(InputMarginProperty);
+			set => SetValue(InputMarginProperty, value);
+		}
+		public static readonly DependencyProperty InputMarginProperty = DependencyProperty.Register(
+			nameof(InputMargin),
+			typeof(double),
+			typeof(Node),
+			new FrameworkPropertyMetadata(2.0));
 
-    public class Node : Control, INode
-    {
-        public InputLayoutType InputLayout
-        {
-            get => (InputLayoutType)GetValue(InputLayoutProperty);
-            set => SetValue(InputLayoutProperty, value);
-        }
-        public static readonly DependencyProperty InputLayoutProperty = DependencyProperty.Register(
-            nameof(InputLayout),
-            typeof(InputLayoutType),
-            typeof(Node),
-            new FrameworkPropertyMetadata(InputLayoutType.Top));
+		public IEnumerable Inputs
+		{
+			get => GetValue(InputsProperty) as IEnumerable;
+			set => SetValue(InputsProperty, value);
+		}
+		public static readonly DependencyProperty InputsProperty = DependencyProperty.Register(
+			nameof(Inputs),
+			typeof(IEnumerable),
+			typeof(Node),
+			new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsArrange, InputsPropertyChanged));
 
-        public double InputMargin
-        {
-            get => (double)GetValue(InputMarginProperty);
-            set => SetValue(InputMarginProperty, value);
-        }
-        public static readonly DependencyProperty InputMarginProperty = DependencyProperty.Register(
-            nameof(InputMargin),
-            typeof(double),
-            typeof(Node),
-            new FrameworkPropertyMetadata(2.0));
+		public Style InputStyle
+		{
+			get => GetValue(InputStyleProperty) as Style;
+			set => SetValue(InputStyleProperty, value);
+		}
+		public static readonly DependencyProperty InputStyleProperty = DependencyProperty.Register(
+			nameof(InputStyle),
+			typeof(Style),
+			typeof(Node),
+			new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public IEnumerable Inputs
-        {
-            get => GetValue(InputsProperty) as IEnumerable;
-            set => SetValue(InputsProperty, value);
-        }
-        public static readonly DependencyProperty InputsProperty = DependencyProperty.Register(
-            nameof(Inputs),
-            typeof(IEnumerable),
-            typeof(Node),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsArrange, InputsPropertyChanged));
+		public ConnectorLayoutType OutputLayout
+		{
+			get => (ConnectorLayoutType)GetValue(OutputLayoutProperty);
+			set => SetValue(OutputLayoutProperty, value);
+		}
+		public static readonly DependencyProperty OutputLayoutProperty = DependencyProperty.Register(
+			nameof(OutputLayout),
+			typeof(ConnectorLayoutType),
+			typeof(Node),
+			new FrameworkPropertyMetadata(ConnectorLayoutType.Top));
 
-        public Style InputStyle
-        {
-            get => GetValue(InputStyleProperty) as Style;
-            set => SetValue(InputStyleProperty, value);
-        }
-        public static readonly DependencyProperty InputStyleProperty = DependencyProperty.Register(
-            nameof(InputStyle),
-            typeof(Style),
-            typeof(Node),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+		public double OutputMargin
+		{
+			get => (double)GetValue(OutputMarginProperty);
+			set => SetValue(OutputMarginProperty, value);
+		}
+		public static readonly DependencyProperty OutputMarginProperty = DependencyProperty.Register(
+			nameof(OutputMargin),
+			typeof(double),
+			typeof(Node),
+			new FrameworkPropertyMetadata(2.0));
 
-        public OutputLayoutType OutputLayout
-        {
-            get => (OutputLayoutType)GetValue(OutputLayoutProperty);
-            set => SetValue(OutputLayoutProperty, value);
-        }
-        public static readonly DependencyProperty OutputLayoutProperty = DependencyProperty.Register(
-            nameof(OutputLayout),
-            typeof(OutputLayoutType),
-            typeof(Node),
-            new FrameworkPropertyMetadata(OutputLayoutType.Top));
+		public IEnumerable Outputs
+		{
+			get => GetValue(OutputsProperty) as IEnumerable;
+			set => SetValue(OutputsProperty, value);
+		}
+		public static readonly DependencyProperty OutputsProperty = DependencyProperty.Register(
+			nameof(Outputs),
+			typeof(IEnumerable),
+			typeof(Node),
+			new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsArrange, OutputsPropertyChanged));
 
-        public double OutputMargin
-        {
-            get => (double)GetValue(OutputMarginProperty);
-            set => SetValue(OutputMarginProperty, value);
-        }
-        public static readonly DependencyProperty OutputMarginProperty = DependencyProperty.Register(
-            nameof(OutputMargin),
-            typeof(double),
-            typeof(Node),
-            new FrameworkPropertyMetadata(2.0));
+		public Style OutputStyle
+		{
+			get => GetValue(OutputStyleProperty) as Style;
+			set => SetValue(OutputStyleProperty, value);
+		}
+		public static readonly DependencyProperty OutputStyleProperty = DependencyProperty.Register(
+			nameof(OutputStyle),
+			typeof(Style),
+			typeof(Node),
+			new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public IEnumerable Outputs
-        {
-            get => GetValue(OutputsProperty) as IEnumerable;
-            set => SetValue(OutputsProperty, value);
-        }
-        public static readonly DependencyProperty OutputsProperty = DependencyProperty.Register(
-            nameof(Outputs),
-            typeof(IEnumerable),
-            typeof(Node),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsArrange, OutputsPropertyChanged));
+		public bool IsSelected
+		{
+			get => (bool)GetValue(IsSelectedProperty);
+			set => SetValue(IsSelectedProperty, value);
+		}
+		public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register(
+			nameof(IsSelected),
+			typeof(bool),
+			typeof(Node),
+			new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsSelectedPropertyChanged));
 
-        public Style OutputStyle
-        {
-            get => GetValue(OutputStyleProperty) as Style;
-            set => SetValue(OutputStyleProperty, value);
-        }
-        public static readonly DependencyProperty OutputStyleProperty = DependencyProperty.Register(
-            nameof(OutputStyle),
-            typeof(Style),
-            typeof(Node),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+		public Point SelectedPosition { get; private set; } = new Point(0, 0);
 
-        bool _IsDragging = false;
-        Point _DragOffset = new Point(0, 0);
+		bool _IsDragging = false;
 
-        NodeGraph Owner { get; } = null;
-        NodeInput _NodeInputs = null;
+		NodeGraph Owner { get; } = null;
+		NodeInput _NodeInputs = null;
 
 
-        static Node()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(Node), new FrameworkPropertyMetadata(typeof(Node)));
-        }
+		static Node()
+		{
+			DefaultStyleKeyProperty.OverrideMetadata(typeof(Node), new FrameworkPropertyMetadata(typeof(Node)));
+		}
 
-        public Node(NodeGraph owner)
-        {
-            Owner = owner;
-        }
+		public Node(NodeGraph owner)
+		{
+			Owner = owner;
+		}
 
-        public override void OnApplyTemplate()
-        {
-            _NodeInputs = GetTemplateChild("__NodeInput__") as NodeInput;
-        }
+		public override void OnApplyTemplate()
+		{
+			_NodeInputs = GetTemplateChild("__NodeInput__") as NodeInput;
+		}
 
-        static void InputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var node = d as Node;
+		public void Dispose()
+		{
 
-            if (e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
-            {
-                oldCollection.CollectionChanged -= node.InputCollectionChanged;
-            }
-            if (e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
-            {
-                newCollection.CollectionChanged += node.InputCollectionChanged;
-            }
-        }
+		}
 
-        static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var node = d as Node;
+		static void InputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			var node = d as Node;
 
-            if (e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
-            {
-                oldCollection.CollectionChanged -= node.OutputCollectionChanged;
-            }
-            if (e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
-            {
-                newCollection.CollectionChanged += node.OutputCollectionChanged;
-            }
-        }
+			if(e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
+			{
+				oldCollection.CollectionChanged -= node.InputCollectionChanged;
+			}
+			if(e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
+			{
+				newCollection.CollectionChanged += node.InputCollectionChanged;
+			}
+		}
 
-        void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            // Implement if need anything.
-        }
+		static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			var node = d as Node;
 
-        void InputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            // Implement if need anything.
-        }
+			if(e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
+			{
+				oldCollection.CollectionChanged -= node.OutputCollectionChanged;
+			}
+			if(e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
+			{
+				newCollection.CollectionChanged += node.OutputCollectionChanged;
+			}
+		}
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseDown(e);
-            _IsDragging = true;
+		static void IsSelectedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			var node = d as Node;
+			if(node.IsSelected)
+			{
+				node.SelectedPosition = new Point(node.Margin.Left, node.Margin.Top);
+			}
+		}
 
-            _DragOffset = e.GetPosition(this);
-        }
+		void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			// Implement if need anything.
+		}
 
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            if(_IsDragging == false)
-            {
-                return;
-            }
+		void InputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			// Implement if need anything.
+		}
 
-            var point = Owner.GetDragNodePosition(e);
-            Margin = new Thickness(point.X - _DragOffset.X, point.Y - _DragOffset.Y, 0, 0);
-        }
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			base.OnMouseMove(e);
+			if(_IsDragging && IsSelected == false)
+			{
+				IsSelected = true;
+			}
+		}
 
-        protected override void OnMouseUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseUp(e);
-            _IsDragging = false;
-        }
+		protected override void OnMouseDown(MouseButtonEventArgs e)
+		{
+			base.OnMouseDown(e);
+			_IsDragging = true;
+		}
 
-        protected override void OnMouseEnter(MouseEventArgs e)
-        {
-            base.OnMouseEnter(e);
-            _IsDragging = false;
-        }
-    }
+		protected override void OnMouseUp(MouseButtonEventArgs e)
+		{
+			base.OnMouseUp(e);
+
+			_IsDragging = false;
+			IsSelected = !IsSelected;
+		}
+	}
 }

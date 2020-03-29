@@ -105,9 +105,12 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\NodeConnector.cs" />
     <Compile Include="Controls\NodeGraph.cs" />
     <Compile Include="Controls\NodeInput.cs" />
+    <Compile Include="Controls\NodeLink.cs" />
     <Compile Include="Controls\NodeOuput.cs" />
+    <Compile Include="Controls\StaticDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

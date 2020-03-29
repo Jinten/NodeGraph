@@ -4,11 +4,11 @@
     
     <ControlTemplate x:Key="__NodeOutputContentTemplate__" TargetType="{x:Type local:NodeOutputContent}">
         <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+				BorderBrush="{TemplateBinding BorderBrush}"
+				BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
                 <Label Content="{TemplateBinding Content}"/>
-                <Ellipse Width="13" Height="13" StrokeThickness="1" Stroke="Red" Fill="Gray"/>
+                <Ellipse Tag="{x:Static local:StaticDefinition.Connector}" Width="13" Height="13" StrokeThickness="1" Stroke="Red" Fill="Gray"/>
             </DockPanel>
         </Border>
     </ControlTemplate>
