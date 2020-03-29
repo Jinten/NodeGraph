@@ -52,5 +52,11 @@ namespace NodeGraph.Controls
         {
             _Input = input;
         }
+
+        public void Disconnect()
+        {
+            _Input.Disconnect(this);
+            _Output.Disconnect(this);
+        }
 	}
 }

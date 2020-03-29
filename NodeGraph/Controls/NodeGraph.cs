@@ -64,8 +64,9 @@ namespace NodeGraph.Controls
         Node _DraggingNode = null;
         NodeLink _DraggingNodeLink = null;
         List<NodeOutputContent> _DraggingOutputs = new List<NodeOutputContent>();
-
         Point _DragStart = new Point();
+
+        NodeLink _RemoveNodeLink = null;
 
         Canvas _Canvas = null;
         List<object> _DelayToBindVMs = new List<object>();
@@ -167,6 +168,8 @@ namespace NodeGraph.Controls
 
                     inputContent.Connect(_DraggingNodeLink);
                     _DraggingOutputs.ForEach(arg => arg.Connect(_DraggingNodeLink));
+
+                    _DraggingNodeLink.MouseDown += NodeLink_MouseDown;
                 }
                 else
                 {
@@ -176,6 +179,15 @@ namespace NodeGraph.Controls
 
                 _DraggingNodeLink = null;
                 _DraggingOutputs.Clear();
+            }
+
+            if (_RemoveNodeLink != null && _RemoveNodeLink != element)
+            {
+                _Canvas.Children.Remove(_RemoveNodeLink);
+
+                _RemoveNodeLink.Disconnect();
+                _RemoveNodeLink.Dispose();
+                _RemoveNodeLink = null;
             }
         }
 
@@ -230,6 +242,11 @@ namespace NodeGraph.Controls
 
                 _Canvas.Children.Add(node);
             }
+        }
+
+        void NodeLink_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _RemoveNodeLink = sender as NodeLink;
         }
 
         void Node_MouseDown(object sender, MouseButtonEventArgs e)
