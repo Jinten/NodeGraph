@@ -1,14 +1,21 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:NodeGraph.Controls">
-    
+
     <ControlTemplate x:Key="__NodeOutputContentTemplate__" TargetType="{x:Type local:NodeOutputContent}">
         <Border Background="{TemplateBinding Background}"
 				BorderBrush="{TemplateBinding BorderBrush}"
 				BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
                 <Label Content="{TemplateBinding Content}"/>
-                <Ellipse Tag="{x:Static local:StaticDefinition.Connector}" Width="13" Height="13" StrokeThickness="1" Stroke="Red" Fill="Gray"/>
+                <Ellipse x:Name="__OutputConnector__"
+                         Panel.ZIndex="{x:Static local:ZIndex.NodeConnector}"
+                         Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeOutputContent}}}"
+                         Width="{x:Static local:ControlSize.ConnectorSize}"
+                         Height="{x:Static local:ControlSize.ConnectorSize}"
+                         StrokeThickness="1"
+                         Stroke="Red"
+                         Fill="Gray"/>
             </DockPanel>
         </Border>
     </ControlTemplate>
@@ -28,5 +35,5 @@
             </Setter.Value>
         </Setter>
     </Style>
-    
+
 </ResourceDictionary>

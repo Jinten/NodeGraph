@@ -12,9 +12,29 @@ namespace NodeGraph.Controls
 {
     public class NodeOutputContent : NodeConnectorContent
     {
+        FrameworkElement _ConnectorControl = null;
+
         static NodeOutputContent()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeOutputContent), new FrameworkPropertyMetadata(typeof(NodeOutputContent)));
+        }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            _ConnectorControl = GetTemplateChild("__OutputConnector__") as FrameworkElement;
+        }
+
+        public override void UpdatePosition(Canvas canvas)
+        {
+            var transformer = _ConnectorControl.TransformToVisual(canvas);
+            var posOnCanvas = transformer.Transform(new Point(_ConnectorControl.ActualWidth * 0.5, _ConnectorControl.ActualHeight * 0.5));
+
+            foreach (var nodeLink in NodeLinks)
+            {
+                nodeLink.StartPoint = new Point(posOnCanvas.X, posOnCanvas.Y);
+            }
         }
     }
 
@@ -35,9 +55,9 @@ namespace NodeGraph.Controls
 		}
 		ControlTemplate _NodeOutputTemplate = null;
 
-		static NodeOutput()
+        static NodeOutput()
 		{
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeOutput), new FrameworkPropertyMetadata(typeof(NodeOutput)));
 		}
-	}
+    }
 }

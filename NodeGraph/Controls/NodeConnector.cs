@@ -19,7 +19,24 @@ namespace NodeGraph.Controls
 
 	public abstract class NodeConnectorContent : ContentControl
 	{
-	}
+        /// <summary>
+        /// connecting node links.
+        /// </summary>
+        protected IEnumerable<NodeLink> NodeLinks => _NodeLinks;
+        List<NodeLink> _NodeLinks = new List<NodeLink>();
+
+        public void Connect(NodeLink nodeLink)
+        {
+            _NodeLinks.Add(nodeLink);
+        }
+
+        public void Disconnect(NodeLink nodeLink)
+        {
+            _NodeLinks.Remove(nodeLink);
+        }
+
+        public abstract void UpdatePosition(Canvas canvas);
+    }
 
 	public abstract class NodeConnector<T> : MultiSelector where T : NodeConnectorContent, new()
 	{
@@ -70,7 +87,15 @@ namespace NodeGraph.Controls
 			(d as NodeConnector<T>).UpdateConnectorsLayout();
 		}
 
-		public void UpdateConnectorsLayout()
+        public void UpdatePosition(Canvas canvas)
+        {
+            foreach(var connector in _Canvas.Children.OfType<NodeConnectorContent>())
+            {
+                connector.UpdatePosition(canvas);
+            }
+        }
+
+        public void UpdateConnectorsLayout()
 		{
 			switch(ConnectorLayout)
 			{

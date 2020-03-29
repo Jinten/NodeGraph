@@ -125,7 +125,8 @@ namespace NodeGraph.Controls
 		bool _IsDragging = false;
 
 		NodeGraph Owner { get; } = null;
-		NodeInput _NodeInputs = null;
+		NodeInput _NodeInput = null;
+        NodeOutput _NodeOutput = null;
 
 
 		static Node()
@@ -140,8 +141,17 @@ namespace NodeGraph.Controls
 
 		public override void OnApplyTemplate()
 		{
-			_NodeInputs = GetTemplateChild("__NodeInput__") as NodeInput;
-		}
+			_NodeInput = GetTemplateChild("__NodeInput__") as NodeInput;
+            _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
+        }
+
+        public void UpdatePosition(Canvas canvas, double x, double y)
+        {
+            Margin = new Thickness(x, y, 0, 0);
+
+            _NodeInput.UpdatePosition(canvas);
+            _NodeOutput.UpdatePosition(canvas);
+        }
 
 		public void Dispose()
 		{

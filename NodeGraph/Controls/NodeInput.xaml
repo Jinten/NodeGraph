@@ -7,7 +7,14 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
-				<Ellipse Tag="{x:Static local:StaticDefinition.Connector}" Width="13" Height="13" StrokeThickness="1" Stroke="Blue" Fill="Gray"/>
+				<Ellipse x:Name="__InputConnector__"
+                         Panel.ZIndex="{x:Static local:ZIndex.NodeConnector}"
+                         Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeInputContent}}}"
+                         Width="{x:Static local:ControlSize.ConnectorSize}"
+                         Height="{x:Static local:ControlSize.ConnectorSize}"
+                         StrokeThickness="1"
+                         Stroke="Blue"
+                         Fill="Gray"/>                
                 <Label Content="{TemplateBinding Content}"/>
             </DockPanel>
         </Border>
