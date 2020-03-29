@@ -18,14 +18,28 @@
             <Setter Property="Content" Value="{Binding Label}"/>
         </Style>
 
+        <Style x:Key="NodeOutputStyle" TargetType="{x:Type ctrl:NodeOutputContent}">            
+            <Setter Property="Content" Value="{Binding Label}"/>
+        </Style>
+
         <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}">
             <Setter Property="Width" Value="140"/>
             <Setter Property="Inputs" Value="{Binding Inputs}"/>
+            <Setter Property="Outputs" Value="{Binding Outputs}"/>
+            <Setter Property="OutputLayout" Value="Center"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Green"/>
             <Setter Property="InputStyle" Value="{StaticResource NodeInputStyle}"/>
+            <Setter Property="OutputStyle" Value="{StaticResource NodeOutputStyle}"/>
         </Style>
     </Window.Resources>
     
     <Grid>
+        <DockPanel>
+            <TextBlock Text="Test"/>
+            <TextBlock Text="Test1"/>
+            <TextBlock Text="Test2"/>
+        </DockPanel>
         <ctrl:NodeGraph Background="DarkGray"
                         ItemsSource="{Binding NodeViewModels}"
                         ItemContainerStyle="{StaticResource NodeStyle}"/>

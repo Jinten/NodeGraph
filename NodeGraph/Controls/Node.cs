@@ -26,172 +26,11 @@ namespace NodeGraph.Controls
         Bottom,
     }
 
-    public class NodeInputContent : ContentControl
+    public enum OutputLayoutType
     {
-        static NodeInputContent()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeInputContent), new FrameworkPropertyMetadata(typeof(NodeInputContent)));
-        }
-
-        protected override void OnContentChanged(object oldContent, object newContent)
-        {
-            base.OnContentChanged(oldContent, newContent);
-
-            //TODO: implement if need anything.
-        }
-    }
-
-    internal class NodeInputs : MultiSelector
-    {
-        public InputLayoutType InputLayout
-        {
-            get => (InputLayoutType)GetValue(InputLayoutProperty);
-            set => SetValue(InputLayoutProperty, value);
-        }
-        public static readonly DependencyProperty InputLayoutProperty = DependencyProperty.Register(
-            nameof(InputLayout),
-            typeof(InputLayoutType),
-            typeof(NodeInputs),
-            new FrameworkPropertyMetadata(InputLayoutType.Top, InputLayoutPropertyChanged));
-
-        public double InputMargin
-        {
-            get => (double)GetValue(InputMarginProperty);
-            set => SetValue(InputMarginProperty, value);
-        }
-        public static readonly DependencyProperty InputMarginProperty = DependencyProperty.Register(
-            nameof(InputMargin),
-            typeof(double),
-            typeof(NodeInputs),
-            new FrameworkPropertyMetadata(2.0, InputMarginPropertyChanged));
-
-        ControlTemplate NodeInputTemplate
-        {
-            get
-            {
-                if (_NodeInputTemplate == null)
-                {
-                    _NodeInputTemplate = Application.Current.TryFindResource("__NodeInputTemplate__") as ControlTemplate;
-                }
-                return _NodeInputTemplate;
-            }
-        }
-        ControlTemplate _NodeInputTemplate = null;
-
-        Canvas _Canvas = null;
-        bool _IsStyleInitialized = false;
-        List<object> _DelayToBindVMs = new List<object>();
-
-
-        static void InputMarginPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as NodeInputs).UpdateInputsLayout();
-        }
-
-        static void InputLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as NodeInputs).UpdateInputsLayout();
-        }
-
-        static NodeInputs()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeInputs), new FrameworkPropertyMetadata(typeof(NodeInputs)));
-        }
-
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-
-            _Canvas = GetTemplateChild("__NodeInputsCanvas__") as Canvas;
-        }
-
-        protected override void OnItemContainerStyleChanged(Style oldItemContainerStyle, Style newItemContainerStyle)
-        {
-            base.OnItemContainerStyleChanged(oldItemContainerStyle, newItemContainerStyle);
-
-            _IsStyleInitialized = true;
-
-            if (_DelayToBindVMs.Count > 0 && _Canvas != null)
-            {
-                AddNodesToCanvas(_DelayToBindVMs.OfType<object>());
-
-                UpdateInputsLayout();
-
-                _DelayToBindVMs.Clear();
-            }
-        }
-
-        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
-        {
-            base.OnItemsSourceChanged(oldValue, newValue);
-            if (_Canvas == null || _IsStyleInitialized == false)
-            {
-                _DelayToBindVMs.AddRange(newValue.OfType<object>());
-            }
-            else
-            {
-                RemoveInputsFromCanvas(oldValue.OfType<object>());
-                AddNodesToCanvas(newValue.OfType<object>());
-
-                UpdateInputsLayout();
-            }
-        }
-
-        void RemoveInputsFromCanvas(IEnumerable<object> removeVMs)
-        {
-            var removeElements = new List<UIElement>();
-            var children = _Canvas.Children.OfType<FrameworkElement>();
-
-            foreach (var removeVM in removeVMs)
-            {
-                var removeElement = children.First(arg => arg.DataContext == removeVM);
-                removeElements.Add(removeElement);
-            }
-
-            removeElements.ForEach(arg => _Canvas.Children.Remove(arg));
-        }
-
-        void AddNodesToCanvas(IEnumerable<object> addVMs)
-        {
-            foreach (var vm in addVMs)
-            {
-                var node = new NodeInputContent() { DataContext = vm, Template = NodeInputTemplate, Style = ItemContainerStyle };
-
-                _Canvas.Children.Add(node);
-            }
-        }
-
-        void UpdateInputsLayout()
-        {
-            switch (InputLayout)
-            {
-                case InputLayoutType.Top:
-                    ReplaceInputElements(0, FontSize);
-                    break;
-                case InputLayoutType.Center:
-                    {
-                        var halfSize = _Canvas.Children.Count * FontSize * 0.5;
-                        ReplaceInputElements(ActualHeight * 0.5 - halfSize, FontSize);
-                        break;
-                    }
-                case InputLayoutType.Bottom:
-                    {
-                        var totalSize = _Canvas.Children.Count * FontSize;
-                        ReplaceInputElements(ActualHeight - totalSize, FontSize);
-                        break;
-                    }
-            }
-        }
-
-        void ReplaceInputElements(double offset, double margin)
-        {
-            int index = 0;
-            foreach (var element in _Canvas.Children.OfType<FrameworkElement>())
-            {
-                element.Margin = new Thickness(0, offset + margin * index * InputMargin, 0, 0);
-                ++index;
-            }
-        }
+        Top,
+        Center,
+        Bottom,
     }
 
     public class Node : Control, INode
@@ -240,11 +79,55 @@ namespace NodeGraph.Controls
             typeof(Node),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
+        public OutputLayoutType OutputLayout
+        {
+            get => (OutputLayoutType)GetValue(OutputLayoutProperty);
+            set => SetValue(OutputLayoutProperty, value);
+        }
+        public static readonly DependencyProperty OutputLayoutProperty = DependencyProperty.Register(
+            nameof(OutputLayout),
+            typeof(OutputLayoutType),
+            typeof(Node),
+            new FrameworkPropertyMetadata(OutputLayoutType.Top));
+
+        public double OutputMargin
+        {
+            get => (double)GetValue(OutputMarginProperty);
+            set => SetValue(OutputMarginProperty, value);
+        }
+        public static readonly DependencyProperty OutputMarginProperty = DependencyProperty.Register(
+            nameof(OutputMargin),
+            typeof(double),
+            typeof(Node),
+            new FrameworkPropertyMetadata(2.0));
+
+        public IEnumerable Outputs
+        {
+            get => GetValue(OutputsProperty) as IEnumerable;
+            set => SetValue(OutputsProperty, value);
+        }
+        public static readonly DependencyProperty OutputsProperty = DependencyProperty.Register(
+            nameof(Outputs),
+            typeof(IEnumerable),
+            typeof(Node),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsArrange, OutputsPropertyChanged));
+
+        public Style OutputStyle
+        {
+            get => GetValue(OutputStyleProperty) as Style;
+            set => SetValue(OutputStyleProperty, value);
+        }
+        public static readonly DependencyProperty OutputStyleProperty = DependencyProperty.Register(
+            nameof(OutputStyle),
+            typeof(Style),
+            typeof(Node),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
         bool _IsDragging = false;
         Point _DragOffset = new Point(0, 0);
 
-        NodeGraph _Owner = null;
-        NodeInputs _NodeInputs = null;
+        NodeGraph Owner { get; } = null;
+        NodeInput _NodeInputs = null;
 
 
         static Node()
@@ -254,12 +137,12 @@ namespace NodeGraph.Controls
 
         public Node(NodeGraph owner)
         {
-            _Owner = owner;
+            Owner = owner;
         }
 
         public override void OnApplyTemplate()
         {
-            _NodeInputs = GetTemplateChild("__NodeInputs__") as NodeInputs;
+            _NodeInputs = GetTemplateChild("__NodeInput__") as NodeInput;
         }
 
         static void InputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -274,6 +157,25 @@ namespace NodeGraph.Controls
             {
                 newCollection.CollectionChanged += node.InputCollectionChanged;
             }
+        }
+
+        static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var node = d as Node;
+
+            if (e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
+            {
+                oldCollection.CollectionChanged -= node.OutputCollectionChanged;
+            }
+            if (e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
+            {
+                newCollection.CollectionChanged += node.OutputCollectionChanged;
+            }
+        }
+
+        void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            // Implement if need anything.
         }
 
         void InputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -296,7 +198,7 @@ namespace NodeGraph.Controls
                 return;
             }
 
-            var point = _Owner.GetDragNodePosition(e);
+            var point = Owner.GetDragNodePosition(e);
             Margin = new Thickness(point.X - _DragOffset.X, point.Y - _DragOffset.Y, 0, 0);
         }
 
