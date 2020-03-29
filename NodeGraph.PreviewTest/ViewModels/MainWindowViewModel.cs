@@ -16,7 +16,6 @@ namespace NodeGraph.ViewModels
         public MainWindowViewModel()
         {
             _NodeViewModels.Add(new NodeViewModel());
-            _NodeViewModels.Add(new NodeViewModel());
         }
     }
 }

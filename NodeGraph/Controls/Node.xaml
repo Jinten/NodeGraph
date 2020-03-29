@@ -3,18 +3,48 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:NodeGraph.Controls">
 
+    <ControlTemplate x:Key="__NodeInputTemplate__" TargetType="{x:Type local:NodeInputContent}">
+        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+            <DockPanel>
+                <Ellipse Width="12" Height="12" StrokeThickness="2" Stroke="Blue" Fill="Gray"/>
+                <Label Content="{TemplateBinding Content}"/>
+            </DockPanel>
+        </Border>
+    </ControlTemplate>
 
-    <Style x:Key="_CoreNodeStyle" TargetType="{x:Type local:Node}">
+    <Style TargetType="{x:Type local:NodeInputs}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:Node}">
+                <ControlTemplate TargetType="{x:Type local:NodeInputs}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <ContentPresenter/>
+                        <DockPanel>
+                            <Canvas x:Name="__NodeInputsCanvas__"/>
+                        </DockPanel>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+    </Style>    
+
+    <ControlTemplate x:Key="__NodeTemplate__" TargetType="{x:Type local:Node}">
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+            <DockPanel>
+                <local:NodeInputs Panel.ZIndex="1" 
+                                  x:Name="__NodeInputs__"
+                                  InputLayout="{Binding InputLayout, Mode=OneWay}"                                  
+                                  InputMargin="{Binding InputMargin, Mode=OneWay}"
+                                  ItemsSource="{Binding Inputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                  ItemContainerStyle="{Binding InputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
+                
+                <Rectangle Panel.ZIndex="0" Margin="4,0,0,0" Stroke="Black" Fill="DarkGray" MinWidth="64" MinHeight="64"/>
+            </DockPanel>
+        </Border>
+    </ControlTemplate>
+    
 </ResourceDictionary>

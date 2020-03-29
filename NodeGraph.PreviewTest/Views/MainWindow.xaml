@@ -7,13 +7,27 @@
         xmlns:ctrl="clr-namespace:NodeGraph.Controls;assembly=NodeGraph"
         xmlns:local="clr-namespace:NodeGraph.PreviewTest"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="NodeGraph - prototype" Height="450" Width="800">
 
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
+
+    <Window.Resources>
+        <Style x:Key="NodeInputStyle" TargetType="{x:Type ctrl:NodeInputContent}">
+            <Setter Property="Content" Value="{Binding Label}"/>
+        </Style>
+
+        <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}">
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Inputs" Value="{Binding Inputs}"/>
+            <Setter Property="InputStyle" Value="{StaticResource NodeInputStyle}"/>
+        </Style>
+    </Window.Resources>
     
     <Grid>
-        <ctrl:NodeGraph Background="DarkGray" ItemsSource="{Binding NodeViewModels}"/>
+        <ctrl:NodeGraph Background="DarkGray"
+                        ItemsSource="{Binding NodeViewModels}"
+                        ItemContainerStyle="{StaticResource NodeStyle}"/>
     </Grid>
 </Window>

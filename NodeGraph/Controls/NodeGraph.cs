@@ -53,21 +53,26 @@ namespace NodeGraph.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeGraph), new FrameworkPropertyMetadata(typeof(NodeGraph)));
         }
 
-        Style CoreNodeStyle
+        ControlTemplate NodeTemplate
         {
             get
             {
-                if (_CoreNodeStyle == null)
+                if (_NodeTemplate == null)
                 {
-                    _CoreNodeStyle = Application.Current.TryFindResource("_CoreNodeStyle") as Style;
+                    _NodeTemplate = Application.Current.TryFindResource("__NodeTemplate__") as ControlTemplate;
                 }
-                return _CoreNodeStyle;
+                return _NodeTemplate;
             }
         }
-        Style _CoreNodeStyle = null;
+        ControlTemplate _NodeTemplate = null;
 
         Canvas _Canvas = null;
         List<object> _DelayToBindVMs = new List<object>();
+
+        public Point GetDragNodePosition(MouseEventArgs e)
+        {
+            return e.GetPosition(_Canvas);
+        }
 
         public override void OnApplyTemplate()
         {
@@ -99,7 +104,7 @@ namespace NodeGraph.Controls
         {
             foreach (var vm in addVMs)
             {
-                var node = new Node() { DataContext = vm, Style = CoreNodeStyle };
+                var node = new Node(this) { DataContext = vm, Template = NodeTemplate, Style = ItemContainerStyle };
                 _Canvas.Children.Add(node);
             }
         }
