@@ -9,7 +9,6 @@
             <DockPanel>
                 <Label Content="{TemplateBinding Content}"/>
                 <Ellipse x:Name="__OutputConnector__"
-                         Panel.ZIndex="{x:Static local:ZIndex.NodeConnector}"
                          Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeOutputContent}}}"
                          Width="{x:Static local:ControlSize.ConnectorSize}"
                          Height="{x:Static local:ControlSize.ConnectorSize}"

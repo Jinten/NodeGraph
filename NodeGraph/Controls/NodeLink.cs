@@ -39,7 +39,7 @@ namespace NodeGraph.Controls
 			StrokeThickness = 2;
 			Stroke = Brushes.Black;
 
-            Canvas.SetZIndex(this, ZIndex.NodeLink);
+            Canvas.SetZIndex(this, -1);
         }
 
         public void Dispose()

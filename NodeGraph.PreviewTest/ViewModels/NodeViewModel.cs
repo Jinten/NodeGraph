@@ -40,6 +40,20 @@ namespace NodeGraph.ViewModels
 
     public class NodeViewModel : ViewModel, INodeViewModel
     {
+        public string Name
+        {
+            get => _Name;
+            set => RaisePropertyChangedIfSet(ref _Name, value);
+        }
+        string _Name = string.Empty;
+
+        public string Body
+        {
+            get => _Body;
+            set => RaisePropertyChangedIfSet(ref _Body, value);
+        }
+        string _Body = string.Empty;
+
         public IEnumerable<NodeInputViewModel> Inputs => _Inputs;
         ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 

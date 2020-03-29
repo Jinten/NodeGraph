@@ -15,8 +15,9 @@ namespace NodeGraph.ViewModels
 
         public MainWindowViewModel()
         {
-            _NodeViewModels.Add(new NodeViewModel());
-            _NodeViewModels.Add(new NodeViewModel());
+            _NodeViewModels.Add(new NodeViewModel() { Name = "Node1", Body="Content1" });
+            _NodeViewModels.Add(new NodeViewModel() { Name = "Node2", Body="Content2" });
+            _NodeViewModels.Add(new NodeViewModel() { Name = "Node3", Body="Content3" });
         }
     }
 }

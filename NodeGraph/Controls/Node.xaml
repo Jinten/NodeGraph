@@ -8,32 +8,49 @@
         <ResourceDictionary Source="/NodeGraph;component/Controls/NodeOutput.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <Style TargetType="{x:Type local:Node}">
+    <Style x:Key="__NodeBaseStyle__" TargetType="{x:Type local:Node}">
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="Black"/>
-        <Setter Property="Background" Value="DarkGray"/>
+        <Setter Property="Background" Value="#CCAAAAAA"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsSelected,RelativeSource={RelativeSource Self}}" Value="True">
+                <Setter Property="BorderBrush" Value="Aqua"/>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <ControlTemplate x:Key="__NodeTemplate__" TargetType="{x:Type local:Node}">
         <Border Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}">
-            <DockPanel>
-                <local:NodeInput x:Name="__NodeInput__"
-                                 Panel.ZIndex="{x:Static local:ZIndex.NodeConnector}" 
-                                 ConnectorLayout="{Binding InputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                 ConnectorMargin="{Binding InputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                 ItemsSource="{Binding Inputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                 ItemContainerStyle="{Binding InputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
+            <StackPanel>
+                <Border BorderThickness="0,0,0,1" BorderBrush="Black">
+                    <ContentPresenter x:Name="__NodeHeaderContentTemplate__"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      ContentTemplate="{Binding HeaderContentTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
+                </Border>
 
-                <!--<Rectangle Panel.ZIndex="0" Margin="6,0,0,0" Stroke="Black" Fill="DarkGray" MinWidth="64" MinHeight="64"/>-->
+                <DockPanel>
+                    <local:NodeInput x:Name="__NodeInput__"
+                                     ConnectorLayout="{Binding InputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                     ConnectorMargin="{Binding InputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                     ItemsSource="{Binding Inputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                     ItemContainerStyle="{Binding InputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
 
-                <local:NodeOutput x:Name="__NodeOutput__"
-                                  ConnectorLayout="{Binding OutputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"                                  
-                                  ConnectorMargin="{Binding OutputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                  ItemsSource="{Binding Outputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                  ItemContainerStyle="{Binding OutputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
-            </DockPanel>
+                    <ContentPresenter x:Name="__NodeContentTemplate__"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Margin="4,0,4,0"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"/>
+
+                    <local:NodeOutput x:Name="__NodeOutput__"
+                                      ConnectorLayout="{Binding OutputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"                                  
+                                      ConnectorMargin="{Binding OutputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                      ItemsSource="{Binding Outputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                      ItemContainerStyle="{Binding OutputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
+                </DockPanel>
+            </StackPanel>
         </Border>
     </ControlTemplate>
 

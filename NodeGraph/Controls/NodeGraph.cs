@@ -48,6 +48,8 @@ namespace NodeGraph.Controls
     /// </summary>
     public class NodeGraph : MultiSelector
     {
+        public Canvas Canvas { get; private set; } = null;
+
         ControlTemplate NodeTemplate
         {
             get
@@ -61,14 +63,29 @@ namespace NodeGraph.Controls
         }
         ControlTemplate _NodeTemplate = null;
 
-        Node _DraggingNode = null;
+        Style NodeBaseStyle
+        {
+            get
+            {
+                if (_NodeBaseStyle == null)
+                {
+                    _NodeBaseStyle = Application.Current.TryFindResource("__NodeBaseStyle__") as Style;
+                }
+                return _NodeBaseStyle;
+            }
+        }
+        Style _NodeBaseStyle = null;
+
+        bool _IsNodeSelected = false;
+        bool _IsStartDragging = false;
+
         NodeLink _DraggingNodeLink = null;
+        List<Node> _DraggingNodes = new List<Node>();
         List<NodeOutputContent> _DraggingOutputs = new List<NodeOutputContent>();
-        Point _DragStart = new Point();
+        Point _DragStartPoint = new Point();
 
         NodeLink _RemoveNodeLink = null;
 
-        Canvas _Canvas = null;
         List<object> _DelayToBindVMs = new List<object>();
 
         static NodeGraph()
@@ -78,14 +95,14 @@ namespace NodeGraph.Controls
 
         public Point GetDragNodePosition(MouseEventArgs e)
         {
-            return e.GetPosition(_Canvas);
+            return e.GetPosition(Canvas);
         }
 
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
 
-            _Canvas = GetTemplateChild("__NodeGraphCanvas__") as Canvas;
+            Canvas = GetTemplateChild("__NodeGraphCanvas__") as Canvas;
 
             if (_DelayToBindVMs.Count > 0)
             {
@@ -94,10 +111,16 @@ namespace NodeGraph.Controls
             }
         }
 
+        protected override void OnItemContainerStyleChanged(Style oldItemContainerStyle, Style newItemContainerStyle)
+        {
+            base.OnItemContainerStyleChanged(oldItemContainerStyle, newItemContainerStyle);
+            ItemContainerStyle.BasedOn = NodeBaseStyle;
+        }
+
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
         {
             base.OnItemsSourceChanged(oldValue, newValue);
-            if (_Canvas == null)
+            if (Canvas == null)
             {
                 _DelayToBindVMs.AddRange(newValue.OfType<object>());
             }
@@ -111,56 +134,76 @@ namespace NodeGraph.Controls
         {
             base.OnMouseMove(e);
 
-            if (_DraggingNode != null)
+            if (_DraggingNodes.Count > 0)
             {
-                var selectedNodes = _Canvas.Children.OfType<Node>().Where(arg => arg.IsSelected);
-                var current = e.GetPosition(_Canvas);
-
-                var diff = new Point(current.X - _DragStart.X, current.Y - _DragStart.Y);
-
-                foreach (var node in selectedNodes)
+                if (_IsStartDragging == false)
                 {
-                    double x = node.SelectedPosition.X + diff.X;
-                    double y = node.SelectedPosition.Y + diff.Y;
-                    node.UpdatePosition(_Canvas, x, y);
+                    if (_DraggingNodes[0].IsSelected)
+                    {
+                        foreach (var node in Canvas.Children.OfType<Node>())
+                        {
+                            if (node != _DraggingNodes[0] && node.IsSelected)
+                            {
+                                node.CaptureDragStartPosition();
+                                _DraggingNodes.Add(node);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _DraggingNodes[0].IsSelected = true; // select first drag node.
+                        foreach (var node in Canvas.Children.OfType<Node>())
+                        {
+                            if (node != _DraggingNodes[0])
+                            {
+                                node.IsSelected = false;
+                            }
+                        }
+                    }
+                    _IsStartDragging = true;
+                }
+
+                var current = e.GetPosition(Canvas);
+                var diff = new Point(current.X - _DragStartPoint.X, current.Y - _DragStartPoint.Y);
+
+                foreach (var node in _DraggingNodes)
+                {
+                    double x = node.DragStartPosition.X + diff.X;
+                    double y = node.DragStartPosition.Y + diff.Y;
+                    node.UpdatePosition(Canvas, x, y);
                 }
             }
             if (_DraggingNodeLink != null)
             {
-                var pos = e.GetPosition(_Canvas);
+                var pos = e.GetPosition(Canvas);
                 _DraggingNodeLink.EndPoint = new Point(pos.X - 1, pos.Y - 1); // minus -1 for not detect mouse up on node link control.
             }
-        }
-
-        protected override void OnMouseDown(MouseButtonEventArgs e)
-        {
-
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             base.OnMouseUp(e);
 
-            var element = e.OriginalSource as FrameworkElement;
+            _IsStartDragging = false;
 
-            if (_DraggingNode == null)
+            if (_IsNodeSelected == false)
             {
-                foreach (var node in _Canvas.Children.OfType<Node>())
+                foreach (var node in Canvas.Children.OfType<Node>())
                 {
                     node.IsSelected = false;
                 }
             }
-            else
-            {
-                _DraggingNode = null;
-            }
+            _IsNodeSelected = false;
+            _DraggingNodes.Clear();
+
+            var element = e.OriginalSource as FrameworkElement;
 
             // clicked connect or not.
             if (_DraggingNodeLink != null)
             {
                 if (element != null && element.Tag is NodeInputContent inputContent)
                 {
-                    var transformer = element.TransformToVisual(_Canvas);
+                    var transformer = element.TransformToVisual(Canvas);
                     var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
 
                     _DraggingNodeLink.Connect(inputContent);
@@ -173,7 +216,7 @@ namespace NodeGraph.Controls
                 }
                 else
                 {
-                    _Canvas.Children.Remove(_DraggingNodeLink);
+                    Canvas.Children.Remove(_DraggingNodeLink);
                     _DraggingNodeLink.Dispose();
                 }
 
@@ -183,7 +226,7 @@ namespace NodeGraph.Controls
 
             if (_RemoveNodeLink != null && _RemoveNodeLink != element)
             {
-                _Canvas.Children.Remove(_RemoveNodeLink);
+                Canvas.Children.Remove(_RemoveNodeLink);
 
                 _RemoveNodeLink.Disconnect();
                 _RemoveNodeLink.Dispose();
@@ -195,7 +238,8 @@ namespace NodeGraph.Controls
         {
             base.OnMouseEnter(e);
 
-            _DraggingNode = null;
+            _IsStartDragging = false;
+            _DraggingNodes.Clear();
             _DraggingOutputs.Clear();
         }
 
@@ -203,14 +247,15 @@ namespace NodeGraph.Controls
         {
             base.OnMouseLeave(e);
 
-            _DraggingNode = null;
+            _IsStartDragging = false;
+            _DraggingNodes.Clear();
             _DraggingOutputs.Clear();
         }
 
         void RemoveNodesFromCanvas(IEnumerable<object> removeVMs)
         {
             var removeElements = new List<Node>();
-            var children = _Canvas.Children.OfType<Node>();
+            var children = Canvas.Children.OfType<Node>();
 
             foreach (var removeVM in removeVMs)
             {
@@ -220,8 +265,9 @@ namespace NodeGraph.Controls
 
             foreach (var removeElement in removeElements)
             {
-                _Canvas.Children.Remove(removeElement);
+                Canvas.Children.Remove(removeElement);
 
+                removeElement.MouseUp -= Node_MouseUp;
                 removeElement.MouseDown -= Node_MouseDown;
                 removeElement.Dispose();
             }
@@ -239,14 +285,45 @@ namespace NodeGraph.Controls
                 };
 
                 node.MouseDown += Node_MouseDown;
+                node.MouseUp += Node_MouseUp;
 
-                _Canvas.Children.Add(node);
+                Canvas.Children.Add(node);
             }
         }
 
         void NodeLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             _RemoveNodeLink = sender as NodeLink;
+        }
+
+        void Node_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            _IsNodeSelected = true;
+
+            if (_IsStartDragging)
+            {
+                return;
+            }
+
+            if ((Keyboard.GetKeyStates(Key.LeftCtrl) & KeyStates.Down) != 0)
+            {
+                var node = sender as Node;
+                node.IsSelected = !node.IsSelected;
+            }
+            else
+            { 
+                foreach (var node in Canvas.Children.OfType<Node>())
+                {
+                    if (node != sender)
+                    {
+                        node.IsSelected = false;
+                    }
+                    else
+                    {
+                        node.IsSelected = true;
+                    }
+                }
+            }
         }
 
         void Node_MouseDown(object sender, MouseButtonEventArgs e)
@@ -256,17 +333,23 @@ namespace NodeGraph.Controls
             // clicked connect or not.
             if (element != null && element.Tag is NodeOutputContent outputContent)
             {
-                var transformer = element.TransformToVisual(_Canvas);
+                var transformer = element.TransformToVisual(Canvas);
                 var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
                 _DraggingNodeLink = new NodeLink(posOnCanvas.X, posOnCanvas.Y, outputContent);
 
                 _DraggingOutputs.Add(outputContent);
-                _Canvas.Children.Add(_DraggingNodeLink);
+                Canvas.Children.Add(_DraggingNodeLink);
                 return;
             }
 
-            _DraggingNode = e.Source as Node;
-            _DragStart = e.GetPosition(_Canvas);
+            var pos = e.GetPosition(Canvas);
+
+            var firstNode = e.Source as Node;
+            firstNode.CaptureDragStartPosition();
+
+            _DraggingNodes.Add(firstNode);
+
+            _DragStartPoint = e.GetPosition(Canvas);
         }
     }
 }

@@ -19,9 +19,20 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
-	public class Node : Control, INode, IDisposable
+	public class Node : ContentControl, INode, IDisposable
 	{
-		public ConnectorLayoutType InputLayout
+        public DataTemplate HeaderContentTemplate
+        {
+            get => (DataTemplate)GetValue(HeaderContentTemplateProperty);
+            set => SetValue(HeaderContentTemplateProperty, value);
+        }
+        public static readonly DependencyProperty HeaderContentTemplateProperty = DependencyProperty.Register(
+            nameof(HeaderContentTemplate),
+            typeof(DataTemplate),
+            typeof(Node),
+            new FrameworkPropertyMetadata(null));
+
+        public ConnectorLayoutType InputLayout
 		{
 			get => (ConnectorLayoutType)GetValue(InputLayoutProperty);
 			set => SetValue(InputLayoutProperty, value);
@@ -118,18 +129,30 @@ namespace NodeGraph.Controls
 			nameof(IsSelected),
 			typeof(bool),
 			typeof(Node),
-			new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsSelectedPropertyChanged));
+			new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-		public Point SelectedPosition { get; private set; } = new Point(0, 0);
-
-		bool _IsDragging = false;
-
+		public Point DragStartPosition { get; private set; } = new Point(0, 0);
+        
 		NodeGraph Owner { get; } = null;
 		NodeInput _NodeInput = null;
         NodeOutput _NodeOutput = null;
 
 
-		static Node()
+        static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var node = d as Node;
+
+            if (e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
+            {
+                oldCollection.CollectionChanged -= node.OutputCollectionChanged;
+            }
+            if (e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
+            {
+                newCollection.CollectionChanged += node.OutputCollectionChanged;
+            }
+        }
+
+        static Node()
 		{
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(Node), new FrameworkPropertyMetadata(typeof(Node)));
 		}
@@ -137,9 +160,10 @@ namespace NodeGraph.Controls
 		public Node(NodeGraph owner)
 		{
 			Owner = owner;
+            SizeChanged += Node_SizeChanged;
 		}
 
-		public override void OnApplyTemplate()
+        public override void OnApplyTemplate()
 		{
 			_NodeInput = GetTemplateChild("__NodeInput__") as NodeInput;
             _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
@@ -153,9 +177,14 @@ namespace NodeGraph.Controls
             _NodeOutput.UpdatePosition(canvas);
         }
 
+        public void CaptureDragStartPosition()
+        {
+            DragStartPosition = new Point(Margin.Left, Margin.Top);
+        }
+
 		public void Dispose()
 		{
-
+            SizeChanged -= Node_SizeChanged;
 		}
 
 		static void InputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -172,30 +201,13 @@ namespace NodeGraph.Controls
 			}
 		}
 
-		static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			var node = d as Node;
+        void Node_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            _NodeInput.UpdatePosition(Owner.Canvas);
+            _NodeOutput.UpdatePosition(Owner.Canvas);
+        }
 
-			if(e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
-			{
-				oldCollection.CollectionChanged -= node.OutputCollectionChanged;
-			}
-			if(e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
-			{
-				newCollection.CollectionChanged += node.OutputCollectionChanged;
-			}
-		}
-
-		static void IsSelectedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			var node = d as Node;
-			if(node.IsSelected)
-			{
-				node.SelectedPosition = new Point(node.Margin.Left, node.Margin.Top);
-			}
-		}
-
-		void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			// Implement if need anything.
 		}
@@ -208,24 +220,11 @@ namespace NodeGraph.Controls
 		protected override void OnMouseMove(MouseEventArgs e)
 		{
 			base.OnMouseMove(e);
-			if(_IsDragging && IsSelected == false)
-			{
-				IsSelected = true;
-			}
-		}
-
-		protected override void OnMouseDown(MouseButtonEventArgs e)
-		{
-			base.OnMouseDown(e);
-			_IsDragging = true;
 		}
 
 		protected override void OnMouseUp(MouseButtonEventArgs e)
 		{
 			base.OnMouseUp(e);
-
-			_IsDragging = false;
-			IsSelected = !IsSelected;
 		}
-	}
+    }
 }

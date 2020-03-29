@@ -8,7 +8,6 @@
                             BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
 				<Ellipse x:Name="__InputConnector__"
-                         Panel.ZIndex="{x:Static local:ZIndex.NodeConnector}"
                          Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeInputContent}}}"
                          Width="{x:Static local:ControlSize.ConnectorSize}"
                          Height="{x:Static local:ControlSize.ConnectorSize}"
