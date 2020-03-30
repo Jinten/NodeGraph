@@ -10,10 +10,8 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
-	public class NodeLink : Shape, IDisposable
-	{
-		protected override Geometry DefiningGeometry => _LinkGeometry;
-
+    public class NodeLink : Shape, IDisposable
+    {
         public Point StartPoint
         {
             get => _LinkGeometry.StartPoint;
@@ -26,18 +24,38 @@ namespace NodeGraph.Controls
             set => _LinkGeometry.EndPoint = value;
         }
 
+        protected override Geometry DefiningGeometry => _LinkGeometry;
+
+        enum PointPlace
+        {
+            Start,
+            End,
+        }
+
         NodeInputContent _Input;
         NodeOutputContent _Output;
-		LineGeometry _LinkGeometry = null;
+        PointPlace _InputPointPlace;
+        PointPlace _OutputPointPlace;
+        LineGeometry _LinkGeometry = null;
 
-		public NodeLink(double x, double y, NodeOutputContent output)
-		{
+        public NodeLink(double x, double y, NodeInputContent input) : this(x, y)
+        {
+            _Input = input;
+            _InputPointPlace = PointPlace.Start;
+        }
+
+        public NodeLink(double x, double y, NodeOutputContent output) : this(x, y)
+        {
             _Output = output;
+            _OutputPointPlace = PointPlace.Start;
+        }
 
+        NodeLink(double x, double y)
+        {
             _LinkGeometry = new LineGeometry(new Point(x, y), new Point(x, y));
 
-			StrokeThickness = 2;
-			Stroke = Brushes.Black;
+            StrokeThickness = 2;
+            Stroke = Brushes.Black;
 
             Canvas.SetZIndex(this, -1);
         }
@@ -51,6 +69,39 @@ namespace NodeGraph.Controls
         public void Connect(NodeInputContent input)
         {
             _Input = input;
+            _InputPointPlace = PointPlace.End;
+        }
+
+        public void Connect(NodeOutputContent output)
+        {
+            _Output = output;
+            _OutputPointPlace = PointPlace.End;
+        }
+
+        public void UpdateInputEdge(double x, double y)
+        {
+            switch(_InputPointPlace)
+            {
+                case PointPlace.Start:
+                    StartPoint = new Point(x, y);
+                    break;
+                case PointPlace.End:
+                    EndPoint = new Point(x, y);
+                    break;
+            }
+        }
+
+        public void UpdateOutputEdge(double x, double y)
+        {
+            switch (_OutputPointPlace)
+            {
+                case PointPlace.Start:
+                    StartPoint = new Point(x, y);
+                    break;
+                case PointPlace.End:
+                    EndPoint = new Point(x, y);
+                    break;
+            }
         }
 
         public void Disconnect()
@@ -58,5 +109,5 @@ namespace NodeGraph.Controls
             _Input.Disconnect(this);
             _Output.Disconnect(this);
         }
-	}
+    }
 }

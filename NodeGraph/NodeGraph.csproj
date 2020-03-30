@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Controls\INode.cs" />
     <Compile Include="Controls\Node.cs" />
+    <Compile Include="Utilities\ResourceInstance.cs" />
     <Page Include="Controls\Node.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

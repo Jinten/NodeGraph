@@ -1,6 +1,9 @@
-﻿using System;
+﻿using NodeGraph.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,71 +20,22 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
-    /// <summary>
-    /// このカスタム コントロールを XAML ファイルで使用するには、手順 1a または 1b の後、手順 2 に従います。
-    ///
-    /// 手順 1a) 現在のプロジェクトに存在する XAML ファイルでこのカスタム コントロールを使用する場合
-    /// この XmlNamespace 属性を使用場所であるマークアップ ファイルのルート要素に
-    /// 追加します:
-    ///
-    ///     xmlns:MyNamespace="clr-namespace:NodeGraph.Controls"
-    ///
-    ///
-    /// 手順 1b) 異なるプロジェクトに存在する XAML ファイルでこのカスタム コントロールを使用する場合
-    /// この XmlNamespace 属性を使用場所であるマークアップ ファイルのルート要素に
-    /// 追加します:
-    ///
-    ///     xmlns:MyNamespace="clr-namespace:NodeGraph.Controls;assembly=NodeGraph.Controls"
-    ///
-    /// また、XAML ファイルのあるプロジェクトからこのプロジェクトへのプロジェクト参照を追加し、
-    /// リビルドして、コンパイル エラーを防ぐ必要があります:
-    ///
-    ///     ソリューション エクスプローラーで対象のプロジェクトを右クリックし、
-    ///     [参照の追加] の [プロジェクト] を選択してから、このプロジェクトを参照し、選択します。
-    ///
-    ///
-    /// 手順 2)
-    /// コントロールを XAML ファイルで使用します。
-    ///
-    ///     <MyNamespace:NodeGraph/>
-    ///
-    /// </summary>
     public class NodeGraph : MultiSelector
     {
         public Canvas Canvas { get; private set; } = null;
 
-        ControlTemplate NodeTemplate
-        {
-            get
-            {
-                if (_NodeTemplate == null)
-                {
-                    _NodeTemplate = Application.Current.TryFindResource("__NodeTemplate__") as ControlTemplate;
-                }
-                return _NodeTemplate;
-            }
-        }
-        ControlTemplate _NodeTemplate = null;
+        ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
+        ResourceInstance<ControlTemplate> _NodeTemplate = new ResourceInstance<ControlTemplate>();
 
-        Style NodeBaseStyle
-        {
-            get
-            {
-                if (_NodeBaseStyle == null)
-                {
-                    _NodeBaseStyle = Application.Current.TryFindResource("__NodeBaseStyle__") as Style;
-                }
-                return _NodeBaseStyle;
-            }
-        }
-        Style _NodeBaseStyle = null;
+        Style NodeBaseStyle => _NodeBaseStyle.Get("__NodeBaseStyle__");
+        ResourceInstance<Style> _NodeBaseStyle = new ResourceInstance<Style>();
 
         bool _IsNodeSelected = false;
         bool _IsStartDragging = false;
 
         NodeLink _DraggingNodeLink = null;
         List<Node> _DraggingNodes = new List<Node>();
-        List<NodeOutputContent> _DraggingOutputs = new List<NodeOutputContent>();
+        List<NodeConnectorContent> _DraggingConnectors = new List<NodeConnectorContent>();
         Point _DragStartPoint = new Point();
 
         NodeLink _RemoveNodeLink = null;
@@ -120,6 +74,7 @@ namespace NodeGraph.Controls
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
         {
             base.OnItemsSourceChanged(oldValue, newValue);
+
             if (Canvas == null)
             {
                 _DelayToBindVMs.AddRange(newValue.OfType<object>());
@@ -127,6 +82,15 @@ namespace NodeGraph.Controls
             else
             {
                 AddNodesToCanvas(newValue.OfType<object>());
+            }
+
+            if (oldValue != null && oldValue is INotifyCollectionChanged oldCollection)
+            {
+                oldCollection.CollectionChanged -= NodeCollectionChanged;
+            }
+            if (newValue != null && newValue is INotifyCollectionChanged newCollection)
+            {
+                newCollection.CollectionChanged += NodeCollectionChanged;
             }
         }
 
@@ -199,20 +163,35 @@ namespace NodeGraph.Controls
             var element = e.OriginalSource as FrameworkElement;
 
             // clicked connect or not.
-            if (_DraggingNodeLink != null)
+            if (_DraggingNodeLink != null && _DraggingConnectors.Count > 0)
             {
-                if (element != null && element.Tag is NodeInputContent inputContent)
+                // only be able to connect input to output or output to input.
+                // it will reject except above condition.
+                if (element != null && element.Tag is NodeConnectorContent connector && connector.CanConnectTo(_DraggingConnectors[0]))
                 {
                     var transformer = element.TransformToVisual(Canvas);
                     var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
 
-                    _DraggingNodeLink.Connect(inputContent);
+                    switch (connector)
+                    {
+                        case NodeInputContent inputContent:
+                            _DraggingNodeLink.Connect(inputContent);
+                            break;
+                        case NodeOutputContent outputContent:
+                            _DraggingNodeLink.Connect(outputContent);
+                            break;
+                        default:
+                            throw new InvalidCastException();
+                    }
+
                     _DraggingNodeLink.EndPoint = new Point(posOnCanvas.X, posOnCanvas.Y);
 
-                    inputContent.Connect(_DraggingNodeLink);
-                    _DraggingOutputs.ForEach(arg => arg.Connect(_DraggingNodeLink));
+                    connector.Connect(_DraggingNodeLink);
+                    _DraggingConnectors.ForEach(arg => arg.Connect(_DraggingNodeLink));
 
+                    // add node link.
                     _DraggingNodeLink.MouseDown += NodeLink_MouseDown;
+
                 }
                 else
                 {
@@ -221,13 +200,14 @@ namespace NodeGraph.Controls
                 }
 
                 _DraggingNodeLink = null;
-                _DraggingOutputs.Clear();
+                _DraggingConnectors.Clear();
             }
 
             if (_RemoveNodeLink != null && _RemoveNodeLink != element)
             {
                 Canvas.Children.Remove(_RemoveNodeLink);
 
+                _RemoveNodeLink.MouseDown -= NodeLink_MouseDown;
                 _RemoveNodeLink.Disconnect();
                 _RemoveNodeLink.Dispose();
                 _RemoveNodeLink = null;
@@ -240,7 +220,7 @@ namespace NodeGraph.Controls
 
             _IsStartDragging = false;
             _DraggingNodes.Clear();
-            _DraggingOutputs.Clear();
+            _DraggingConnectors.Clear();
         }
 
         protected override void OnMouseLeave(MouseEventArgs e)
@@ -249,7 +229,19 @@ namespace NodeGraph.Controls
 
             _IsStartDragging = false;
             _DraggingNodes.Clear();
-            _DraggingOutputs.Clear();
+            _DraggingConnectors.Clear();
+        }
+
+        void NodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems?.Count > 0)
+            {
+                RemoveNodesFromCanvas(e.OldItems.OfType<object>());
+            }
+            if (e.NewItems?.Count > 0)
+            {
+                AddNodesToCanvas(e.NewItems.OfType<object>());
+            }
         }
 
         void RemoveNodesFromCanvas(IEnumerable<object> removeVMs)
@@ -311,7 +303,7 @@ namespace NodeGraph.Controls
                 node.IsSelected = !node.IsSelected;
             }
             else
-            { 
+            {
                 foreach (var node in Canvas.Children.OfType<Node>())
                 {
                     if (node != sender)
@@ -330,26 +322,39 @@ namespace NodeGraph.Controls
         {
             var element = e.OriginalSource as FrameworkElement;
 
-            // clicked connect or not.
-            if (element != null && element.Tag is NodeOutputContent outputContent)
+            if (element != null && element.Tag is NodeConnectorContent connector)
             {
+                // clicked on connector
                 var transformer = element.TransformToVisual(Canvas);
                 var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
-                _DraggingNodeLink = new NodeLink(posOnCanvas.X, posOnCanvas.Y, outputContent);
 
-                _DraggingOutputs.Add(outputContent);
+                switch (connector)
+                {
+                    case NodeOutputContent outputContent:
+                        _DraggingNodeLink = new NodeLink(posOnCanvas.X, posOnCanvas.Y, outputContent);
+                        break;
+                    case NodeInputContent inputContent:
+                        _DraggingNodeLink = new NodeLink(posOnCanvas.X, posOnCanvas.Y, inputContent);
+                        break;
+                    default:
+                        throw new InvalidCastException();
+                }
+
+                _DraggingConnectors.Add(connector);
                 Canvas.Children.Add(_DraggingNodeLink);
-                return;
             }
+            else
+            {
+                // clicked on Node
+                var pos = e.GetPosition(Canvas);
 
-            var pos = e.GetPosition(Canvas);
+                var firstNode = e.Source as Node;
+                firstNode.CaptureDragStartPosition();
 
-            var firstNode = e.Source as Node;
-            firstNode.CaptureDragStartPosition();
+                _DraggingNodes.Add(firstNode);
 
-            _DraggingNodes.Add(firstNode);
-
-            _DragStartPoint = e.GetPosition(Canvas);
+                _DragStartPoint = e.GetPosition(Canvas);
+            }
         }
     }
 }

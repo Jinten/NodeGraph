@@ -36,6 +36,7 @@ namespace NodeGraph.Controls
         }
 
         public abstract void UpdatePosition(Canvas canvas);
+        public abstract bool CanConnectTo(NodeConnectorContent connector);
     }
 
 	public abstract class NodeConnector<T> : MultiSelector where T : NodeConnectorContent, new()

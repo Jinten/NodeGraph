@@ -14,6 +14,10 @@
     </Window.DataContext>
 
     <Window.Resources>
+        <ContextMenu x:Key="NodeGraphContextMenu">
+            <MenuItem Header="AddNode" Command="{Binding AddNodeCommand}"/>
+        </ContextMenu>
+        
         <Style x:Key="NodeInputStyle" TargetType="{x:Type ctrl:NodeInputContent}">
             <Setter Property="Content" Value="{Binding Label}"/>
         </Style>
@@ -52,6 +56,7 @@
 	<Grid>
 		<ctrl:NodeGraph Background="DarkGray"
                         ItemsSource="{Binding NodeViewModels}"
-                        ItemContainerStyle="{StaticResource NodeStyle}"/>
+                        ItemContainerStyle="{StaticResource NodeStyle}"                        
+                        ContextMenu="{StaticResource NodeGraphContextMenu}"/>
     </Grid>
 </Window>

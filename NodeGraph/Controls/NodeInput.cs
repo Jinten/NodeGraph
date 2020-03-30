@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NodeGraph.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,8 +34,13 @@ namespace NodeGraph.Controls
 
             foreach (var nodeLink in NodeLinks)
             {
-                nodeLink.EndPoint = new Point(posOnCanvas.X, posOnCanvas.Y);
+                nodeLink.UpdateInputEdge(posOnCanvas.X, posOnCanvas.Y);
             }
+        }
+
+        public override bool CanConnectTo(NodeConnectorContent connector)
+        {
+            return connector is NodeOutputContent;
         }
     }
 
@@ -42,18 +48,8 @@ namespace NodeGraph.Controls
 	{
 		protected override string ConnectorCanvasName => "__NodeInputCanvas__";
 
-		protected override ControlTemplate NodeConnectorContentTemplate
-		{
-			get
-			{
-				if(_NodeInputTemplate == null)
-				{
-					_NodeInputTemplate = Application.Current.TryFindResource("__NodeInputContentTemplate__") as ControlTemplate;
-				}
-				return _NodeInputTemplate;
-			}
-		}
-		ControlTemplate _NodeInputTemplate = null;
+        protected override ControlTemplate NodeConnectorContentTemplate => _NodeInputTemplate.Get("__NodeInputContentTemplate__");
+		ResourceInstance<ControlTemplate> _NodeInputTemplate = new ResourceInstance<ControlTemplate>();
 
         static NodeInput()
 		{
