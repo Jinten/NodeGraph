@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -12,17 +13,20 @@ namespace NodeGraph.Controls
 {
     public class NodeLink : Shape, IDisposable
     {
+        public Point EndPoint
+        {
+            get => _LinkGeometry.EndPoint;
+            set => _LinkGeometry.EndPoint = value;
+        }
+
         public Point StartPoint
         {
             get => _LinkGeometry.StartPoint;
             set => _LinkGeometry.StartPoint = value;
         }
 
-        public Point EndPoint
-        {
-            get => _LinkGeometry.EndPoint;
-            set => _LinkGeometry.EndPoint = value;
-        }
+        public NodeConnectorContent EndPointConnector => GetEndPointConnector();
+        public NodeConnectorContent StartPointConnector => GetStartPointConnector();
 
         protected override Geometry DefiningGeometry => _LinkGeometry;
 
@@ -52,10 +56,9 @@ namespace NodeGraph.Controls
 
         NodeLink(double x, double y)
         {
-            _LinkGeometry = new LineGeometry(new Point(x, y), new Point(x, y));
+            IsHitTestVisible = false; // no need to hit until connected
 
-            StrokeThickness = 2;
-            Stroke = Brushes.Black;
+            _LinkGeometry = new LineGeometry(new Point(x, y), new Point(x, y));
 
             Canvas.SetZIndex(this, -1);
         }
@@ -70,17 +73,31 @@ namespace NodeGraph.Controls
         {
             _Input = input;
             _InputPointPlace = PointPlace.End;
+
+            IsHitTestVisible = true;
         }
 
         public void Connect(NodeOutputContent output)
         {
             _Output = output;
             _OutputPointPlace = PointPlace.End;
+
+            IsHitTestVisible = true;
+        }
+
+        public void ReleaseEndPoint()
+        {
+            IsHitTestVisible = false;
+        }
+
+        public void RestoreEndPoint()
+        {
+            IsHitTestVisible = true;
         }
 
         public void UpdateInputEdge(double x, double y)
         {
-            switch(_InputPointPlace)
+            switch (_InputPointPlace)
             {
                 case PointPlace.Start:
                     StartPoint = new Point(x, y);
@@ -108,6 +125,26 @@ namespace NodeGraph.Controls
         {
             _Input.Disconnect(this);
             _Output.Disconnect(this);
+        }
+
+        NodeConnectorContent GetEndPointConnector()
+        {
+            if (_InputPointPlace == PointPlace.End)
+            {
+                return _Input;
+            }
+
+            return _Output;
+        }
+
+        NodeConnectorContent GetStartPointConnector()
+        {
+            if (_InputPointPlace == PointPlace.Start)
+            {
+                return _Input;
+            }
+
+            return _Output;
         }
     }
 }

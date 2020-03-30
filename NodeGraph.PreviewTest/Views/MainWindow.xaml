@@ -54,7 +54,7 @@
     </Window.Resources>
 
 	<Grid>
-		<ctrl:NodeGraph Background="DarkGray"
+		<ctrl:NodeGraph Background="#FF303030"
                         ItemsSource="{Binding NodeViewModels}"
                         ItemContainerStyle="{StaticResource NodeStyle}"                        
                         ContextMenu="{StaticResource NodeGraphContextMenu}"/>
