@@ -4,6 +4,7 @@
 
     <Style TargetType="{x:Type local:NodeLink}">
         <Setter Property="StrokeThickness" Value="3"/>
+        <Setter Property="BorderThickness" Value="10"/>
         <Setter Property="Stroke" Value="#FFAAAAAA"/>
         <Setter Property="StrokeEndLineCap" Value="Round"/>
         <Setter Property="StrokeStartLineCap" Value="Round"/>

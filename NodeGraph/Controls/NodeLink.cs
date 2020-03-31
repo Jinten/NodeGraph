@@ -13,76 +13,82 @@ namespace NodeGraph.Controls
 {
     public class NodeLink : Shape, IDisposable
     {
-        public Point EndPoint
+        public Point EndPoint { get; private set; }
+        public Point StartPoint { get; private set; }
+
+        public double BorderThickness
         {
-            get => _LinkGeometry.EndPoint;
-            set => _LinkGeometry.EndPoint = value;
+            get => (double)GetValue(BorderThicknessProperty);
+            set => SetValue(BorderThicknessProperty, value);
         }
+        public static readonly DependencyProperty BorderThicknessProperty = 
+            DependencyProperty.Register(nameof(BorderThickness), typeof(double), typeof(NodeLink), new FrameworkPropertyMetadata(2.0));
 
-        public Point StartPoint
-        {
-            get => _LinkGeometry.StartPoint;
-            set => _LinkGeometry.StartPoint = value;
-        }
+        public NodeInputContent Input { get; private set; } = null;
+        public NodeOutputContent Output { get; private set; } = null;
 
-        public NodeConnectorContent EndPointConnector => GetEndPointConnector();
-        public NodeConnectorContent StartPointConnector => GetStartPointConnector();
+        protected override Geometry DefiningGeometry => Geometry.Empty;
 
-        protected override Geometry DefiningGeometry => _LinkGeometry;
-
-        enum PointPlace
-        {
-            Start,
-            End,
-        }
-
-        NodeInputContent _Input;
-        NodeOutputContent _Output;
-        PointPlace _InputPointPlace;
-        PointPlace _OutputPointPlace;
-        LineGeometry _LinkGeometry = null;
+        Pen _HitVisiblePen = null;
 
         public NodeLink(double x, double y, NodeInputContent input) : this(x, y)
         {
-            _Input = input;
-            _InputPointPlace = PointPlace.Start;
+            Input = input;
         }
 
         public NodeLink(double x, double y, NodeOutputContent output) : this(x, y)
         {
-            _Output = output;
-            _OutputPointPlace = PointPlace.Start;
+            Output = output;
         }
 
         NodeLink(double x, double y)
         {
             IsHitTestVisible = false; // no need to hit until connected
 
-            _LinkGeometry = new LineGeometry(new Point(x, y), new Point(x, y));
+            var point = new Point(x, y);
+            StartPoint = point;
+            EndPoint = point;
 
             Canvas.SetZIndex(this, -1);
         }
 
         public void Dispose()
         {
-            _Input = null;
-            _Output = null;
+            Input = null;
+            Output = null;
         }
 
         public void Connect(NodeInputContent input)
         {
-            _Input = input;
-            _InputPointPlace = PointPlace.End;
-
+            Input = input;
             IsHitTestVisible = true;
         }
 
         public void Connect(NodeOutputContent output)
         {
-            _Output = output;
-            _OutputPointPlace = PointPlace.End;
-
+            Output = output;
             IsHitTestVisible = true;
+        }
+
+        public void UpdateEdgePoint(double x, double y)
+        {
+            if(Input == null)
+            {
+                // first connecting output to input.
+                EndPoint = new Point(x, y);
+            }
+            else if(Output == null)
+            {
+                // first connecting input to output.
+                StartPoint = new Point(x, y);
+            }
+            else
+            {
+                // reconnecting.
+                EndPoint = new Point(x, y);
+            }
+
+            InvalidateVisual();
         }
 
         public void ReleaseEndPoint()
@@ -97,54 +103,42 @@ namespace NodeGraph.Controls
 
         public void UpdateInputEdge(double x, double y)
         {
-            switch (_InputPointPlace)
-            {
-                case PointPlace.Start:
-                    StartPoint = new Point(x, y);
-                    break;
-                case PointPlace.End:
-                    EndPoint = new Point(x, y);
-                    break;
-            }
+            EndPoint = new Point(x, y);
+            InvalidateVisual();
         }
 
         public void UpdateOutputEdge(double x, double y)
         {
-            switch (_OutputPointPlace)
-            {
-                case PointPlace.Start:
-                    StartPoint = new Point(x, y);
-                    break;
-                case PointPlace.End:
-                    EndPoint = new Point(x, y);
-                    break;
-            }
+            StartPoint = new Point(x, y);
+            InvalidateVisual();
         }
 
         public void Disconnect()
         {
-            _Input.Disconnect(this);
-            _Output.Disconnect(this);
+            Input.Disconnect(this);
+            Output.Disconnect(this);
         }
 
-        NodeConnectorContent GetEndPointConnector()
+        protected override void OnStyleChanged(Style oldStyle, Style newStyle)
         {
-            if (_InputPointPlace == PointPlace.End)
-            {
-                return _Input;
-            }
+            base.OnStyleChanged(oldStyle, newStyle);
 
-            return _Output;
+            _HitVisiblePen = new Pen(Brushes.Transparent, StrokeThickness + BorderThickness);
+            _HitVisiblePen.Freeze();
         }
 
-        NodeConnectorContent GetStartPointConnector()
+        protected override void OnRender(DrawingContext drawingContext)
         {
-            if (_InputPointPlace == PointPlace.Start)
+            // collision
+            if (IsHitTestVisible)
             {
-                return _Input;
+                drawingContext.DrawLine(_HitVisiblePen, StartPoint, EndPoint);
             }
 
-            return _Output;
+            // actually visual
+            drawingContext.DrawLine(new Pen(Stroke, StrokeThickness), StartPoint, EndPoint);
+
+            base.OnRender(drawingContext);
         }
     }
 }

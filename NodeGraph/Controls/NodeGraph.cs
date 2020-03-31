@@ -104,18 +104,16 @@ namespace NodeGraph.Controls
                 {
                     if (_DraggingNodes[0].IsSelected)
                     {
-                        foreach (var node in Canvas.Children.OfType<Node>())
+                        foreach (var node in Canvas.Children.OfType<Node>().Where(arg => arg != _DraggingNodes[0] && arg.IsSelected))
                         {
-                            if (node != _DraggingNodes[0] && node.IsSelected)
-                            {
-                                node.CaptureDragStartPosition();
-                                _DraggingNodes.Add(node);
-                            }
+                            node.CaptureDragStartPosition();
+                            _DraggingNodes.Add(node);
                         }
                     }
                     else
                     {
                         _DraggingNodes[0].IsSelected = true; // select first drag node.
+
                         foreach (var node in Canvas.Children.OfType<Node>())
                         {
                             if (node != _DraggingNodes[0])
@@ -124,6 +122,7 @@ namespace NodeGraph.Controls
                             }
                         }
                     }
+
                     _IsStartDragging = true;
                 }
 
@@ -137,14 +136,11 @@ namespace NodeGraph.Controls
                     node.UpdatePosition(Canvas, x, y);
                 }
             }
-            if (_DraggingNodeLink != null)
-            {
-                _DraggingNodeLink.EndPoint = e.GetPosition(Canvas);
-            }
-            if (_ReconnectingNodeLink != null)
-            {
-                _ReconnectingNodeLink.EndPoint = e.GetPosition(Canvas);
-            }
+
+            var posOnCanvas = e.GetPosition(Canvas);
+
+            _DraggingNodeLink?.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
+            _ReconnectingNodeLink?.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
@@ -170,31 +166,19 @@ namespace NodeGraph.Controls
             {
                 // only be able to connect input to output or output to input.
                 // it will reject except above condition.
-                if (element != null && element.Tag is NodeConnectorContent endPointConnector && endPointConnector.CanConnectTo(_DraggingConnectors[0]))
+                if (element != null && element.Tag is NodeConnectorContent connector && connector.CanConnectTo(_DraggingConnectors[0]))
                 {
-                    var transformer = element.TransformToVisual(Canvas);
-                    var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
-
-                    switch (endPointConnector)
+                    switch (connector)
                     {
-                        case NodeInputContent inputContent:
-                            _DraggingNodeLink.Connect(inputContent);
+                        case NodeInputContent input:
+                            ConnectNodeLink(element, input, _DraggingConnectors[0] as NodeOutputContent, _DraggingNodeLink);
                             break;
-                        case NodeOutputContent outputContent:
-                            _DraggingNodeLink.Connect(outputContent);
+                        case NodeOutputContent output:
+                            ConnectNodeLink(element, _DraggingConnectors[0] as NodeInputContent, output, _DraggingNodeLink);
                             break;
                         default:
                             throw new InvalidCastException();
                     }
-
-                    _DraggingNodeLink.EndPoint = new Point(posOnCanvas.X, posOnCanvas.Y);
-
-                    endPointConnector.Connect(_DraggingNodeLink);
-                    _DraggingConnectors.ForEach(arg => arg.Connect(_DraggingNodeLink));
-
-                    // add node link.
-                    _DraggingNodeLink.MouseDown += NodeLink_MouseDown;
-
                 }
                 else
                 {
@@ -208,12 +192,12 @@ namespace NodeGraph.Controls
 
             if (_ReconnectingNodeLink != null)
             {
-                if (element != null && element.Tag is NodeConnectorContent endPointConnector && endPointConnector.CanConnectTo(_ReconnectingNodeLink.StartPointConnector))
+                if (element != null && element.Tag is NodeOutputContent output && output.CanConnectTo(_ReconnectingNodeLink.Input))
                 {
-                    if(endPointConnector != _ReconnectingNodeLink.EndPointConnector)
+                    if(output != _ReconnectingNodeLink.Output)
                     {
                         _ReconnectingNodeLink.MouseDown -= NodeLink_MouseDown;
-                        ConnectNodeLink(element, _ReconnectingNodeLink.StartPointConnector, endPointConnector, _ReconnectingNodeLink);
+                        ConnectNodeLink(element, _ReconnectingNodeLink.Input, output, _ReconnectingNodeLink);
                     }
                     else
                     {
@@ -251,27 +235,17 @@ namespace NodeGraph.Controls
             _DraggingConnectors.Clear();
         }
 
-        void ConnectNodeLink(FrameworkElement element, NodeConnectorContent start, NodeConnectorContent end, NodeLink nodeLink)
+        void ConnectNodeLink(FrameworkElement element, NodeInputContent input, NodeOutputContent output, NodeLink nodeLink)
         {
             var transformer = element.TransformToVisual(Canvas);
             var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
 
-            switch (end)
-            {
-                case NodeInputContent inputContent:
-                    nodeLink.Connect(inputContent);
-                    break;
-                case NodeOutputContent outputContent:
-                    nodeLink.Connect(outputContent);
-                    break;
-                default:
-                    throw new InvalidCastException();
-            }
+            nodeLink.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
 
-            nodeLink.EndPoint = new Point(posOnCanvas.X, posOnCanvas.Y);
+            nodeLink.Connect(output);
 
-            end.Connect(nodeLink);
-            start.Connect(nodeLink);
+            input.Connect(nodeLink);
+            output.Connect(nodeLink);
 
             // add node link.
             nodeLink.MouseDown += NodeLink_MouseDown;
