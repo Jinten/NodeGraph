@@ -12,7 +12,7 @@
     <Style x:Key="__NodeBaseStyle__" TargetType="{x:Type local:Node}">
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="Black"/>
-        <Setter Property="Background" Value="#CC555555"/>
+        <Setter Property="Background" Value="#CC666666"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsSelected,RelativeSource={RelativeSource Self}}" Value="True">
                 <Setter Property="BorderBrush" Value="Aqua"/>

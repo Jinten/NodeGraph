@@ -166,16 +166,26 @@ namespace NodeGraph.Controls
             {
                 // only be able to connect input to output or output to input.
                 // it will reject except above condition.
-                if (element != null && element.Tag is NodeConnectorContent connector && connector.CanConnectTo(_DraggingConnectors[0]))
+                if (element != null && element.Tag is NodeConnectorContent connector && _DraggingConnectors[0].CanConnectTo(connector))
                 {
+                    var transformer = element.TransformToVisual(Canvas);
+
                     switch (connector)
                     {
                         case NodeInputContent input:
-                            ConnectNodeLink(element, input, _DraggingConnectors[0] as NodeOutputContent, _DraggingNodeLink);
-                            break;
+                            {
+                                var posOnCanvas = transformer.Transform(new Point(0.0, element.ActualHeight * 0.5));
+                                ConnectNodeLink(element, input, _DraggingConnectors[0] as NodeOutputContent, _DraggingNodeLink, posOnCanvas);
+                                _DraggingNodeLink.Connect(input);
+                                break;
+                            }
                         case NodeOutputContent output:
-                            ConnectNodeLink(element, _DraggingConnectors[0] as NodeInputContent, output, _DraggingNodeLink);
-                            break;
+                            {
+                                var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
+                                ConnectNodeLink(element, _DraggingConnectors[0] as NodeInputContent, output, _DraggingNodeLink, posOnCanvas);
+                                _DraggingNodeLink.Connect(output);
+                                break;
+                            }
                         default:
                             throw new InvalidCastException();
                     }
@@ -192,12 +202,17 @@ namespace NodeGraph.Controls
 
             if (_ReconnectingNodeLink != null)
             {
-                if (element != null && element.Tag is NodeOutputContent output && output.CanConnectTo(_ReconnectingNodeLink.Input))
+                if (element != null && element.Tag is NodeInputContent input && input.CanConnectTo(_ReconnectingNodeLink.Output))
                 {
-                    if(output != _ReconnectingNodeLink.Output)
+                    if(input != _ReconnectingNodeLink.Input)
                     {
                         _ReconnectingNodeLink.MouseDown -= NodeLink_MouseDown;
-                        ConnectNodeLink(element, _ReconnectingNodeLink.Input, output, _ReconnectingNodeLink);
+
+                        var transformer = element.TransformToVisual(Canvas);
+                        var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
+                        ConnectNodeLink(element, input, _ReconnectingNodeLink.Output, _ReconnectingNodeLink, posOnCanvas);
+
+                        _ReconnectingNodeLink.Connect(input);
                     }
                     else
                     {
@@ -235,14 +250,9 @@ namespace NodeGraph.Controls
             _DraggingConnectors.Clear();
         }
 
-        void ConnectNodeLink(FrameworkElement element, NodeInputContent input, NodeOutputContent output, NodeLink nodeLink)
+        void ConnectNodeLink(FrameworkElement element, NodeInputContent input, NodeOutputContent output, NodeLink nodeLink, Point point)
         {
-            var transformer = element.TransformToVisual(Canvas);
-            var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
-
-            nodeLink.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
-
-            nodeLink.Connect(output);
+            nodeLink.UpdateEdgePoint(point.X, point.Y);
 
             input.Connect(nodeLink);
             output.Connect(nodeLink);

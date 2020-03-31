@@ -2,15 +2,27 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:NodeGraph.Controls">
 
+    <Storyboard x:Key="NodeLinkMouseOver" RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetProperty="DashOffset">
+            <LinearDoubleKeyFrame KeyTime="00:00:01" Value="-16"/>
+        </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+
     <Style TargetType="{x:Type local:NodeLink}">
-        <Setter Property="StrokeThickness" Value="3"/>
-        <Setter Property="BorderThickness" Value="10"/>
-        <Setter Property="Stroke" Value="#FFAAAAAA"/>
+        <Setter Property="LinkSize" Value="2"/>
+        <Setter Property="Fill" Value="#FFAAAAAA"/>
+        <Setter Property="StrokeThickness" Value="10"/>
         <Setter Property="StrokeEndLineCap" Value="Round"/>
         <Setter Property="StrokeStartLineCap" Value="Round"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Stroke" Value="Aqua"/>
+                <Setter Property="Fill" Value="Aqua"/>
+                <Trigger.ExitActions>
+                    <RemoveStoryboard BeginStoryboardName="NodeLinkAnimation"/>
+                </Trigger.ExitActions>
+                <Trigger.EnterActions>
+                    <BeginStoryboard Name="NodeLinkAnimation" Storyboard="{StaticResource NodeLinkMouseOver}"/>
+                </Trigger.EnterActions>
             </Trigger>
         </Style.Triggers>
     </Style>

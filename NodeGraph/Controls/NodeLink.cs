@@ -16,16 +16,32 @@ namespace NodeGraph.Controls
         public Point EndPoint { get; private set; }
         public Point StartPoint { get; private set; }
 
-        public double BorderThickness
+        public double LinkSize
         {
-            get => (double)GetValue(BorderThicknessProperty);
-            set => SetValue(BorderThicknessProperty, value);
+            get => (double)GetValue(LinkSizeProperty);
+            set => SetValue(LinkSizeProperty, value);
         }
-        public static readonly DependencyProperty BorderThicknessProperty = 
-            DependencyProperty.Register(nameof(BorderThickness), typeof(double), typeof(NodeLink), new FrameworkPropertyMetadata(2.0));
+        public static readonly DependencyProperty LinkSizeProperty = 
+            DependencyProperty.Register(nameof(LinkSize), typeof(double), typeof(NodeLink), new FrameworkPropertyMetadata(2.0));
+
+        public double DashOffset
+        {
+            get => (double)GetValue(DashOffsetProperty);
+            set => SetValue(DashOffsetProperty, value);
+        }
+        public static readonly DependencyProperty DashOffsetProperty =
+            DependencyProperty.Register(nameof(DashOffset), typeof(double), typeof(NodeLink), new FrameworkPropertyMetadata(0.0, DashOffsetPropertyChanged));
+
+        private static void DashOffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var nodeLink = d as NodeLink;
+            nodeLink.InvalidateVisual();
+        }
 
         public NodeInputContent Input { get; private set; } = null;
         public NodeOutputContent Output { get; private set; } = null;
+
+        bool IsConnecting => Input != null && Output != null;
 
         protected override Geometry DefiningGeometry => Geometry.Empty;
 
@@ -62,12 +78,16 @@ namespace NodeGraph.Controls
         {
             Input = input;
             IsHitTestVisible = true;
+
+            InvalidateVisual();
         }
 
         public void Connect(NodeOutputContent output)
         {
             Output = output;
             IsHitTestVisible = true;
+
+            InvalidateVisual();
         }
 
         public void UpdateEdgePoint(double x, double y)
@@ -123,7 +143,7 @@ namespace NodeGraph.Controls
         {
             base.OnStyleChanged(oldStyle, newStyle);
 
-            _HitVisiblePen = new Pen(Brushes.Transparent, StrokeThickness + BorderThickness);
+            _HitVisiblePen = new Pen(Brushes.Transparent, LinkSize + StrokeThickness);
             _HitVisiblePen.Freeze();
         }
 
@@ -136,9 +156,39 @@ namespace NodeGraph.Controls
             }
 
             // actually visual
-            drawingContext.DrawLine(new Pen(Stroke, StrokeThickness), StartPoint, EndPoint);
+            var visualPen = new Pen(Fill, LinkSize);
+            if (IsMouseOver)
+            {
+                visualPen.DashStyle = new DashStyle(new double[] { 2 }, DashOffset);
+            }
 
-            base.OnRender(drawingContext);
+            drawingContext.DrawLine(visualPen, StartPoint, EndPoint);
+
+            // arrow
+            var vEnd = new Vector(EndPoint.X, EndPoint.Y);
+            var vStart = new Vector(StartPoint.X, StartPoint.Y);
+            var degree = Vector.AngleBetween(vStart - vEnd, vStart);
+
+            if(IsConnecting == false)
+            {
+                return;
+            }
+
+            var segment = vStart - vEnd;
+            segment.Normalize();
+
+            Matrix rotMat = new Matrix();
+            {
+                rotMat.Rotate(30);
+
+                var arrow = Vector.Multiply(segment, rotMat);
+                drawingContext.DrawLine(visualPen, EndPoint, arrow * 12 + EndPoint);
+            }
+            {
+                rotMat.Rotate(-60);
+                var arrow = Vector.Multiply(segment, rotMat);
+                drawingContext.DrawLine(visualPen, EndPoint, arrow * 12 + EndPoint);
+            }
         }
     }
 }
