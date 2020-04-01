@@ -81,7 +81,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\INode.cs" />
+    <Compile Include="Controls\ICanvasObject.cs" />
     <Compile Include="Controls\Node.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
     <Page Include="Controls\Node.xaml">

@@ -24,6 +24,30 @@ namespace NodeGraph.Controls
     {
         public Canvas Canvas { get; private set; } = null;
 
+        public Key MoveWithKey
+        {
+            get => (Key)GetValue(MoveWithKeyProperty);
+            set => SetValue(MoveWithKeyProperty, value);
+        }
+        public static readonly DependencyProperty MoveWithKeyProperty =
+            DependencyProperty.Register(nameof(MoveWithKey), typeof(Key), typeof(NodeGraph), new FrameworkPropertyMetadata(Key.None));
+
+        public MouseButton MoveWithMouse
+        {
+            get => (MouseButton)GetValue(MoveWithMouseProperty);
+            set => SetValue(MoveWithMouseProperty, value);
+        }
+        public static readonly DependencyProperty MoveWithMouseProperty =
+            DependencyProperty.Register(nameof(MoveWithMouse), typeof(MouseButton), typeof(NodeGraph), new FrameworkPropertyMetadata(MouseButton.Middle));
+
+        public Point Offset
+        {
+            get => (Point)GetValue(OffsetProperty);
+            set => SetValue(OffsetProperty, value);
+        }
+        public static readonly DependencyProperty OffsetProperty =
+            DependencyProperty.Register(nameof(Offset), typeof(Point), typeof(NodeGraph), new FrameworkPropertyMetadata(new Point(0, 0), OffsetPropertyChanged));
+
         ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
         ResourceInstance<ControlTemplate> _NodeTemplate = new ResourceInstance<ControlTemplate>();
 
@@ -32,15 +56,35 @@ namespace NodeGraph.Controls
 
         bool _IsNodeSelected = false;
         bool _IsStartDragging = false;
+        bool _PressKeyToMove = false;
+        bool _PressMouseToMove = false;
 
         NodeLink _DraggingNodeLink = null;
         List<Node> _DraggingNodes = new List<Node>();
         List<NodeConnectorContent> _DraggingConnectors = new List<NodeConnectorContent>();
-        Point _DragStartPoint = new Point();
+        Point _DragStartPointToMoveNode = new Point();
+        Point _DragStartPointToMoveOffset = new Point();
+        Point _CaptureOffset = new Point();
 
         NodeLink _ReconnectingNodeLink = null;
 
         List<object> _DelayToBindVMs = new List<object>();
+
+
+        static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var nodeGraph = d as NodeGraph;
+
+            foreach (var obj in nodeGraph.Canvas.Children.OfType<Node>())
+            {
+                obj.UpdateOffset(nodeGraph.Canvas, nodeGraph.Offset);
+            }
+
+            foreach (var obj in nodeGraph.Canvas.Children.OfType<NodeLink>())
+            {
+                obj.UpdateOffset(nodeGraph.Canvas, nodeGraph.Offset);
+            }
+        }
 
         static NodeGraph()
         {
@@ -94,9 +138,28 @@ namespace NodeGraph.Controls
             }
         }
 
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            if (MoveWithKey == Key.None || e.Key == MoveWithKey)
+            {
+                _PressKeyToMove = true;
+            }
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+
+            _PressKeyToMove = false;
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+
+            var posOnCanvas = e.GetPosition(Canvas);
 
             if (_DraggingNodes.Count > 0)
             {
@@ -127,7 +190,7 @@ namespace NodeGraph.Controls
                 }
 
                 var current = e.GetPosition(Canvas);
-                var diff = new Point(current.X - _DragStartPoint.X, current.Y - _DragStartPoint.Y);
+                var diff = new Point(current.X - _DragStartPointToMoveNode.X, current.Y - _DragStartPointToMoveNode.Y);
 
                 foreach (var node in _DraggingNodes)
                 {
@@ -136,17 +199,45 @@ namespace NodeGraph.Controls
                     node.UpdatePosition(Canvas, x, y);
                 }
             }
-
-            var posOnCanvas = e.GetPosition(Canvas);
+            else
+            {
+                if (_PressMouseToMove && (MoveWithKey == Key.None || _PressKeyToMove))
+                {
+                    var x = _CaptureOffset.X + posOnCanvas.X - _DragStartPointToMoveOffset.X;
+                    var y = _CaptureOffset.Y + posOnCanvas.Y - _DragStartPointToMoveOffset.Y;
+                    Offset = new Point(x, y);
+                }
+            }
 
             _DraggingNodeLink?.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
             _ReconnectingNodeLink?.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+            switch (MoveWithMouse)
+            {
+                case MouseButton.Left:
+                    _PressMouseToMove = e.LeftButton == MouseButtonState.Pressed;
+                    break;
+                case MouseButton.Middle:
+                    _PressMouseToMove = e.MiddleButton == MouseButtonState.Pressed;
+                    break;
+                case MouseButton.Right:
+                    _PressMouseToMove = e.RightButton == MouseButtonState.Pressed;
+                    break;
+            }
+
+            _CaptureOffset = Offset;
+            _DragStartPointToMoveOffset = e.GetPosition(Canvas);
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             base.OnMouseUp(e);
 
+            _PressMouseToMove = false;
             _IsStartDragging = false;
 
             if (_IsNodeSelected == false)
@@ -204,7 +295,7 @@ namespace NodeGraph.Controls
             {
                 if (element != null && element.Tag is NodeInputContent input && input.CanConnectTo(_ReconnectingNodeLink.Output))
                 {
-                    if(input != _ReconnectingNodeLink.Input)
+                    if (input != _ReconnectingNodeLink.Input)
                     {
                         _ReconnectingNodeLink.MouseDown -= NodeLink_MouseDown;
 
@@ -383,7 +474,7 @@ namespace NodeGraph.Controls
 
                 _DraggingNodes.Add(firstNode);
 
-                _DragStartPoint = e.GetPosition(Canvas);
+                _DragStartPointToMoveNode = e.GetPosition(Canvas);
             }
         }
     }

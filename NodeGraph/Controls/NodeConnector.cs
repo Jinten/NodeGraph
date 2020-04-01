@@ -25,6 +25,8 @@ namespace NodeGraph.Controls
         protected IEnumerable<NodeLink> NodeLinks => _NodeLinks;
         List<NodeLink> _NodeLinks = new List<NodeLink>();
 
+        protected abstract FrameworkElement ConnectorControl { get; }
+
         public void Connect(NodeLink nodeLink)
         {
             _NodeLinks.Add(nodeLink);
@@ -35,7 +37,17 @@ namespace NodeGraph.Controls
             _NodeLinks.Remove(nodeLink);
         }
 
-        public abstract void UpdatePosition(Canvas canvas);
+        public Point GetContentPosition(Canvas canvas, double xScaleOffset = 0.5, double yScaleOffset = 0.5)
+        {
+            ConnectorControl.UpdateLayout();
+            var transformer = ConnectorControl.TransformToVisual(canvas);
+
+            var x = ConnectorControl.ActualWidth * xScaleOffset;
+            var y = ConnectorControl.ActualHeight * yScaleOffset;
+            return transformer.Transform(new Point(x, y));
+        }
+
+        public abstract void UpdateLinkPosition(Canvas canvas);
         public abstract bool CanConnectTo(NodeConnectorContent connector);
     }
 
@@ -88,11 +100,11 @@ namespace NodeGraph.Controls
 			(d as NodeConnector<T>).UpdateConnectorsLayout();
 		}
 
-        public void UpdatePosition(Canvas canvas)
+        public void UpdateLinkPosition(Canvas canvas)
         {
             foreach(var connector in _Canvas.Children.OfType<NodeConnectorContent>())
             {
-                connector.UpdatePosition(canvas);
+                connector.UpdateLinkPosition(canvas);
             }
         }
 

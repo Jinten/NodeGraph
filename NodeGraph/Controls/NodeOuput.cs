@@ -13,6 +13,7 @@ namespace NodeGraph.Controls
 {
     public class NodeOutputContent : NodeConnectorContent
     {
+        protected override FrameworkElement ConnectorControl => _ConnectorControl;
         FrameworkElement _ConnectorControl = null;
 
         static NodeOutputContent()
@@ -27,10 +28,10 @@ namespace NodeGraph.Controls
             _ConnectorControl = GetTemplateChild("__OutputConnector__") as FrameworkElement;
         }
 
-        public override void UpdatePosition(Canvas canvas)
+        public override void UpdateLinkPosition(Canvas canvas)
         {
-            var transformer = _ConnectorControl.TransformToVisual(canvas);
-            var posOnCanvas = transformer.Transform(new Point(_ConnectorControl.ActualWidth * 0.5, _ConnectorControl.ActualHeight * 0.5));
+            var transformer = ConnectorControl.TransformToVisual(canvas);
+            var posOnCanvas = transformer.Transform(new Point(ConnectorControl.ActualWidth * 0.5, ConnectorControl.ActualHeight * 0.5));
 
             foreach (var nodeLink in NodeLinks)
             {

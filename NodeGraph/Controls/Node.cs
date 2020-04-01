@@ -19,7 +19,7 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
-	public class Node : ContentControl, INode, IDisposable
+	public class Node : ContentControl, ICanvasObject, IDisposable
 	{
         public DataTemplate HeaderContentTemplate
         {
@@ -136,7 +136,8 @@ namespace NodeGraph.Controls
 		NodeGraph Owner { get; } = null;
 		NodeInput _NodeInput = null;
         NodeOutput _NodeOutput = null;
-
+        Point _Offset = new Point(0, 0);
+        Point _Position = new Point(0, 0);
 
         static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -169,17 +170,27 @@ namespace NodeGraph.Controls
             _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
         }
 
+        public void UpdateOffset(Canvas canvas, Point offset)
+        {
+            _Offset = offset;
+            Margin = new Thickness(_Position.X + _Offset.X, _Position.Y + _Offset.Y, 0, 0);
+
+            InvalidateVisual();
+        }
+
         public void UpdatePosition(Canvas canvas, double x, double y)
         {
-            Margin = new Thickness(x, y, 0, 0);
+            _Position.X = x;
+            _Position.Y = y;
+            Margin = new Thickness(_Position.X + _Offset.X, _Position.Y + _Offset.Y, 0, 0);
 
-            _NodeInput.UpdatePosition(canvas);
-            _NodeOutput.UpdatePosition(canvas);
+            _NodeInput.UpdateLinkPosition(canvas);
+            _NodeOutput.UpdateLinkPosition(canvas);
         }
 
         public void CaptureDragStartPosition()
         {
-            DragStartPosition = new Point(Margin.Left, Margin.Top);
+            DragStartPosition = _Position;
         }
 
 		public void Dispose()
@@ -203,8 +214,8 @@ namespace NodeGraph.Controls
 
         void Node_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            _NodeInput.UpdatePosition(Owner.Canvas);
-            _NodeOutput.UpdatePosition(Owner.Canvas);
+            _NodeInput.UpdateLinkPosition(Owner.Canvas);
+            _NodeOutput.UpdateLinkPosition(Owner.Canvas);
         }
 
         void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

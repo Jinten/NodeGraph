@@ -11,17 +11,17 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
-    public class NodeLink : Shape, IDisposable
+    public class NodeLink : Shape, ICanvasObject, IDisposable
     {
-        public Point EndPoint { get; private set; }
-        public Point StartPoint { get; private set; }
+        Point EndPoint = new Point(0, 0);
+        Point StartPoint = new Point(0, 0);
 
         public double LinkSize
         {
             get => (double)GetValue(LinkSizeProperty);
             set => SetValue(LinkSizeProperty, value);
         }
-        public static readonly DependencyProperty LinkSizeProperty = 
+        public static readonly DependencyProperty LinkSizeProperty =
             DependencyProperty.Register(nameof(LinkSize), typeof(double), typeof(NodeLink), new FrameworkPropertyMetadata(2.0));
 
         public double DashOffset
@@ -90,14 +90,24 @@ namespace NodeGraph.Controls
             InvalidateVisual();
         }
 
+        public void UpdateOffset(Canvas canvas, Point offset)
+        {
+            // update link absolute positions.
+
+            EndPoint = Input.GetContentPosition(canvas, 0.0, 0.5);
+            StartPoint = Output.GetContentPosition(canvas, 0.5, 0.5);
+
+            InvalidateVisual();
+        }
+
         public void UpdateEdgePoint(double x, double y)
         {
-            if(Input == null)
+            if (Input == null)
             {
                 // first connecting output to input.
                 EndPoint = new Point(x, y);
             }
-            else if(Output == null)
+            else if (Output == null)
             {
                 // first connecting input to output.
                 StartPoint = new Point(x, y);
@@ -169,7 +179,7 @@ namespace NodeGraph.Controls
             var vStart = new Vector(StartPoint.X, StartPoint.Y);
             var degree = Vector.AngleBetween(vStart - vEnd, vStart);
 
-            if(IsConnecting == false)
+            if (IsConnecting == false)
             {
                 return;
             }

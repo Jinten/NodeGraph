@@ -11,7 +11,7 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Canvas x:Name="__NodeGraphCanvas__" ClipToBounds="True"/>
+                        <Canvas x:Name="__NodeGraphCanvas__" ClipToBounds="True" UseLayoutRounding="True"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
