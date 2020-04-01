@@ -40,6 +40,38 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty MoveWithMouseProperty =
             DependencyProperty.Register(nameof(MoveWithMouse), typeof(MouseButton), typeof(NodeGraph), new FrameworkPropertyMetadata(MouseButton.Middle));
 
+        public Key ScaleWithKey
+        {
+            get => (Key)GetValue(ScaleWithKeyProperty);
+            set => SetValue(ScaleWithKeyProperty, value);
+        }
+        public static readonly DependencyProperty ScaleWithKeyProperty =
+            DependencyProperty.Register(nameof(ScaleWithKey), typeof(Key), typeof(NodeGraph), new FrameworkPropertyMetadata(Key.None));
+
+        public double Scale
+        {
+            get => (double)GetValue(ScaleProperty);
+            set => SetValue(ScaleProperty, value);
+        }
+        public static readonly DependencyProperty ScaleProperty =
+            DependencyProperty.Register(nameof(Scale), typeof(double), typeof(NodeGraph), new FrameworkPropertyMetadata(1.0, ScalePropertyChanged));
+
+        public double MinScale
+        {
+            get => (double)GetValue(MinScaleProperty);
+            set => SetValue(MinScaleProperty, value);
+        }
+        public static readonly DependencyProperty MinScaleProperty =
+            DependencyProperty.Register(nameof(MinScale), typeof(double), typeof(NodeGraph), new FrameworkPropertyMetadata(0.1));
+
+        public double ScaleRate
+        {
+            get => (double)GetValue(ScaleRateProperty);
+            set => SetValue(ScaleRateProperty, value);
+        }
+        public static readonly DependencyProperty ScaleRateProperty =
+            DependencyProperty.Register(nameof(ScaleRate), typeof(double), typeof(NodeGraph), new FrameworkPropertyMetadata(0.1));
+
         public Point Offset
         {
             get => (Point)GetValue(OffsetProperty);
@@ -70,19 +102,37 @@ namespace NodeGraph.Controls
 
         List<object> _DelayToBindVMs = new List<object>();
 
+        static void ScalePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var ng = d as NodeGraph;
+
+            var focus = new Point(ng.Canvas.ActualWidth * 0.5 + ng.Offset.X, ng.Canvas.ActualHeight * 0.5 + ng.Offset.Y);
+
+            // need to calculate node scale before calculate link absolute position.
+            foreach (var obj in ng.Canvas.Children.OfType<Node>())
+            {
+                obj.UpdateScale(ng.Scale, focus);
+            }
+
+            foreach (var obj in ng.Canvas.Children.OfType<NodeLink>())
+            {
+                obj.UpdateScale(ng.Scale, focus);
+            }
+        }
 
         static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var nodeGraph = d as NodeGraph;
 
+            // need to calculate node position before calculate link absolute position.
             foreach (var obj in nodeGraph.Canvas.Children.OfType<Node>())
             {
-                obj.UpdateOffset(nodeGraph.Canvas, nodeGraph.Offset);
+                obj.UpdateOffset(nodeGraph.Offset);
             }
 
             foreach (var obj in nodeGraph.Canvas.Children.OfType<NodeLink>())
             {
-                obj.UpdateOffset(nodeGraph.Canvas, nodeGraph.Offset);
+                obj.UpdateOffset(nodeGraph.Offset);
             }
         }
 
@@ -155,6 +205,16 @@ namespace NodeGraph.Controls
             _PressKeyToMove = false;
         }
 
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            if (ScaleWithKey == Key.None || (Keyboard.GetKeyStates(ScaleWithKey) & KeyStates.Down) != 0)
+            {
+                Scale += e.Delta > 0 ? +ScaleRate : -ScaleRate;
+                Scale = Math.Max(MinScale, Scale);
+            }
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
@@ -196,7 +256,7 @@ namespace NodeGraph.Controls
                 {
                     double x = node.DragStartPosition.X + diff.X;
                     double y = node.DragStartPosition.Y + diff.Y;
-                    node.UpdatePosition(Canvas, x, y);
+                    node.UpdatePosition(x, y);
                 }
             }
             else
@@ -389,7 +449,7 @@ namespace NodeGraph.Controls
         {
             foreach (var vm in addVMs)
             {
-                var node = new Node(this)
+                var node = new Node(Canvas, Scale)
                 {
                     DataContext = vm,
                     Template = NodeTemplate,
@@ -452,10 +512,10 @@ namespace NodeGraph.Controls
                 switch (connector)
                 {
                     case NodeOutputContent outputContent:
-                        _DraggingNodeLink = new NodeLink(posOnCanvas.X, posOnCanvas.Y, outputContent);
+                        _DraggingNodeLink = new NodeLink(Canvas, posOnCanvas.X, posOnCanvas.Y, Scale, outputContent);
                         break;
                     case NodeInputContent inputContent:
-                        _DraggingNodeLink = new NodeLink(posOnCanvas.X, posOnCanvas.Y, inputContent);
+                        _DraggingNodeLink = new NodeLink(Canvas, posOnCanvas.X, posOnCanvas.Y, Scale, inputContent);
                         break;
                     default:
                         throw new InvalidCastException();

@@ -10,6 +10,7 @@ namespace NodeGraph.Controls
 {
     public interface ICanvasObject
     {
-        void UpdateOffset(Canvas canvas, Point offset);
+        void UpdateScale(double scale, Point focus);
+        void UpdateOffset(Point offset);
     }
 }

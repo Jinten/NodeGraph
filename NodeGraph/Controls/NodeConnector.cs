@@ -39,6 +39,7 @@ namespace NodeGraph.Controls
 
         public Point GetContentPosition(Canvas canvas, double xScaleOffset = 0.5, double yScaleOffset = 0.5)
         {
+            // it will be shifted Control position if not called UpdateLayout().
             ConnectorControl.UpdateLayout();
             var transformer = ConnectorControl.TransformToVisual(canvas);
 

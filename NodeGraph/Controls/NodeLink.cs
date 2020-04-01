@@ -13,8 +13,13 @@ namespace NodeGraph.Controls
 {
     public class NodeLink : Shape, ICanvasObject, IDisposable
     {
-        Point EndPoint = new Point(0, 0);
-        Point StartPoint = new Point(0, 0);
+        double EndPointX => _EndPoint.X / _Scale.ScaleX;
+        double EndPointY => _EndPoint.Y / _Scale.ScaleY;
+        Point _EndPoint = new Point(0, 0);
+
+        double StartPointX => _StartPoint.X / _Scale.ScaleX;
+        double StartPointY => _StartPoint.Y / _Scale.ScaleY;
+        Point _StartPoint = new Point(0, 0);
 
         public double LinkSize
         {
@@ -41,29 +46,41 @@ namespace NodeGraph.Controls
         public NodeInputContent Input { get; private set; } = null;
         public NodeOutputContent Output { get; private set; } = null;
 
-        bool IsConnecting => Input != null && Output != null;
-
         protected override Geometry DefiningGeometry => Geometry.Empty;
 
-        Pen _HitVisiblePen = null;
+        bool IsConnecting => Input != null && Output != null;
 
-        public NodeLink(double x, double y, NodeInputContent input) : this(x, y)
+        Canvas Canvas { get; } = null;
+
+        Pen _HitVisiblePen = null;
+        ScaleTransform _Scale = new ScaleTransform(1, 1);
+
+        public NodeLink(Canvas canvas, double x, double y, double scale, NodeInputContent input) : this(canvas, x, y, scale)
         {
             Input = input;
         }
 
-        public NodeLink(double x, double y, NodeOutputContent output) : this(x, y)
+        public NodeLink(Canvas canvas, double x, double y, double scale, NodeOutputContent output) : this(canvas, x, y, scale)
         {
             Output = output;
         }
 
-        NodeLink(double x, double y)
+        NodeLink(Canvas canvas, double x, double y, double scale)
         {
+            Canvas = canvas;
+
             IsHitTestVisible = false; // no need to hit until connected
 
             var point = new Point(x, y);
-            StartPoint = point;
-            EndPoint = point;
+            _StartPoint = point;
+            _EndPoint = point;
+
+            var transformGroup = new TransformGroup();
+            _Scale.ScaleX = scale;
+            _Scale.ScaleY = scale;
+            transformGroup.Children.Add(_Scale);
+            RenderTransform = transformGroup;
+            RenderTransformOrigin = new Point(0.5, 0.5);
 
             Canvas.SetZIndex(this, -1);
         }
@@ -79,6 +96,8 @@ namespace NodeGraph.Controls
             Input = input;
             IsHitTestVisible = true;
 
+            UpdateConnectPosition();
+
             InvalidateVisual();
         }
 
@@ -87,15 +106,24 @@ namespace NodeGraph.Controls
             Output = output;
             IsHitTestVisible = true;
 
+            UpdateConnectPosition();
+
             InvalidateVisual();
         }
 
-        public void UpdateOffset(Canvas canvas, Point offset)
+        public void UpdateScale(double scale, Point focus)
         {
-            // update link absolute positions.
+            _Scale.ScaleX = scale;
+            _Scale.ScaleY = scale;
 
-            EndPoint = Input.GetContentPosition(canvas, 0.0, 0.5);
-            StartPoint = Output.GetContentPosition(canvas, 0.5, 0.5);
+            UpdateConnectPosition();
+
+            InvalidateVisual();
+        }
+
+        public void UpdateOffset(Point offset)
+        {
+            UpdateConnectPosition();
 
             InvalidateVisual();
         }
@@ -105,17 +133,17 @@ namespace NodeGraph.Controls
             if (Input == null)
             {
                 // first connecting output to input.
-                EndPoint = new Point(x, y);
+                _EndPoint = new Point(x, y);
             }
             else if (Output == null)
             {
                 // first connecting input to output.
-                StartPoint = new Point(x, y);
+                _StartPoint = new Point(x, y);
             }
             else
             {
                 // reconnecting.
-                EndPoint = new Point(x, y);
+                _EndPoint = new Point(x, y);
             }
 
             InvalidateVisual();
@@ -133,13 +161,13 @@ namespace NodeGraph.Controls
 
         public void UpdateInputEdge(double x, double y)
         {
-            EndPoint = new Point(x, y);
+            _EndPoint = new Point(x, y);
             InvalidateVisual();
         }
 
         public void UpdateOutputEdge(double x, double y)
         {
-            StartPoint = new Point(x, y);
+            _StartPoint = new Point(x, y);
             InvalidateVisual();
         }
 
@@ -147,6 +175,12 @@ namespace NodeGraph.Controls
         {
             Input.Disconnect(this);
             Output.Disconnect(this);
+        }
+
+        void UpdateConnectPosition()
+        {
+            _EndPoint = Input.GetContentPosition(Canvas, 0.0, 0.5);
+            _StartPoint = Output.GetContentPosition(Canvas, 0.5, 0.5);
         }
 
         protected override void OnStyleChanged(Style oldStyle, Style newStyle)
@@ -159,10 +193,13 @@ namespace NodeGraph.Controls
 
         protected override void OnRender(DrawingContext drawingContext)
         {
+            var start = new Point(StartPointX, StartPointY);
+            var end = new Point(EndPointX, EndPointY);
+
             // collision
             if (IsHitTestVisible)
             {
-                drawingContext.DrawLine(_HitVisiblePen, StartPoint, EndPoint);
+                drawingContext.DrawLine(_HitVisiblePen, start, end);
             }
 
             // actually visual
@@ -172,11 +209,11 @@ namespace NodeGraph.Controls
                 visualPen.DashStyle = new DashStyle(new double[] { 2 }, DashOffset);
             }
 
-            drawingContext.DrawLine(visualPen, StartPoint, EndPoint);
+            drawingContext.DrawLine(visualPen, start, end);
 
             // arrow
-            var vEnd = new Vector(EndPoint.X, EndPoint.Y);
-            var vStart = new Vector(StartPoint.X, StartPoint.Y);
+            var vEnd = new Vector(EndPointX, EndPointY);
+            var vStart = new Vector(StartPointX, StartPointY);
             var degree = Vector.AngleBetween(vStart - vEnd, vStart);
 
             if (IsConnecting == false)
@@ -192,12 +229,12 @@ namespace NodeGraph.Controls
                 rotMat.Rotate(30);
 
                 var arrow = Vector.Multiply(segment, rotMat);
-                drawingContext.DrawLine(visualPen, EndPoint, arrow * 12 + EndPoint);
+                drawingContext.DrawLine(visualPen, end, arrow * 12 + end);
             }
             {
                 rotMat.Rotate(-60);
                 var arrow = Vector.Multiply(segment, rotMat);
-                drawingContext.DrawLine(visualPen, EndPoint, arrow * 12 + EndPoint);
+                drawingContext.DrawLine(visualPen, end, arrow * 12 + end);
             }
         }
     }

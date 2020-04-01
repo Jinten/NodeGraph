@@ -133,11 +133,13 @@ namespace NodeGraph.Controls
 
 		public Point DragStartPosition { get; private set; } = new Point(0, 0);
         
-		NodeGraph Owner { get; } = null;
+		Canvas Canvas { get; } = null;
 		NodeInput _NodeInput = null;
         NodeOutput _NodeOutput = null;
         Point _Offset = new Point(0, 0);
         Point _Position = new Point(0, 0);
+        ScaleTransform _Scale = new ScaleTransform(1, 1);
+        TranslateTransform _Translate = new TranslateTransform(0, 0);
 
         static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -153,15 +155,37 @@ namespace NodeGraph.Controls
             }
         }
 
+        static void InputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var node = d as Node;
+
+            if (e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
+            {
+                oldCollection.CollectionChanged -= node.InputCollectionChanged;
+            }
+            if (e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
+            {
+                newCollection.CollectionChanged += node.InputCollectionChanged;
+            }
+        }
+
         static Node()
 		{
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(Node), new FrameworkPropertyMetadata(typeof(Node)));
 		}
 
-		public Node(NodeGraph owner)
+		public Node(Canvas canvas, double scale)
 		{
-			Owner = owner;
+            Canvas = canvas;
             SizeChanged += Node_SizeChanged;
+
+            var transformGroup = new TransformGroup();
+            _Scale.ScaleX = scale;
+            _Scale.ScaleY = scale;
+            transformGroup.Children.Add(_Scale);
+            transformGroup.Children.Add(_Translate);
+            RenderTransform = transformGroup;
+            RenderTransformOrigin = new Point(0.5, 0.5);
 		}
 
         public override void OnApplyTemplate()
@@ -170,22 +194,39 @@ namespace NodeGraph.Controls
             _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
         }
 
-        public void UpdateOffset(Canvas canvas, Point offset)
+        public void UpdateScale(double scale, Point focus)
         {
-            _Offset = offset;
-            Margin = new Thickness(_Position.X + _Offset.X, _Position.Y + _Offset.Y, 0, 0);
+            Vector n = new Vector(focus.X, focus.Y);
+            n.Normalize();
+
+            RenderTransformOrigin = new Point(n.X, n.Y);
+
+            _Scale.ScaleX = scale;
+            _Scale.ScaleY = scale;
+
+            UpdatePosition();
 
             InvalidateVisual();
         }
 
-        public void UpdatePosition(Canvas canvas, double x, double y)
+        public void UpdateOffset(Point offset)
+        {
+            _Offset = offset;
+
+            UpdatePosition();
+
+            InvalidateVisual();
+        }
+
+        public void UpdatePosition(double x, double y)
         {
             _Position.X = x;
             _Position.Y = y;
-            Margin = new Thickness(_Position.X + _Offset.X, _Position.Y + _Offset.Y, 0, 0);
 
-            _NodeInput.UpdateLinkPosition(canvas);
-            _NodeOutput.UpdateLinkPosition(canvas);
+            UpdatePosition();
+
+            _NodeInput.UpdateLinkPosition(Canvas);
+            _NodeOutput.UpdateLinkPosition(Canvas);
         }
 
         public void CaptureDragStartPosition()
@@ -198,24 +239,16 @@ namespace NodeGraph.Controls
             SizeChanged -= Node_SizeChanged;
 		}
 
-		static void InputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			var node = d as Node;
-
-			if(e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
-			{
-				oldCollection.CollectionChanged -= node.InputCollectionChanged;
-			}
-			if(e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
-			{
-				newCollection.CollectionChanged += node.InputCollectionChanged;
-			}
-		}
+        void UpdatePosition()
+        {
+            _Translate.X = (_Position.X + _Offset.X) * _Scale.ScaleX;
+            _Translate.Y = (_Position.Y + _Offset.Y) * _Scale.ScaleY;
+        }
 
         void Node_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            _NodeInput.UpdateLinkPosition(Owner.Canvas);
-            _NodeOutput.UpdateLinkPosition(Owner.Canvas);
+            _NodeInput.UpdateLinkPosition(Canvas);
+            _NodeOutput.UpdateLinkPosition(Canvas);
         }
 
         void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
