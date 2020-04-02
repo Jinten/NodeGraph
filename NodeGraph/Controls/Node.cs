@@ -174,18 +174,23 @@ namespace NodeGraph.Controls
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(Node), new FrameworkPropertyMetadata(typeof(Node)));
 		}
 
-		public Node(Canvas canvas, double scale)
+		public Node(Canvas canvas, Point offset, double scale)
 		{
             Canvas = canvas;
             SizeChanged += Node_SizeChanged;
 
             var transformGroup = new TransformGroup();
+
+            _Offset = offset;
             _Scale.ScaleX = scale;
             _Scale.ScaleY = scale;
+
+            UpdatePosition();
+
             transformGroup.Children.Add(_Scale);
             transformGroup.Children.Add(_Translate);
             RenderTransform = transformGroup;
-            RenderTransformOrigin = new Point(0.5, 0.5);
+            RenderTransformOrigin = new Point(0, 0);
 		}
 
         public override void OnApplyTemplate()
@@ -196,11 +201,6 @@ namespace NodeGraph.Controls
 
         public void UpdateScale(double scale, Point focus)
         {
-            Vector n = new Vector(focus.X, focus.Y);
-            n.Normalize();
-
-            RenderTransformOrigin = new Point(n.X, n.Y);
-
             _Scale.ScaleX = scale;
             _Scale.ScaleY = scale;
 
@@ -241,8 +241,8 @@ namespace NodeGraph.Controls
 
         void UpdatePosition()
         {
-            _Translate.X = (_Position.X + _Offset.X) * _Scale.ScaleX;
-            _Translate.Y = (_Position.Y + _Offset.Y) * _Scale.ScaleY;
+            _Translate.X = (_Position.X * _Scale.ScaleX + _Offset.X);
+            _Translate.Y = (_Position.Y * _Scale.ScaleY + _Offset.Y);
         }
 
         void Node_SizeChanged(object sender, SizeChangedEventArgs e)

@@ -387,6 +387,7 @@ namespace NodeGraph.Controls
         {
             base.OnMouseEnter(e);
 
+            _PressMouseToMove = false;
             _IsStartDragging = false;
             _DraggingNodes.Clear();
             _DraggingConnectors.Clear();
@@ -396,6 +397,7 @@ namespace NodeGraph.Controls
         {
             base.OnMouseLeave(e);
 
+            _PressMouseToMove = false;
             _IsStartDragging = false;
             _DraggingNodes.Clear();
             _DraggingConnectors.Clear();
@@ -449,7 +451,7 @@ namespace NodeGraph.Controls
         {
             foreach (var vm in addVMs)
             {
-                var node = new Node(Canvas, Scale)
+                var node = new Node(Canvas, Offset, Scale)
                 {
                     DataContext = vm,
                     Template = NodeTemplate,
@@ -524,7 +526,7 @@ namespace NodeGraph.Controls
                 _DraggingConnectors.Add(connector);
                 Canvas.Children.Add(_DraggingNodeLink);
             }
-            else
+            else if(IsOffsetMoveWithMouse(e) == false)
             {
                 // clicked on Node
                 var pos = e.GetPosition(Canvas);
@@ -535,6 +537,21 @@ namespace NodeGraph.Controls
                 _DraggingNodes.Add(firstNode);
 
                 _DragStartPointToMoveNode = e.GetPosition(Canvas);
+            }
+        }
+
+        bool IsOffsetMoveWithMouse(MouseButtonEventArgs e)
+        {
+            switch(MoveWithMouse)
+            {
+                case MouseButton.Left:
+                    return e.LeftButton == MouseButtonState.Pressed;                    
+                case MouseButton.Middle:
+                    return e.MiddleButton == MouseButtonState.Pressed;
+                case MouseButton.Right:
+                    return e.RightButton == MouseButtonState.Pressed;
+                default:
+                    throw new InvalidCastException();
             }
         }
     }

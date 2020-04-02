@@ -81,6 +81,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\GridCanvas.cs" />
     <Compile Include="Controls\ICanvasObject.cs" />
     <Compile Include="Controls\Node.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
