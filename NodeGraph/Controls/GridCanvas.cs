@@ -49,7 +49,7 @@ namespace NodeGraph.Controls
             set => SetValue(GridMainBrushProperty, value);
         }
         public static readonly DependencyProperty GridMainBrushProperty =
-            DependencyProperty.Register(nameof(GridMainBrush), typeof(Brush), typeof(GridCanvas), new FrameworkPropertyMetadata(Brushes.Gray, GridMainBrushPropertyChanged));
+            DependencyProperty.Register(nameof(GridMainBrush), typeof(Brush), typeof(GridCanvas), new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromRgb(80,80,80)), GridMainBrushPropertyChanged));
 
         public Brush GridSubBrush
         {
@@ -57,7 +57,7 @@ namespace NodeGraph.Controls
             set => SetValue(GridSubBrushProperty, value);
         }
         public static readonly DependencyProperty GridSubBrushProperty =
-            DependencyProperty.Register(nameof(GridSubBrush), typeof(Brush), typeof(GridCanvas), new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromArgb(255, 64, 64, 64)), GridSubBrushPropertyChanged));
+            DependencyProperty.Register(nameof(GridSubBrush), typeof(Brush), typeof(GridCanvas), new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromRgb(64, 64, 64)), GridSubBrushPropertyChanged));
 
         public double GridMainThickness
         {
@@ -121,7 +121,6 @@ namespace NodeGraph.Controls
             var transfromGroup = new TransformGroup();
             transfromGroup.Children.Add(_Scale);
             RenderTransform = transfromGroup;
-            RenderTransformOrigin = new Point(0.5, 0.5);
 
             UpdateMainGridPen();
             UpdateSubGridPen();
@@ -135,37 +134,57 @@ namespace NodeGraph.Controls
             double space = Spacing / subGridCount;
             double offset = space * subGridCount;
 
-            // main horizon
-            int hCount = (int)(ActualHeight / Spacing) + 1;
-            for (int i = 0; i < hCount; ++i)
+            double MinHorizonOnCanvas = -ActualWidth * Math.Max(0.0, 1.0 - Scale) * 1.0 / Scale * 0.5;
+            double MaxHorizonOnCanvas = +ActualWidth * (1 + Math.Max(0.0, 1.0 - Scale) * 1.0 / Scale * 0.5);
+
+            double MinVerticalOnCanvas = -ActualHeight * Math.Max(0.0, 1.0 - Scale) * 1.0 / Scale * 0.5;
+            double MaxVerticalOnCanvas = +ActualHeight * (1 + Math.Max(0.0, 1.0 - Scale) * 1.0 / Scale * 0.5);
+
+            double invScale = 1.0 / Scale;
+
+            int hCount = (int)(ActualHeight * invScale / Spacing + Math.Ceiling(Scale));
+            int initHIndex = (int)(Math.Max(0, ActualHeight * invScale - ActualHeight) / Spacing) + 1;
+
+            int vCount = (int)(ActualWidth * invScale / Spacing + Math.Ceiling(Scale));
+            int initVIndex = (int)(Math.Max(0, ActualWidth * invScale - ActualWidth) / Spacing) + 1;
+
+            // sub horizon
+            for (int i = -initHIndex; i < hCount; ++i)
             {
-                // sub horizon
                 for (int sub = 0; sub < subGridCount; ++sub)
                 {
-                    double vOfs = CalcOffset(Offset.Y, space);
-                    double hSub = sub * space + i * offset + vOfs;
-                    dc.DrawLine(_GridSubPen, new Point(0, hSub), new Point(ActualWidth, hSub));
+                    double hSub = sub * space + i * offset + (Offset.Y % space);
+                    dc.DrawLine(_GridSubPen, new Point(MinHorizonOnCanvas, hSub), new Point(MaxHorizonOnCanvas, hSub));
                 }
+            }
 
-                double h = i * Spacing + CalcOffset(Offset.Y, Spacing);
-                dc.DrawLine(_GridMainPen, new Point(0, h), new Point(ActualWidth, h));
+            // sub vertical
+            for (int i = -initVIndex; i < vCount; ++i)
+            {
+                for (uint sub = 0; sub < subGridCount; ++sub)
+                {
+                    double vSub = sub * space + i * offset + (Offset.X % Spacing);
+                    dc.DrawLine(_GridSubPen, new Point(vSub, MinVerticalOnCanvas), new Point(vSub, MaxVerticalOnCanvas));
+                }
+            }
+
+            // main horizontal
+            for (int i = -initHIndex; i < hCount; ++i)
+            {
+                double h = i * Spacing + Offset.Y % Spacing;
+                dc.DrawLine(_GridMainPen, new Point(MinHorizonOnCanvas, h), new Point(MaxHorizonOnCanvas, h));
             }
 
             // main vertical
-            int vCount = (int)(ActualWidth / Spacing) + 1;
-            for (uint i = 0; i < vCount; ++i)
+            for (int i = -initVIndex; i < vCount; ++i)
             {
-                // sub vertical
-                for (uint sub = 0; sub < subGridCount; ++sub)
-                {
-                    double hOfs = CalcOffset(Offset.X, space);
-                    double vSub = sub * space + i * offset + hOfs;
-                    dc.DrawLine(_GridSubPen, new Point(vSub, 0), new Point(vSub, ActualHeight));
-                }
-
-                double v = i * Spacing + CalcOffset(Offset.X, Spacing);
-                dc.DrawLine(_GridMainPen, new Point(v, 0), new Point(v, ActualHeight));
+                double v = i * Spacing + Offset.X % Spacing;
+                dc.DrawLine(_GridMainPen, new Point(v, MinVerticalOnCanvas), new Point(v, MaxVerticalOnCanvas));
             }
+        }
+
+        void DrawLTtoRB(DrawingContext dc)
+        {
         }
 
         void UpdateMainGridPen()
@@ -177,7 +196,6 @@ namespace NodeGraph.Controls
         void UpdateSubGridPen()
         {
             _GridSubPen = new Pen(GridSubBrush, GridSubThickness);
-            _GridSubPen.DashStyle = DashStyles.Dash;
             _GridSubPen.Freeze();
         }
 
@@ -185,16 +203,6 @@ namespace NodeGraph.Controls
         {
             _Scale.ScaleX = Scale;
             _Scale.ScaleY = Scale;
-        }
-
-        double CalcOffset(double offset, double repeat)
-        {
-            var sign = Math.Sign(offset);
-            var absOffset = Math.Abs(offset);
-
-            var result = absOffset > repeat ? absOffset % repeat : absOffset;
-
-            return result * sign;
         }
     }
 }

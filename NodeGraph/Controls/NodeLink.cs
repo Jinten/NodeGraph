@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NodeGraph.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,12 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
+    public enum NodeLinkType
+    {
+        Line,
+        Curve
+    }
+
     public class NodeLink : Shape, ICanvasObject, IDisposable
     {
         double EndPointX => _EndPoint.X / _Scale.ScaleX;
@@ -37,7 +44,21 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty DashOffsetProperty =
             DependencyProperty.Register(nameof(DashOffset), typeof(double), typeof(NodeLink), new FrameworkPropertyMetadata(0.0, DashOffsetPropertyChanged));
 
-        private static void DashOffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        public NodeLinkType LinkType
+        {
+            get => (NodeLinkType)GetValue(LinkTypeProperty);
+            set => SetValue(LinkTypeProperty, value);
+        }
+        public static readonly DependencyProperty LinkTypeProperty =
+            DependencyProperty.Register(nameof(LinkType), typeof(NodeLinkType), typeof(NodeLink), new FrameworkPropertyMetadata(NodeLinkType.Curve, LinkTypePropertyChanged));
+
+        static void DashOffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var nodeLink = d as NodeLink;
+            nodeLink.InvalidateVisual();
+        }
+
+        static void LinkTypePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var nodeLink = d as NodeLink;
             nodeLink.InvalidateVisual();
@@ -105,16 +126,6 @@ namespace NodeGraph.Controls
         {
             Output = output;
             IsHitTestVisible = true;
-
-            UpdateConnectPosition();
-
-            InvalidateVisual();
-        }
-
-        public void UpdateScale(double scale, Point focus)
-        {
-            _Scale.ScaleX = scale;
-            _Scale.ScaleY = scale;
 
             UpdateConnectPosition();
 
@@ -193,6 +204,19 @@ namespace NodeGraph.Controls
 
         protected override void OnRender(DrawingContext drawingContext)
         {
+            switch (LinkType)
+            {
+                case NodeLinkType.Line:
+                    DrawLine(drawingContext);
+                    break;
+                case NodeLinkType.Curve:
+                    DrawCurve(drawingContext);
+                    break;
+            }
+        }
+
+        void DrawLine(DrawingContext drawingContext)
+        {
             var start = new Point(StartPointX, StartPointY);
             var end = new Point(EndPointX, EndPointY);
 
@@ -236,6 +260,38 @@ namespace NodeGraph.Controls
                 var arrow = Vector.Multiply(segment, rotMat);
                 drawingContext.DrawLine(visualPen, end, arrow * 12 + end);
             }
+        }
+
+        void DrawCurve(DrawingContext drawingContext)
+        {
+            var start = new Point(StartPointX, StartPointY);
+            var end = new Point(EndPointX, EndPointY);
+            var c0 = new Point((end.X - start.X) * 0.5 + start.X, start.Y);
+            var c1 = new Point((start.X - end.X) * 0.5 + end.X, end.Y);
+
+            var stream = new StreamGeometry();
+
+            using (var context = stream.Open())
+            {
+                context.BeginFigure(start, true, false);
+                context.BezierTo(c0, c1, end, true, false);
+            }
+            stream.Freeze();
+
+            // collision
+            if (IsHitTestVisible)
+            {
+                drawingContext.DrawGeometry(null, _HitVisiblePen, stream);
+            }
+
+            // actually visual
+            var visualPen = new Pen(Fill, LinkSize * 1.0 / _Scale.ScaleX);
+            if (IsMouseOver)
+            {
+                visualPen.DashStyle = new DashStyle(new double[] { 2 }, DashOffset);
+            }
+
+            drawingContext.DrawGeometry(null, visualPen, stream);
         }
     }
 }

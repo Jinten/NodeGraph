@@ -138,7 +138,6 @@ namespace NodeGraph.Controls
         NodeOutput _NodeOutput = null;
         Point _Offset = new Point(0, 0);
         Point _Position = new Point(0, 0);
-        ScaleTransform _Scale = new ScaleTransform(1, 1);
         TranslateTransform _Translate = new TranslateTransform(0, 0);
 
         static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -182,31 +181,17 @@ namespace NodeGraph.Controls
             var transformGroup = new TransformGroup();
 
             _Offset = offset;
-            _Scale.ScaleX = scale;
-            _Scale.ScaleY = scale;
 
             UpdatePosition();
 
-            transformGroup.Children.Add(_Scale);
             transformGroup.Children.Add(_Translate);
             RenderTransform = transformGroup;
-            RenderTransformOrigin = new Point(0, 0);
 		}
 
         public override void OnApplyTemplate()
 		{
 			_NodeInput = GetTemplateChild("__NodeInput__") as NodeInput;
             _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
-        }
-
-        public void UpdateScale(double scale, Point focus)
-        {
-            _Scale.ScaleX = scale;
-            _Scale.ScaleY = scale;
-
-            UpdatePosition();
-
-            InvalidateVisual();
         }
 
         public void UpdateOffset(Point offset)
@@ -241,8 +226,8 @@ namespace NodeGraph.Controls
 
         void UpdatePosition()
         {
-            _Translate.X = (_Position.X * _Scale.ScaleX + _Offset.X);
-            _Translate.Y = (_Position.Y * _Scale.ScaleY + _Offset.Y);
+            _Translate.X = _Position.X + _Offset.X;
+            _Translate.Y = _Position.Y + _Offset.Y;
         }
 
         void Node_SizeChanged(object sender, SizeChangedEventArgs e)

@@ -1,8 +1,8 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converter="clr-namespace:NodeGraph.Converter"
     xmlns:local="clr-namespace:NodeGraph.Controls">
-
 
     <Style TargetType="{x:Type local:NodeGraph}">
         <Setter Property="Background" Value="#FF202020"/>
@@ -13,10 +13,15 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <local:GridCanvas x:Name="__NodeGraphCanvas__"
-                                          ClipToBounds="True"
                                           UseLayoutRounding="True"
+                                          Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}"
+                                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}"
                                           Scale="{Binding Scale, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}"
-                                          Offset="{Binding Offset, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}"/>
+                                          Offset="{Binding Offset, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}">
+                            <Canvas.RenderTransformOrigin>
+                                <Point X="0.5" Y="0.5"/>
+                            </Canvas.RenderTransformOrigin>
+                        </local:GridCanvas>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

@@ -54,7 +54,7 @@ namespace NodeGraph.Controls
             set => SetValue(ScaleProperty, value);
         }
         public static readonly DependencyProperty ScaleProperty =
-            DependencyProperty.Register(nameof(Scale), typeof(double), typeof(NodeGraph), new FrameworkPropertyMetadata(1.0, ScalePropertyChanged));
+            DependencyProperty.Register(nameof(Scale), typeof(double), typeof(NodeGraph), new FrameworkPropertyMetadata(1.0));
 
         public double MinScale
         {
@@ -101,24 +101,6 @@ namespace NodeGraph.Controls
         NodeLink _ReconnectingNodeLink = null;
 
         List<object> _DelayToBindVMs = new List<object>();
-
-        static void ScalePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var ng = d as NodeGraph;
-
-            var focus = new Point(ng.Canvas.ActualWidth * 0.5 + ng.Offset.X, ng.Canvas.ActualHeight * 0.5 + ng.Offset.Y);
-
-            // need to calculate node scale before calculate link absolute position.
-            foreach (var obj in ng.Canvas.Children.OfType<Node>())
-            {
-                obj.UpdateScale(ng.Scale, focus);
-            }
-
-            foreach (var obj in ng.Canvas.Children.OfType<NodeLink>())
-            {
-                obj.UpdateScale(ng.Scale, focus);
-            }
-        }
 
         static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
