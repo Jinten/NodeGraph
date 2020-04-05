@@ -309,19 +309,13 @@ namespace NodeGraph.Controls
                     switch (connector)
                     {
                         case NodeInputContent input:
-                            {
-                                var posOnCanvas = transformer.Transform(new Point(0.0, element.ActualHeight * 0.5));
-                                ConnectNodeLink(element, input, _DraggingConnectors[0] as NodeOutputContent, _DraggingNodeLink, posOnCanvas);
-                                _DraggingNodeLink.Connect(input);
-                                break;
-                            }
+                            ConnectNodeLink(element, input, _DraggingConnectors[0] as NodeOutputContent, _DraggingNodeLink, connector.GetContentPosition(Canvas));
+                            _DraggingNodeLink.Connect(input);
+                            break;
                         case NodeOutputContent output:
-                            {
-                                var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
-                                ConnectNodeLink(element, _DraggingConnectors[0] as NodeInputContent, output, _DraggingNodeLink, posOnCanvas);
-                                _DraggingNodeLink.Connect(output);
-                                break;
-                            }
+                            ConnectNodeLink(element, _DraggingConnectors[0] as NodeInputContent, output, _DraggingNodeLink, connector.GetContentPosition(Canvas));
+                            _DraggingNodeLink.Connect(output);
+                            break;
                         default:
                             throw new InvalidCastException();
                     }
@@ -344,9 +338,7 @@ namespace NodeGraph.Controls
                     {
                         _ReconnectingNodeLink.MouseDown -= NodeLink_MouseDown;
 
-                        var transformer = element.TransformToVisual(Canvas);
-                        var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
-                        ConnectNodeLink(element, input, _ReconnectingNodeLink.Output, _ReconnectingNodeLink, posOnCanvas);
+                        ConnectNodeLink(element, input, _ReconnectingNodeLink.Output, _ReconnectingNodeLink, input.GetContentPosition(Canvas));
 
                         _ReconnectingNodeLink.Connect(input);
                     }
@@ -493,8 +485,7 @@ namespace NodeGraph.Controls
             if (element != null && element.Tag is NodeConnectorContent connector)
             {
                 // clicked on connector
-                var transformer = element.TransformToVisual(Canvas);
-                var posOnCanvas = transformer.Transform(new Point(element.ActualWidth * 0.5, element.ActualHeight * 0.5));
+                var posOnCanvas = connector.GetContentPosition(Canvas);
 
                 switch (connector)
                 {
@@ -511,7 +502,7 @@ namespace NodeGraph.Controls
                 _DraggingConnectors.Add(connector);
                 Canvas.Children.Add(_DraggingNodeLink);
             }
-            else if(IsOffsetMoveWithMouse(e) == false)
+            else if (IsOffsetMoveWithMouse(e) == false)
             {
                 // clicked on Node
                 var pos = e.GetPosition(Canvas);
@@ -527,10 +518,10 @@ namespace NodeGraph.Controls
 
         bool IsOffsetMoveWithMouse(MouseButtonEventArgs e)
         {
-            switch(MoveWithMouse)
+            switch (MoveWithMouse)
             {
                 case MouseButton.Left:
-                    return e.LeftButton == MouseButtonState.Pressed;                    
+                    return e.LeftButton == MouseButtonState.Pressed;
                 case MouseButton.Middle:
                     return e.MiddleButton == MouseButtonState.Pressed;
                 case MouseButton.Right:

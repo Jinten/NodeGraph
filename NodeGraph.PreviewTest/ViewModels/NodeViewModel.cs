@@ -62,8 +62,11 @@ namespace NodeGraph.ViewModels
 
         public NodeViewModel()
         {
-            _Inputs.Add(new NodeInputViewModel("Input1"));
-            _Inputs.Add(new NodeInputViewModel("Input2"));
+            for (int i = 0; i < 2; ++i)
+            {
+                _Inputs.Add(new NodeInputViewModel($"Input{i}"));
+            }
+
 
             _Outputs.Add(new NodeOutputViewModel("Output"));
         }

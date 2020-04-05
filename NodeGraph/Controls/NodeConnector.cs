@@ -53,6 +53,12 @@ namespace NodeGraph.Controls
             typeof(NodeConnectorContent),
             new FrameworkPropertyMetadata(Brushes.Gray));
 
+        public Point Position
+        {
+            get => _Position;
+            set => UpdatePosition(value);
+        }
+
         /// <summary>
         /// connecting node links.
         /// </summary>
@@ -60,6 +66,16 @@ namespace NodeGraph.Controls
         List<NodeLink> _NodeLinks = new List<NodeLink>();
 
         protected abstract FrameworkElement ConnectorControl { get; }
+
+        Point _Position = new Point();
+        TranslateTransform _Translate = new TranslateTransform();
+
+        public NodeConnectorContent()
+        {
+            var transfromGroup = new TransformGroup();
+            transfromGroup.Children.Add(_Translate);
+            RenderTransform = transfromGroup;
+        }
 
         public void Connect(NodeLink nodeLink)
         {
@@ -84,6 +100,13 @@ namespace NodeGraph.Controls
 
         public abstract void UpdateLinkPosition(Canvas canvas);
         public abstract bool CanConnectTo(NodeConnectorContent connector);
+
+        void UpdatePosition(Point pos)
+        {
+            _Position = pos;
+            _Translate.X = _Position.X;
+            _Translate.Y = _Position.Y;
+        }
     }
 
     public abstract class NodeConnector<T> : MultiSelector where T : NodeConnectorContent, new()
@@ -142,6 +165,11 @@ namespace NodeGraph.Controls
 
         public void UpdateLinkPosition(Canvas canvas)
         {
+            if(_Canvas == null)
+            {
+                return;
+            }
+
             foreach (var connector in _Canvas.Children.OfType<NodeConnectorContent>())
             {
                 connector.UpdateLinkPosition(canvas);
@@ -153,18 +181,18 @@ namespace NodeGraph.Controls
             switch (ConnectorLayout)
             {
                 case ConnectorLayoutType.Top:
-                    ReplaceConnectElements(0, FontSize);
+                    ReplaceConnectElements(0);
                     break;
                 case ConnectorLayoutType.Center:
                     {
                         var halfSize = _Canvas.Children.Count * FontSize * 0.5;
-                        ReplaceConnectElements(ActualHeight * 0.5 - halfSize, FontSize);
+                        ReplaceConnectElements(ActualHeight * 0.5 - halfSize);
                         break;
                     }
                 case ConnectorLayoutType.Bottom:
                     {
                         var totalSize = _Canvas.Children.Count * FontSize;
-                        ReplaceConnectElements(ActualHeight - totalSize, FontSize);
+                        ReplaceConnectElements(ActualHeight - totalSize);
                         break;
                     }
             }
@@ -258,12 +286,12 @@ namespace NodeGraph.Controls
             UpdateConnectorsLayout();
         }
 
-        void ReplaceConnectElements(double offset, double margin)
+        void ReplaceConnectElements(double offset)
         {
             int index = 0;
-            foreach (var element in _Canvas.Children.OfType<FrameworkElement>())
+            foreach (var element in _Canvas.Children.OfType<NodeConnectorContent>())
             {
-                element.Margin = new Thickness(0, offset + margin * index * ConnectorMargin, 0, 0);
+                element.Position = new Point(0, offset + element.ActualHeight * index + (index + 1) * ConnectorMargin);
                 ++index;
             }
         }

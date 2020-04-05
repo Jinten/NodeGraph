@@ -74,6 +74,7 @@ namespace NodeGraph.Controls
         Canvas Canvas { get; } = null;
 
         double _Scale = 1.0f;
+        Point _RestoreEndPoint = new Point();
 
         public NodeLink(Canvas canvas, double x, double y, double scale, NodeInputContent input) : this(canvas, x, y, scale)
         {
@@ -162,11 +163,13 @@ namespace NodeGraph.Controls
         public void ReleaseEndPoint()
         {
             IsHitTestVisible = false;
+            _RestoreEndPoint = _EndPoint;
         }
 
         public void RestoreEndPoint()
         {
             IsHitTestVisible = true;
+            UpdateEdgePoint(_RestoreEndPoint.X, _RestoreEndPoint.Y);
         }
 
         public void UpdateInputEdge(double x, double y)
@@ -189,7 +192,7 @@ namespace NodeGraph.Controls
 
         void UpdateConnectPosition()
         {
-            _EndPoint = Input.GetContentPosition(Canvas, 0.0, 0.5);
+            _EndPoint = Input.GetContentPosition(Canvas, 0.5, 0.5);
             _StartPoint = Output.GetContentPosition(Canvas, 0.5, 0.5);
         }
 
