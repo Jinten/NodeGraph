@@ -20,12 +20,12 @@ namespace NodeGraph.Controls
 
     public class NodeLink : Shape, ICanvasObject, IDisposable
     {
-        double EndPointX => _EndPoint.X / _Scale.ScaleX;
-        double EndPointY => _EndPoint.Y / _Scale.ScaleY;
+        double EndPointX => _EndPoint.X / _Scale;
+        double EndPointY => _EndPoint.Y / _Scale;
         Point _EndPoint = new Point(0, 0);
 
-        double StartPointX => _StartPoint.X / _Scale.ScaleX;
-        double StartPointY => _StartPoint.Y / _Scale.ScaleY;
+        double StartPointX => _StartPoint.X / _Scale;
+        double StartPointY => _StartPoint.Y / _Scale;
         Point _StartPoint = new Point(0, 0);
 
         public double LinkSize
@@ -73,8 +73,7 @@ namespace NodeGraph.Controls
 
         Canvas Canvas { get; } = null;
 
-        Pen _HitVisiblePen = null;
-        ScaleTransform _Scale = new ScaleTransform(1, 1);
+        double _Scale = 1.0f;
 
         public NodeLink(Canvas canvas, double x, double y, double scale, NodeInputContent input) : this(canvas, x, y, scale)
         {
@@ -96,10 +95,10 @@ namespace NodeGraph.Controls
             _StartPoint = point;
             _EndPoint = point;
 
+            _Scale = scale;
+
             var transformGroup = new TransformGroup();
-            _Scale.ScaleX = scale;
-            _Scale.ScaleY = scale;
-            transformGroup.Children.Add(_Scale);
+            transformGroup.Children.Add(new ScaleTransform() { ScaleX = scale, ScaleY = scale });
             RenderTransform = transformGroup;
             RenderTransformOrigin = new Point(0.5, 0.5);
 
@@ -143,17 +142,17 @@ namespace NodeGraph.Controls
         {
             if (Input == null)
             {
-                // first connecting output to input.
+                // first connected output to input.
                 _EndPoint = new Point(x, y);
             }
             else if (Output == null)
             {
-                // first connecting input to output.
+                // first connected input to output.
                 _StartPoint = new Point(x, y);
             }
             else
             {
-                // reconnecting.
+                // reconnected point.
                 _EndPoint = new Point(x, y);
             }
 
@@ -194,14 +193,6 @@ namespace NodeGraph.Controls
             _StartPoint = Output.GetContentPosition(Canvas, 0.5, 0.5);
         }
 
-        protected override void OnStyleChanged(Style oldStyle, Style newStyle)
-        {
-            base.OnStyleChanged(oldStyle, newStyle);
-
-            _HitVisiblePen = new Pen(Brushes.Transparent, LinkSize + StrokeThickness);
-            _HitVisiblePen.Freeze();
-        }
-
         protected override void OnRender(DrawingContext drawingContext)
         {
             switch (LinkType)
@@ -220,18 +211,23 @@ namespace NodeGraph.Controls
             var start = new Point(StartPointX, StartPointY);
             var end = new Point(EndPointX, EndPointY);
 
+            double linkSize = LinkSize * (1.0f / _Scale);
+
             // collision
             if (IsHitTestVisible)
             {
-                drawingContext.DrawLine(_HitVisiblePen, start, end);
+                var hitVisiblePen = new Pen(Brushes.Transparent, linkSize + StrokeThickness);
+                hitVisiblePen.Freeze();
+                drawingContext.DrawLine(hitVisiblePen, start, end);
             }
 
             // actually visual
-            var visualPen = new Pen(Fill, LinkSize);
+            var visualPen = new Pen(Fill, linkSize);
             if (IsMouseOver)
             {
                 visualPen.DashStyle = new DashStyle(new double[] { 2 }, DashOffset);
             }
+            visualPen.Freeze();
 
             drawingContext.DrawLine(visualPen, start, end);
 
@@ -257,6 +253,7 @@ namespace NodeGraph.Controls
             }
             {
                 rotMat.Rotate(-60);
+
                 var arrow = Vector.Multiply(segment, rotMat);
                 drawingContext.DrawLine(visualPen, end, arrow * 12 + end);
             }
@@ -278,18 +275,24 @@ namespace NodeGraph.Controls
             }
             stream.Freeze();
 
+            double linkSize = LinkSize * (1.0f / _Scale);
+
             // collision
             if (IsHitTestVisible)
             {
-                drawingContext.DrawGeometry(null, _HitVisiblePen, stream);
+                var hitVisiblePen = new Pen(Brushes.Transparent, linkSize + StrokeThickness);
+                hitVisiblePen.Freeze();
+                drawingContext.DrawGeometry(null, hitVisiblePen, stream);
             }
 
             // actually visual
-            var visualPen = new Pen(Fill, LinkSize * 1.0 / _Scale.ScaleX);
+            var visualPen = new Pen(Fill, linkSize);
             if (IsMouseOver)
             {
                 visualPen.DashStyle = new DashStyle(new double[] { 2 }, DashOffset);
             }
+
+            visualPen.Freeze();
 
             drawingContext.DrawGeometry(null, visualPen, stream);
         }

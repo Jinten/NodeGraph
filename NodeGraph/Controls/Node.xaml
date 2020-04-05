@@ -31,13 +31,19 @@
                                       VerticalAlignment="Center"
                                       ContentTemplate="{Binding HeaderContentTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
                 </Border>
+                
+                <!--
+                ConnectorLayout, ConnectorMargin and ItemsSource must bind with RelativeSource.
+                Because these are must process first OnApplyTemplate before depends parent properties.
+                it will incompletely initialize if not called OnApplyTemplate before ones.
+                -->
 
                 <DockPanel>
                     <local:NodeInput x:Name="__NodeInput__"
                                      ConnectorLayout="{Binding InputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                      ConnectorMargin="{Binding InputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                      ItemsSource="{Binding Inputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                     ItemContainerStyle="{Binding InputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
+                                     ItemContainerStyle="{TemplateBinding InputStyle}"/>
 
                     <ContentPresenter x:Name="__NodeContentTemplate__"
                                       HorizontalAlignment="Center"
@@ -49,7 +55,7 @@
                                       ConnectorLayout="{Binding OutputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"                                  
                                       ConnectorMargin="{Binding OutputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                       ItemsSource="{Binding Outputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                      ItemContainerStyle="{Binding OutputStyle, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
+                                      ItemContainerStyle="{TemplateBinding OutputStyle}"/>
                 </DockPanel>
             </StackPanel>
         </Border>

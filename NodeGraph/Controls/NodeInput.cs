@@ -52,6 +52,10 @@ namespace NodeGraph.Controls
         protected override ControlTemplate NodeConnectorContentTemplate => _NodeInputTemplate.Get("__NodeInputContentTemplate__");
 		ResourceInstance<ControlTemplate> _NodeInputTemplate = new ResourceInstance<ControlTemplate>();
 
+        protected override Style NodeConnectorContentBaseStyle => _NodeConnectorContentBaseStyle.Get("__NodeInputBaseStyle__");
+        ResourceInstance<Style> _NodeConnectorContentBaseStyle = new ResourceInstance<Style>();
+
+
         static NodeInput()
 		{
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeInput), new FrameworkPropertyMetadata(typeof(NodeInput)));

@@ -84,7 +84,6 @@
     <Compile Include="Controls\GridCanvas.cs" />
     <Compile Include="Controls\ICanvasObject.cs" />
     <Compile Include="Controls\Node.cs" />
-    <Compile Include="Utilities\CatmullRom.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
     <Page Include="Controls\Node.xaml">
       <Generator>MSBuild:Compile</Generator>

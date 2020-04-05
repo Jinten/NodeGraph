@@ -2,6 +2,17 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:NodeGraph.Controls">
 
+    <Style x:Key="__NodeOutputBaseStyle__" TargetType="{x:Type local:NodeOutputContent}">
+        <Setter Property="Stroke" Value="Red"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Fill" Value="Gray"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Fill" Value="Aqua"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <ControlTemplate x:Key="__NodeOutputContentTemplate__" TargetType="{x:Type local:NodeOutputContent}">
         <Border Background="{TemplateBinding Background}"
 				BorderBrush="{TemplateBinding BorderBrush}"

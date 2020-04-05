@@ -14,10 +14,10 @@
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <local:GridCanvas x:Name="__NodeGraphCanvas__"
                                           UseLayoutRounding="True"
-                                          Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}"
-                                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}"
-                                          Scale="{Binding Scale, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}"
-                                          Offset="{Binding Offset, RelativeSource={RelativeSource AncestorType={x:Type local:NodeGraph}}}">
+                                          Width="{TemplateBinding ActualWidth}"
+                                          Height="{TemplateBinding ActualHeight}"
+                                          Scale="{TemplateBinding Scale}"
+                                          Offset="{TemplateBinding Offset}">
                             <Canvas.RenderTransformOrigin>
                                 <Point X="0.5" Y="0.5"/>
                             </Canvas.RenderTransformOrigin>

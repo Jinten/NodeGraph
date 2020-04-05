@@ -50,7 +50,11 @@ namespace NodeGraph.Controls
 		protected override string ConnectorCanvasName => "__NodeOutputCanvas__";
 
         protected override ControlTemplate NodeConnectorContentTemplate => _NodeOutputTemplate.Get("__NodeOutputContentTemplate__");
-		ResourceInstance<ControlTemplate> _NodeOutputTemplate = new ResourceInstance<ControlTemplate>();
+
+        protected override Style NodeConnectorContentBaseStyle => _NodeConnectorContentBaseStyle.Get("__NodeOutputBaseStyle__");
+        ResourceInstance<Style> _NodeConnectorContentBaseStyle = new ResourceInstance<Style>();
+
+        ResourceInstance<ControlTemplate> _NodeOutputTemplate = new ResourceInstance<ControlTemplate>();
 
         static NodeOutput()
 		{

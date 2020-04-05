@@ -144,7 +144,10 @@ namespace NodeGraph.Controls
         protected override void OnItemContainerStyleChanged(Style oldItemContainerStyle, Style newItemContainerStyle)
         {
             base.OnItemContainerStyleChanged(oldItemContainerStyle, newItemContainerStyle);
-            ItemContainerStyle.BasedOn = NodeBaseStyle;
+            if (newItemContainerStyle != null)
+            {
+                newItemContainerStyle.BasedOn = NodeBaseStyle;
+            }
         }
 
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
