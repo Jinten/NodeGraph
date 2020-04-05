@@ -71,4 +71,41 @@ namespace NodeGraph.ViewModels
             _Outputs.Add(new NodeOutputViewModel("Output"));
         }
     }
+
+    public class NodeViewModel2 : ViewModel, INodeViewModel
+    {
+        public string Name
+        {
+            get => _Name;
+            set => RaisePropertyChangedIfSet(ref _Name, value);
+        }
+        string _Name = string.Empty;
+
+        public string Body
+        {
+            get => _Body;
+            set => RaisePropertyChangedIfSet(ref _Body, value);
+        }
+        string _Body = string.Empty;
+
+        public IEnumerable<NodeInputViewModel> Inputs => _Inputs;
+        ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
+
+        public IEnumerable<NodeOutputViewModel> Outputs => _Outputs;
+        ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
+
+        public NodeViewModel2()
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                _Inputs.Add(new NodeInputViewModel($"Input{i}"));
+            }
+
+
+            for(int i=0; i<2;++i)
+            {
+                _Outputs.Add(new NodeOutputViewModel($"Output{i}"));
+            }
+        }
+    }
 }

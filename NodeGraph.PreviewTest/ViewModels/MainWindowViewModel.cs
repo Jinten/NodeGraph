@@ -25,7 +25,7 @@ namespace NodeGraph.ViewModels
         ViewModelCommand _AddNodeCommand = null;
 
         public IEnumerable<INodeViewModel> NodeViewModels => _NodeViewModels;
-        ObservableCollection<NodeViewModel> _NodeViewModels = new ObservableCollection<NodeViewModel>();
+        ObservableCollection<INodeViewModel> _NodeViewModels = new ObservableCollection<INodeViewModel>();
 
         public MainWindowViewModel()
         {
@@ -36,7 +36,7 @@ namespace NodeGraph.ViewModels
 
         void AddNode()
         {
-            _NodeViewModels.Add(new NodeViewModel() { Name = "NewNode", Body = "NewContent" });
+            _NodeViewModels.Add(new NodeViewModel2() { Name = "NewNode", Body = "NewContent" });
         }
     }
 }

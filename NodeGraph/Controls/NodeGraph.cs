@@ -90,6 +90,8 @@ namespace NodeGraph.Controls
         bool _IsStartDragging = false;
         bool _PressKeyToMove = false;
         bool _PressMouseToMove = false;
+        bool _PressMouseToSelect = false;
+        bool _IsRangeSelecting = false;
 
         NodeLink _DraggingNodeLink = null;
         List<Node> _DraggingNodes = new List<Node>();
@@ -97,6 +99,9 @@ namespace NodeGraph.Controls
         Point _DragStartPointToMoveNode = new Point();
         Point _DragStartPointToMoveOffset = new Point();
         Point _CaptureOffset = new Point();
+
+        Point _DragStartPointToSelect = new Point();
+        RangeSelector _RangeSelector = new RangeSelector();
 
         NodeLink _ReconnectingNodeLink = null;
 
@@ -244,27 +249,63 @@ namespace NodeGraph.Controls
                     node.UpdatePosition(x, y);
                 }
             }
-            else
+            else if (_PressMouseToMove && (MoveWithKey == Key.None || _PressKeyToMove))
             {
-                if (_PressMouseToMove && (MoveWithKey == Key.None || _PressKeyToMove))
-                {
-                    var x = _CaptureOffset.X + posOnCanvas.X - _DragStartPointToMoveOffset.X;
-                    var y = _CaptureOffset.Y + posOnCanvas.Y - _DragStartPointToMoveOffset.Y;
-                    Offset = new Point(x, y);
-                }
+                var x = _CaptureOffset.X + posOnCanvas.X - _DragStartPointToMoveOffset.X;
+                var y = _CaptureOffset.Y + posOnCanvas.Y - _DragStartPointToMoveOffset.Y;
+                Offset = new Point(x, y);
             }
+            else if (_DraggingNodeLink != null)
+            {
+                _DraggingNodeLink.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
+            }
+            else if (_ReconnectingNodeLink != null)
+            {
+                _ReconnectingNodeLink.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
+            }
+            else if (_PressMouseToSelect)
+            {
+                if (_IsRangeSelecting == false)
+                {
+                    Canvas.Children.Add(_RangeSelector);
 
-            _DraggingNodeLink?.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
-            _ReconnectingNodeLink?.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
+                    _IsRangeSelecting = true;
+                }
+
+                _RangeSelector.RangeRect = new Rect(_DragStartPointToSelect, posOnCanvas);
+
+                bool anyIntersects = false;
+                foreach (var node in Canvas.Children.OfType<Node>())
+                {
+                    var nodeRect = new Rect(new Size(node.ActualWidth, node.ActualHeight));
+                    var boundingBox = node.RenderTransform.TransformBounds(nodeRect);
+                    node.IsSelected = _RangeSelector.RangeRect.IntersectsWith(boundingBox);
+
+                    anyIntersects |= node.IsSelected;
+                }
+                _RangeSelector.IsIntersects = anyIntersects;
+            }
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
             base.OnMouseDown(e);
+
+            var posOnCanvas = e.GetPosition(Canvas);
+
             switch (MoveWithMouse)
             {
                 case MouseButton.Left:
-                    _PressMouseToMove = e.LeftButton == MouseButtonState.Pressed;
+                    if (MoveWithKey == Key.None)
+                    {
+                        throw new InvalidProgramException("Not allow combination that no set MoveWithKey(Key.None) and left click.");
+                    }
+
+                    if (Keyboard.GetKeyStates(MoveWithKey) == KeyStates.Down)
+                    {
+                        // offset center focus.
+                        _PressMouseToMove = e.LeftButton == MouseButtonState.Pressed;
+                    }
                     break;
                 case MouseButton.Middle:
                     _PressMouseToMove = e.MiddleButton == MouseButtonState.Pressed;
@@ -274,19 +315,38 @@ namespace NodeGraph.Controls
                     break;
             }
 
-            _CaptureOffset = Offset;
-            _DragStartPointToMoveOffset = e.GetPosition(Canvas);
+            if (e.LeftButton == MouseButtonState.Pressed && (MoveWithKey == Key.None || Keyboard.GetKeyStates(MoveWithKey) != KeyStates.Down))
+            {
+                // start to select by range rect.
+                _PressMouseToSelect = true;
+                _RangeSelector.Reset(posOnCanvas);
+
+                _DragStartPointToSelect = posOnCanvas;
+            }
+
+            if (_PressMouseToMove)
+            {
+                _CaptureOffset = Offset;
+                _DragStartPointToMoveOffset = posOnCanvas;
+            }
         }
 
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             base.OnMouseUp(e);
 
-            _PressMouseToMove = false;
             _IsStartDragging = false;
+            _PressMouseToMove = false;
+            _PressMouseToSelect = false;
 
-            if (_IsNodeSelected == false)
+            if (_IsRangeSelecting)
             {
+                Canvas.Children.Remove(_RangeSelector);
+                _IsRangeSelecting = false;
+            }
+            else if (_IsNodeSelected == false)
+            {
+                // click empty area to unselect nodes.
                 foreach (var node in Canvas.Children.OfType<Node>())
                 {
                     node.IsSelected = false;
@@ -302,7 +362,8 @@ namespace NodeGraph.Controls
             {
                 // only be able to connect input to output or output to input.
                 // it will reject except above condition.
-                if (element != null && element.Tag is NodeConnectorContent connector && _DraggingConnectors[0].CanConnectTo(connector))
+                if (element != null && element.Tag is NodeConnectorContent connector &&
+                    _DraggingConnectors[0].CanConnectTo(connector) && connector.CanConnectTo(_DraggingConnectors[0]))
                 {
                     var transformer = element.TransformToVisual(Canvas);
 
@@ -332,7 +393,8 @@ namespace NodeGraph.Controls
 
             if (_ReconnectingNodeLink != null)
             {
-                if (element != null && element.Tag is NodeInputContent input && input.CanConnectTo(_ReconnectingNodeLink.Output))
+                if (element != null && element.Tag is NodeInputContent input &&
+                    input.CanConnectTo(_ReconnectingNodeLink.Output) && _ReconnectingNodeLink.Output.CanConnectTo(input))
                 {
                     if (input != _ReconnectingNodeLink.Input)
                     {
@@ -364,6 +426,7 @@ namespace NodeGraph.Controls
         {
             base.OnMouseEnter(e);
 
+            _PressMouseToSelect = false;
             _PressMouseToMove = false;
             _IsStartDragging = false;
             _DraggingNodes.Clear();
@@ -374,10 +437,12 @@ namespace NodeGraph.Controls
         {
             base.OnMouseLeave(e);
 
+            _PressMouseToSelect = false;
             _PressMouseToMove = false;
             _IsStartDragging = false;
             _DraggingNodes.Clear();
             _DraggingConnectors.Clear();
+            InvalidateVisual();
         }
 
         void ConnectNodeLink(FrameworkElement element, NodeInputContent input, NodeOutputContent output, NodeLink nodeLink, Point point)

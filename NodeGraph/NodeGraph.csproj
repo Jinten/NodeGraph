@@ -84,6 +84,7 @@
     <Compile Include="Controls\GridCanvas.cs" />
     <Compile Include="Controls\ICanvasObject.cs" />
     <Compile Include="Controls\Node.cs" />
+    <Compile Include="Controls\RangeSelector.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
     <Page Include="Controls\Node.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -102,6 +103,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\NodeOutput.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RangeSelector.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

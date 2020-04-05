@@ -69,11 +69,6 @@
                     </DataTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsSelected,RelativeSource={RelativeSource Self}}" Value="True">
-                    <Setter Property="BorderBrush" Value="GreenYellow"/>
-                </DataTrigger>
-            </Style.Triggers>
         </Style>
     </Window.Resources>
 

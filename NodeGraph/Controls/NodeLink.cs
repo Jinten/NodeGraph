@@ -114,7 +114,12 @@ namespace NodeGraph.Controls
 
         public void Connect(NodeInputContent input)
         {
+            if(Input != null)
+            {
+                Input.Disconnect(this);
+            }
             Input = input;
+
             IsHitTestVisible = true;
 
             UpdateConnectPosition();
@@ -124,7 +129,12 @@ namespace NodeGraph.Controls
 
         public void Connect(NodeOutputContent output)
         {
+            if(Output != null)
+            {
+                Output.Disconnect(this);
+            }
             Output = output;
+
             IsHitTestVisible = true;
 
             UpdateConnectPosition();

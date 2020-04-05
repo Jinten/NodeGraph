@@ -20,6 +20,19 @@ namespace NodeGraph.Controls
 
     public abstract class NodeConnectorContent : ContentControl
     {
+        public int ConnectedCount
+        {
+            get => (int)GetValue(ConnectedCountProperty);
+            private set => SetValue(ConnectedCountPropertyKey, value);
+        }
+        public static readonly DependencyPropertyKey ConnectedCountPropertyKey = DependencyProperty.RegisterReadOnly(
+            nameof(ConnectedCount),
+            typeof(int),
+            typeof(NodeConnectorContent),
+            new PropertyMetadata(0));
+
+        public static readonly DependencyProperty ConnectedCountProperty = ConnectedCountPropertyKey.DependencyProperty;
+
         public Brush Stroke
         {
             get => (Brush)GetValue(StrokeProperty);
@@ -80,11 +93,13 @@ namespace NodeGraph.Controls
         public void Connect(NodeLink nodeLink)
         {
             _NodeLinks.Add(nodeLink);
+            ConnectedCount = _NodeLinks.Count;
         }
 
         public void Disconnect(NodeLink nodeLink)
         {
             _NodeLinks.Remove(nodeLink);
+            ConnectedCount = _NodeLinks.Count;
         }
 
         public Point GetContentPosition(Canvas canvas, double xScaleOffset = 0.5, double yScaleOffset = 0.5)

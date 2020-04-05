@@ -4,6 +4,10 @@
     xmlns:converter="clr-namespace:NodeGraph.Converter"
     xmlns:local="clr-namespace:NodeGraph.Controls">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/NodeGraph;component/Controls/RangeSelector.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <Style TargetType="{x:Type local:NodeGraph}">
         <Setter Property="Background" Value="#FF202020"/>
         <Setter Property="Template">
