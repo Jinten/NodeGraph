@@ -16,16 +16,33 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <local:GridCanvas x:Name="__NodeGraphCanvas__"
-                                          UseLayoutRounding="True"
-                                          Width="{TemplateBinding ActualWidth}"
-                                          Height="{TemplateBinding ActualHeight}"
-                                          Scale="{TemplateBinding Scale}"
-                                          Offset="{TemplateBinding Offset}">
-                            <Canvas.RenderTransformOrigin>
-                                <Point X="0.5" Y="0.5"/>
-                            </Canvas.RenderTransformOrigin>
-                        </local:GridCanvas>
+                        <Canvas>
+                            <local:GridCanvas x:Name="__NodeGraphCanvas__"
+                                              DockPanel.Dock="Bottom"
+                                              UseLayoutRounding="True"
+                                              Width="{TemplateBinding ActualWidth}"
+                                              Height="{TemplateBinding ActualHeight}"
+                                              Scale="{TemplateBinding Scale}"
+                                              Offset="{TemplateBinding Offset}">
+                                <Canvas.RenderTransformOrigin>
+                                    <Point X="0.5" Y="0.5"/>
+                                </Canvas.RenderTransformOrigin>
+                            </local:GridCanvas>
+                            <local:Ruler Scale="{TemplateBinding Scale}"
+                                         Offset="{TemplateBinding Offset}"
+                                         Width="{TemplateBinding ActualWidth}"
+                                         Height="16"
+                                         ClipToBounds="True"
+                                         Orientation="Horizontal"
+                                         Color="Gray"/>
+                            <local:Ruler Scale="{TemplateBinding Scale}"
+                                         Offset="{TemplateBinding Offset}"
+                                         Height="{TemplateBinding ActualHeight}"
+                                         Width="32"
+                                         ClipToBounds="True"
+                                         Orientation="Vertical"
+                                         Color="Gray" />
+                        </Canvas>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
