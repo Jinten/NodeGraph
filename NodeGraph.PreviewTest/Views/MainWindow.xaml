@@ -18,28 +18,12 @@
             <MenuItem Header="AddNode" Command="{Binding AddNodeCommand}"/>            
         </ContextMenu>
         
-        <Style x:Key="NodeInputStyle" TargetType="{x:Type ctrl:NodeInputContent}">
+        <Style x:Key="NodeInputStyle" TargetType="{x:Type ctrl:NodeInputContent}" BasedOn="{StaticResource {x:Type ctrl:NodeInputContent}}">
             <Setter Property="Content" Value="{Binding Label}"/>
-            <Setter Property="Stroke" Value="Gray"/>
-            <Setter Property="Fill" Value="Transparent"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Fill" Value="DarkCyan"/>
-                    <Setter Property="Stroke" Value="Aqua"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
-        <Style x:Key="NodeOutputStyle" TargetType="{x:Type ctrl:NodeOutputContent}">            
+        <Style x:Key="NodeOutputStyle" TargetType="{x:Type ctrl:NodeOutputContent}" BasedOn="{StaticResource {x:Type ctrl:NodeOutputContent}}">
             <Setter Property="Content" Value="{Binding Label}"/>
-            <Setter Property="Stroke" Value="Gray"/>
-            <Setter Property="Fill" Value="Transparent"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Fill" Value="DarkRed"/>
-                    <Setter Property="Stroke" Value="PaleVioletRed"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
 		<Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}">

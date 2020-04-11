@@ -3,26 +3,38 @@
                     xmlns:res="clr-namespace:NodeGraph.Resources"
                     xmlns:local="clr-namespace:NodeGraph.Controls">
 
+    <Style TargetType="{x:Type local:NodeInputContent}">
+        <Setter Property="Stroke" Value="Gray"/>
+        <Setter Property="Fill" Value="Transparent"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Fill" Value="DarkCyan"/>
+                <Setter Property="Stroke" Value="Aqua"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <ControlTemplate x:Key="__NodeInputContentTemplate__" TargetType="{x:Type local:NodeInputContent}">
         <Border Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
-				<Ellipse x:Name="__InputConnector__"
-                         Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeInputContent}}}"
-                         Width="{x:Static local:ControlSize.ConnectorSize}"
-                         Height="{x:Static local:ControlSize.ConnectorSize}"
-                         StrokeThickness="{TemplateBinding StrokeThickness}"
-                         Stroke="{TemplateBinding Stroke}"
-                         Fill="{TemplateBinding Fill}"/>
-                <ContentPresenter Margin="4,0,0,0" VerticalAlignment="Center">
-                    <ContentPresenter.Content>
-                        <Path Fill="{TemplateBinding Fill}"
-                              Stroke="{TemplateBinding Stroke}"
-                              StrokeThickness="{TemplateBinding StrokeThickness}"
-                              Data="M 0,0 L 5,4.5 L 0,9 Z"/>
-                    </ContentPresenter.Content>
-                </ContentPresenter>
+                <DockPanel x:Name="__InputConnector__" Background="#00FFFFFF" Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeInputContent}}}">
+				    <Ellipse Width="{x:Static local:ControlSize.ConnectorSize}"
+                             Height="{x:Static local:ControlSize.ConnectorSize}"
+                             StrokeThickness="{TemplateBinding StrokeThickness}"
+                             Stroke="{TemplateBinding Stroke}"
+                             Fill="{TemplateBinding Fill}"
+                             IsHitTestVisible="False"/>
+                    <ContentPresenter Margin="4,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                        <ContentPresenter.Content>
+                            <Path Fill="{TemplateBinding Fill}"
+                                  Stroke="{TemplateBinding Stroke}"
+                                  StrokeThickness="{TemplateBinding StrokeThickness}"
+                                  Data="M 0,0 L 5,4.5 L 0,9 Z"/>
+                        </ContentPresenter.Content>
+                    </ContentPresenter>
+                </DockPanel>
                 <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke" VerticalContentAlignment="Center"/>
             </DockPanel>
         </Border>
