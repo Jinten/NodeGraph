@@ -1,4 +1,6 @@
-﻿using NodeGraph.Utilities;
+﻿using Livet;
+using Livet.EventListeners;
+using NodeGraph.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +18,7 @@ namespace NodeGraph.Controls
         protected override FrameworkElement ConnectorControl => _ConnectorControl;
         FrameworkElement _ConnectorControl = null;
 
+
         static NodeInputContent()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeInputContent), new FrameworkPropertyMetadata(typeof(NodeInputContent)));
@@ -23,9 +26,9 @@ namespace NodeGraph.Controls
 
         public override void OnApplyTemplate()
         {
-            base.OnApplyTemplate();
-
             _ConnectorControl = GetTemplateChild("__InputConnector__") as FrameworkElement;
+
+            base.OnApplyTemplate();
         }
 
         public override void UpdateLinkPosition(Canvas canvas)
@@ -45,7 +48,7 @@ namespace NodeGraph.Controls
         }
     }
 
-	public class NodeInput : NodeConnector<NodeInputContent>
+    public class NodeInput : NodeConnector<NodeInputContent>
 	{
 		protected override string ConnectorCanvasName => "__NodeInputCanvas__";
 

@@ -10,6 +10,13 @@ namespace NodeGraph.ViewModels
 {
     public class NodeInputViewModel : ViewModel
     {
+        public Guid Guid
+        {
+            get => _Guid;
+            set => RaisePropertyChangedIfSet(ref _Guid, value);
+        }
+        Guid _Guid = Guid.NewGuid();
+
         public string Label
         {
             get => _Label;
@@ -25,6 +32,13 @@ namespace NodeGraph.ViewModels
 
     public class NodeOutputViewModel : ViewModel
     {
+        public Guid Guid
+        {
+            get => _Guid;
+            set => RaisePropertyChangedIfSet(ref _Guid, value);
+        }
+        Guid _Guid = Guid.NewGuid();
+
         public string Label
         {
             get => _Label;
@@ -40,6 +54,13 @@ namespace NodeGraph.ViewModels
 
     public class NodeViewModel : ViewModel, INodeViewModel
     {
+        public Guid Guid
+        {
+            get => _Guid;
+            set => RaisePropertyChangedIfSet(ref _Guid, value);
+        }
+        Guid _Guid = Guid.NewGuid();
+
         public string Name
         {
             get => _Name;

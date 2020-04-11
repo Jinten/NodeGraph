@@ -15,21 +15,24 @@
 
     <Window.Resources>
         <ContextMenu x:Key="NodeGraphContextMenu">
-            <MenuItem Header="AddNode" Command="{Binding AddNodeCommand}"/>            
+            <MenuItem Header="AddNode" Command="{Binding AddNodeCommand}"/>
         </ContextMenu>
-        
+
         <Style x:Key="NodeInputStyle" TargetType="{x:Type ctrl:NodeInputContent}" BasedOn="{StaticResource {x:Type ctrl:NodeInputContent}}">
+            <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="Content" Value="{Binding Label}"/>
         </Style>
 
         <Style x:Key="NodeOutputStyle" TargetType="{x:Type ctrl:NodeOutputContent}" BasedOn="{StaticResource {x:Type ctrl:NodeOutputContent}}">
+            <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="Content" Value="{Binding Label}"/>
         </Style>
 
-		<Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}">
-			<Setter Property="Inputs" Value="{Binding Inputs}"/>
+        <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}">
+            <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
+            <Setter Property="Inputs" Value="{Binding Inputs}"/>
             <Setter Property="Outputs" Value="{Binding Outputs}"/>
-			<Setter Property="OutputLayout" Value="Center"/>
+            <Setter Property="OutputLayout" Value="Center"/>
             <Setter Property="InputMargin" Value="0"/>
             <Setter Property="InputStyle" Value="{StaticResource NodeInputStyle}"/>
             <Setter Property="OutputStyle" Value="{StaticResource NodeOutputStyle}"/>
@@ -56,9 +59,10 @@
         </Style>
     </Window.Resources>
 
-	<Grid>
+    <Grid>
         <ctrl:NodeGraph ItemsSource="{Binding NodeViewModels}"
-                        ItemContainerStyle="{StaticResource NodeStyle}"                        
+                        ItemContainerStyle="{StaticResource NodeStyle}"                   
+                        PreviewConnectCommand="{Binding PreviewConnectCommand}"
                         ContextMenu="{StaticResource NodeGraphContextMenu}"/>
     </Grid>
 </Window>

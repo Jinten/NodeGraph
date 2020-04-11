@@ -37,6 +37,11 @@ namespace NodeGraph.Controls
 
         Pen _StrokePen = null;
 
+        static RangeSelector()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(RangeSelector), new FrameworkPropertyMetadata(typeof(RangeSelector)));
+        }
+
         public void Reset(Point pos)
         {
             RangeRect = new Rect(pos, Size.Empty);

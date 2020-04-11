@@ -23,9 +23,9 @@ namespace NodeGraph.Controls
 
         public override void OnApplyTemplate()
         {
-            base.OnApplyTemplate();
-
             _ConnectorControl = GetTemplateChild("__OutputConnector__") as FrameworkElement;
+
+            base.OnApplyTemplate();
         }
 
         public override void UpdateLinkPosition(Canvas canvas)

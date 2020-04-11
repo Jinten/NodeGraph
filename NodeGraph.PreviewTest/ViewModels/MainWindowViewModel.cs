@@ -24,6 +24,19 @@ namespace NodeGraph.ViewModels
         }
         ViewModelCommand _AddNodeCommand = null;
 
+        public ListenerCommand<PreviewConnectCommandParameter> PreviewConnectCommand
+        {
+            get
+            {
+                if (_PreviewConnectCommand == null)
+                {
+                    _PreviewConnectCommand = new ListenerCommand<PreviewConnectCommandParameter>(PreviewConnect);
+                }
+                return _PreviewConnectCommand;
+            }
+        }
+        ListenerCommand<PreviewConnectCommandParameter> _PreviewConnectCommand = null;
+
         public IEnumerable<INodeViewModel> NodeViewModels => _NodeViewModels;
         ObservableCollection<INodeViewModel> _NodeViewModels = new ObservableCollection<INodeViewModel>();
 
@@ -37,6 +50,17 @@ namespace NodeGraph.ViewModels
         void AddNode()
         {
             _NodeViewModels.Add(new NodeViewModel2() { Name = "NewNode", Body = "NewContent" });
+        }
+
+        void PreviewConnect(PreviewConnectCommandParameter param)
+        {
+            switch(param.ConnectTo)
+            {
+                case ConnectorType.Input:
+                    break;
+                case ConnectorType.Output:
+                    break;
+            }
         }
     }
 }

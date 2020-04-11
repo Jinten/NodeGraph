@@ -80,6 +80,14 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty OffsetProperty =
             DependencyProperty.Register(nameof(Offset), typeof(Point), typeof(NodeGraph), new FrameworkPropertyMetadata(new Point(0, 0), OffsetPropertyChanged));
 
+        public ICommand PreviewConnectCommand
+        {
+            get => (ICommand)GetValue(PreviewConnectCommandProperty);
+            set => SetValue(PreviewConnectCommandProperty, value);
+        }
+        public static readonly DependencyProperty PreviewConnectCommandProperty =
+            DependencyProperty.Register(nameof(PreviewConnectCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+
         ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
         ResourceInstance<ControlTemplate> _NodeTemplate = new ResourceInstance<ControlTemplate>();
 
@@ -485,6 +493,7 @@ namespace NodeGraph.Controls
 
                 removeElement.MouseUp -= Node_MouseUp;
                 removeElement.MouseDown -= Node_MouseDown;
+                removeElement.MouseOverOnConnector -= Connector_MouseOver;
                 removeElement.Dispose();
             }
         }
@@ -500,11 +509,46 @@ namespace NodeGraph.Controls
                     Style = ItemContainerStyle
                 };
 
+                node.MouseOverOnConnector += Connector_MouseOver;
                 node.MouseDown += Node_MouseDown;
                 node.MouseUp += Node_MouseUp;
 
                 Canvas.Children.Add(node);
             }
+        }
+
+        void Connector_MouseOver(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (PreviewConnectCommand == null || _DraggingNodeLink == null)
+            {
+                return;
+            }
+
+            if((bool)e.NewValue == false)
+            {
+                return;
+            }
+
+            ConnectorType connectTo = ConnectorType.Input;
+
+            Guid inputNodeGuid = Guid.Empty;
+            Guid inputGuid = Guid.Empty;
+            if (_DraggingNodeLink.Input != null)
+            {
+                inputNodeGuid = _DraggingNodeLink.Input.Node.Guid;
+                inputGuid = _DraggingNodeLink.Input.Guid;
+                connectTo = ConnectorType.Output;
+            }
+            Guid outputNodeGuid = Guid.Empty;
+            Guid outputGuid = Guid.Empty;
+            if (_DraggingNodeLink.Output != null)
+            {
+                outputNodeGuid = _DraggingNodeLink.Output.Node.Guid;
+                outputGuid = _DraggingNodeLink.Output.Guid;
+                connectTo = ConnectorType.Input;
+            }
+            var param = new PreviewConnectCommandParameter(connectTo, inputNodeGuid, inputGuid, outputNodeGuid, outputGuid);
+            PreviewConnectCommand.Execute(param);
         }
 
         void NodeLink_MouseDown(object sender, MouseButtonEventArgs e)

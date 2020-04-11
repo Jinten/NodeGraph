@@ -20,13 +20,27 @@ namespace NodeGraph.Controls
 
     public class NodeLink : Shape, ICanvasObject, IDisposable
     {
-        double EndPointX => _EndPoint.X / _Scale;
-        double EndPointY => _EndPoint.Y / _Scale;
-        Point _EndPoint = new Point(0, 0);
+        public Guid InputGuid
+        {
+            get => (Guid)GetValue(InputGuidProperty);
+            set => SetValue(InputGuidProperty, value);
+        }
+        public static readonly DependencyProperty InputGuidProperty = DependencyProperty.Register(
+            nameof(InputGuid),
+            typeof(Guid),
+            typeof(NodeLink),
+            new FrameworkPropertyMetadata(Guid.NewGuid()));
 
-        double StartPointX => _StartPoint.X / _Scale;
-        double StartPointY => _StartPoint.Y / _Scale;
-        Point _StartPoint = new Point(0, 0);
+        public Guid OutputGuid
+        {
+            get => (Guid)GetValue(OutputGuidProperty);
+            set => SetValue(OutputGuidProperty, value);
+        }
+        public static readonly DependencyProperty OutputGuidProperty = DependencyProperty.Register(
+            nameof(OutputGuid),
+            typeof(Guid),
+            typeof(NodeLink),
+            new FrameworkPropertyMetadata(Guid.NewGuid()));
 
         public double LinkSize
         {
@@ -69,12 +83,25 @@ namespace NodeGraph.Controls
 
         protected override Geometry DefiningGeometry => Geometry.Empty;
 
+        double EndPointX => _EndPoint.X / _Scale;
+        double EndPointY => _EndPoint.Y / _Scale;
+        Point _EndPoint = new Point(0, 0);
+
+        double StartPointX => _StartPoint.X / _Scale;
+        double StartPointY => _StartPoint.Y / _Scale;
+        Point _StartPoint = new Point(0, 0);
+
         bool IsConnecting => Input != null && Output != null;
 
         Canvas Canvas { get; } = null;
 
         double _Scale = 1.0f;
         Point _RestoreEndPoint = new Point();
+
+        static NodeLink()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeLink), new FrameworkPropertyMetadata(typeof(NodeLink)));
+        }
 
         public NodeLink(Canvas canvas, double x, double y, double scale, NodeInputContent input) : this(canvas, x, y, scale)
         {

@@ -11,6 +11,10 @@
                 <Setter Property="Fill" Value="DarkRed"/>
                 <Setter Property="Stroke" Value="PaleVioletRed"/>
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Fill" Value="#55888888"/>
+                <Setter Property="Stroke" Value="#55888888"/>
+            </Trigger>
         </Style.Triggers>
     </Style>
 

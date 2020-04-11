@@ -21,6 +21,17 @@ namespace NodeGraph.Controls
 {
 	public class Node : ContentControl, ICanvasObject, IDisposable
 	{
+        public Guid Guid
+        {
+            get => (Guid)GetValue(GuidProperty);
+            set => SetValue(GuidProperty, value);
+        }
+        public static readonly DependencyProperty GuidProperty = DependencyProperty.Register(
+            nameof(Guid),
+            typeof(Guid),
+            typeof(Node),
+            new PropertyMetadata(Guid.NewGuid()));
+
         public DataTemplate HeaderContentTemplate
         {
             get => (DataTemplate)GetValue(HeaderContentTemplateProperty);
@@ -131,7 +142,9 @@ namespace NodeGraph.Controls
 			typeof(Node),
 			new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-		public Point DragStartPosition { get; private set; } = new Point(0, 0);
+        public Point DragStartPosition { get; private set; } = new Point(0, 0);
+
+        public EventHandler<DependencyPropertyChangedEventArgs> MouseOverOnConnector { get; set; } = null;
         
 		Canvas Canvas { get; } = null;
 		NodeInput _NodeInput = null;
@@ -144,11 +157,11 @@ namespace NodeGraph.Controls
         {
             var node = d as Node;
 
-            if (e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
+            if (e.OldValue is INotifyCollectionChanged oldCollection)
             {
                 oldCollection.CollectionChanged -= node.OutputCollectionChanged;
             }
-            if (e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
+            if (e.NewValue is INotifyCollectionChanged newCollection)
             {
                 newCollection.CollectionChanged += node.OutputCollectionChanged;
             }
@@ -192,6 +205,9 @@ namespace NodeGraph.Controls
 		{
 			_NodeInput = GetTemplateChild("__NodeInput__") as NodeInput;
             _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
+
+            _NodeInput.MouseOverOnConnector += Connector_MouseOver;
+            _NodeOutput.MouseOverOnConnector += Connector_MouseOver;
         }
 
         public void UpdateOffset(Point offset)
@@ -221,6 +237,8 @@ namespace NodeGraph.Controls
 
 		public void Dispose()
 		{
+            _NodeInput.MouseOverOnConnector -= Connector_MouseOver;
+            _NodeOutput.MouseOverOnConnector -= Connector_MouseOver;
             SizeChanged -= Node_SizeChanged;
 		}
 
@@ -234,6 +252,11 @@ namespace NodeGraph.Controls
         {
             _NodeInput.UpdateLinkPosition(Canvas);
             _NodeOutput.UpdateLinkPosition(Canvas);
+        }
+
+        void Connector_MouseOver(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            MouseOverOnConnector?.Invoke(sender, e);
         }
 
         void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

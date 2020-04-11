@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Livet;
+using Livet.EventListeners;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +20,19 @@ namespace NodeGraph.Controls
         Bottom,
     }
 
-    public abstract class NodeConnectorContent : ContentControl
+    public abstract class NodeConnectorContent : ContentControl, IDisposable
     {
+        public Guid Guid
+        {
+            get => (Guid)GetValue(GuidProperty);
+            set => SetValue(GuidProperty, value);
+        }
+        public static readonly DependencyProperty GuidProperty = DependencyProperty.Register(
+            nameof(Guid),
+            typeof(Guid),
+            typeof(NodeConnectorContent),
+            new PropertyMetadata(Guid.NewGuid()));
+
         public int ConnectedCount
         {
             get => (int)GetValue(ConnectedCountProperty);
@@ -72,6 +85,10 @@ namespace NodeGraph.Controls
             set => UpdatePosition(value);
         }
 
+        public Node Node { get; private set; } = null;
+
+        public EventHandler<DependencyPropertyChangedEventArgs> MouseOverOnConnector { get; set; } = null;
+
         /// <summary>
         /// connecting node links.
         /// </summary>
@@ -83,11 +100,32 @@ namespace NodeGraph.Controls
         Point _Position = new Point();
         TranslateTransform _Translate = new TranslateTransform();
 
+
         public NodeConnectorContent()
         {
             var transfromGroup = new TransformGroup();
             transfromGroup.Children.Add(_Translate);
             RenderTransform = transfromGroup;
+        }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            ConnectorControl.IsMouseDirectlyOverChanged += ConnectorControl_IsMouseDirectlyOverChanged;
+
+            var parent = VisualTreeHelper.GetParent(this);
+            while (parent.GetType() != typeof(Node))
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+            }
+
+            Node = parent as Node;
+        }
+
+        public void Dispose()
+        {
+            ConnectorControl.IsMouseDirectlyOverChanged -= ConnectorControl_IsMouseDirectlyOverChanged;
         }
 
         public void Connect(NodeLink nodeLink)
@@ -122,6 +160,11 @@ namespace NodeGraph.Controls
             _Translate.X = _Position.X;
             _Translate.Y = _Position.Y;
         }
+
+        void ConnectorControl_IsMouseDirectlyOverChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            MouseOverOnConnector?.Invoke(sender, e);
+        }
     }
 
     public abstract class NodeConnector<T> : MultiSelector where T : NodeConnectorContent, new()
@@ -147,6 +190,19 @@ namespace NodeGraph.Controls
             typeof(double),
             typeof(NodeConnector<T>),
             new FrameworkPropertyMetadata(2.0, ConnectorMarginPropertyChanged));
+
+        public Node Node
+        {
+            get => (Node)GetValue(NodeProperty);
+            set => SetValue(NodeProperty, value);
+        }
+        public static readonly DependencyProperty NodeProperty = DependencyProperty.Register(
+            nameof(Node),
+            typeof(Node),
+            typeof(NodeConnector<T>),
+            new FrameworkPropertyMetadata(null));
+
+        public EventHandler<DependencyPropertyChangedEventArgs> MouseOverOnConnector { get; set; } = null;
 
         /// <summary>
         /// must implement connector canvas name.
@@ -268,8 +324,8 @@ namespace NodeGraph.Controls
 
         void RemoveConnectorFromCanvas(IEnumerable<object> removeVMs)
         {
-            var removeElements = new List<UIElement>();
-            var children = _Canvas.Children.OfType<FrameworkElement>();
+            var removeElements = new List<T>();
+            var children = _Canvas.Children.OfType<T>();
 
             foreach (var removeVM in removeVMs)
             {
@@ -277,7 +333,13 @@ namespace NodeGraph.Controls
                 removeElements.Add(removeElement);
             }
 
-            removeElements.ForEach(arg => _Canvas.Children.Remove(arg));
+            foreach(var element in removeElements)
+            {
+                element.MouseOverOnConnector -= Connector_MouseOver;
+                element.SizeChanged -= Connector_SizeChanged;
+                element.Dispose();
+                _Canvas.Children.Remove(element);
+            }
         }
 
         void AddConnectorsToCanvas(IEnumerable<object> addVMs)
@@ -291,14 +353,20 @@ namespace NodeGraph.Controls
                     Style = ItemContainerStyle
                 };
 
-                connector.SizeChanged += ConnectorSizeChanged;
+                connector.SizeChanged += Connector_SizeChanged;
+                connector.MouseOverOnConnector += Connector_MouseOver;
                 _Canvas.Children.Add(connector);
             }
         }
 
-        void ConnectorSizeChanged(object sender, SizeChangedEventArgs e)
+        void Connector_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateConnectorsLayout();
+        }
+
+        void Connector_MouseOver(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            MouseOverOnConnector?.Invoke(sender, e);
         }
 
         void ReplaceConnectElements(double offset)

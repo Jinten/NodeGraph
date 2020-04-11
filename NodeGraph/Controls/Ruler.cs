@@ -58,6 +58,11 @@ namespace NodeGraph.Controls
             (d as Ruler).UpdatePen();
         }
 
+        static Ruler()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(Ruler), new FrameworkPropertyMetadata(typeof(Ruler)));
+        }
+
         public Ruler()
         {
 

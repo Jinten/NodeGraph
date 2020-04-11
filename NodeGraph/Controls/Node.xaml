@@ -40,6 +40,7 @@
 
                 <DockPanel>
                     <local:NodeInput x:Name="__NodeInput__"
+                                     Node="{Binding Mode=OneWay,RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                      ConnectorLayout="{Binding InputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                      ConnectorMargin="{Binding InputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                      ItemsSource="{Binding Inputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
@@ -52,7 +53,8 @@
                                       ContentTemplate="{TemplateBinding ContentTemplate}"/>
 
                     <local:NodeOutput x:Name="__NodeOutput__"
-                                      ConnectorLayout="{Binding OutputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"                                  
+                                      Node="{Binding Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                      ConnectorLayout="{Binding OutputLayout, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                       ConnectorMargin="{Binding OutputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                       ItemsSource="{Binding Outputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                       ItemContainerStyle="{TemplateBinding OutputStyle}"/>
