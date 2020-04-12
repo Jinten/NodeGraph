@@ -44,7 +44,7 @@ namespace NodeGraph.Controls
 
         public override bool CanConnectTo(NodeConnectorContent connector)
         {
-            return ConnectedCount == 0 && connector is NodeOutputContent;
+            return CanConnect && ConnectedCount == 0 && connector is NodeOutputContent && Node != connector.Node;
         }
     }
 

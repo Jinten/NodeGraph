@@ -8,6 +8,8 @@ namespace NodeGraph.ViewModels
 {
     public interface INodeViewModel
     {
+        Guid Guid { get; set; }
 
+        NodeConnectorViewModel FindConnector(Guid guid);
     }
 }

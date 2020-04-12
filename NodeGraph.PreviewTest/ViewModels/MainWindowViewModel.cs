@@ -44,7 +44,7 @@ namespace NodeGraph.ViewModels
         {
             _NodeViewModels.Add(new NodeViewModel() { Name = "Node1", Body = "Content1" });
             _NodeViewModels.Add(new NodeViewModel() { Name = "Node2", Body = "Content2" });
-            _NodeViewModels.Add(new NodeViewModel() { Name = "Node3", Body = "Content3" });
+            //_NodeViewModels.Add(new NodeViewModel() { Name = "Node3", Body = "Content3" });
         }
 
         void AddNode()
@@ -57,6 +57,11 @@ namespace NodeGraph.ViewModels
             switch(param.ConnectTo)
             {
                 case ConnectorType.Input:
+                    {
+                        var inputNode = NodeViewModels.First(arg => arg.Guid == param.InputNodeGuid);
+                        var inputConnector = inputNode.FindConnector(param.InputConnectorGuid);
+                        param.CanConnect = inputConnector.Label == "Limited Input" == false;
+                    }
                     break;
                 case ConnectorType.Output:
                     break;

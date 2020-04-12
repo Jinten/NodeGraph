@@ -31,7 +31,7 @@ namespace NodeGraph.Controls
             nameof(Guid),
             typeof(Guid),
             typeof(NodeConnectorContent),
-            new PropertyMetadata(Guid.NewGuid()));
+            new PropertyMetadata(Guid.Empty));
 
         public int ConnectedCount
         {
@@ -79,6 +79,17 @@ namespace NodeGraph.Controls
             typeof(NodeConnectorContent),
             new FrameworkPropertyMetadata(Brushes.Gray));
 
+        public bool CanConnect
+        {
+            get => (bool)GetValue(CanConnectProperty);
+            set => SetValue(CanConnectProperty, value);
+        }
+        public static readonly DependencyProperty CanConnectProperty = DependencyProperty.Register(
+            nameof(CanConnect),
+            typeof(bool),
+            typeof(NodeConnectorContent),
+            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
+
         public Point Position
         {
             get => _Position;
@@ -86,8 +97,6 @@ namespace NodeGraph.Controls
         }
 
         public Node Node { get; private set; } = null;
-
-        public EventHandler<DependencyPropertyChangedEventArgs> MouseOverOnConnector { get; set; } = null;
 
         /// <summary>
         /// connecting node links.
@@ -112,8 +121,6 @@ namespace NodeGraph.Controls
         {
             base.OnApplyTemplate();
 
-            ConnectorControl.IsMouseDirectlyOverChanged += ConnectorControl_IsMouseDirectlyOverChanged;
-
             var parent = VisualTreeHelper.GetParent(this);
             while (parent.GetType() != typeof(Node))
             {
@@ -125,7 +132,7 @@ namespace NodeGraph.Controls
 
         public void Dispose()
         {
-            ConnectorControl.IsMouseDirectlyOverChanged -= ConnectorControl_IsMouseDirectlyOverChanged;
+
         }
 
         public void Connect(NodeLink nodeLink)
@@ -159,11 +166,8 @@ namespace NodeGraph.Controls
             _Position = pos;
             _Translate.X = _Position.X;
             _Translate.Y = _Position.Y;
-        }
 
-        void ConnectorControl_IsMouseDirectlyOverChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            MouseOverOnConnector?.Invoke(sender, e);
+            InvalidateVisual();
         }
     }
 
@@ -273,7 +277,7 @@ namespace NodeGraph.Controls
             if (connectorContents.Count() > 0)
             {
                 Width = connectorContents.Max(arg => arg.ActualWidth);
-                Height = connectorContents.Sum(arg => arg.ActualHeight) + connectorContents.Count() * ConnectorMargin;
+                Height = connectorContents.Sum(arg => arg.ActualHeight) + connectorContents.Count() * ConnectorMargin * 2;
             }
         }
 
@@ -335,7 +339,6 @@ namespace NodeGraph.Controls
 
             foreach(var element in removeElements)
             {
-                element.MouseOverOnConnector -= Connector_MouseOver;
                 element.SizeChanged -= Connector_SizeChanged;
                 element.Dispose();
                 _Canvas.Children.Remove(element);
@@ -354,7 +357,6 @@ namespace NodeGraph.Controls
                 };
 
                 connector.SizeChanged += Connector_SizeChanged;
-                connector.MouseOverOnConnector += Connector_MouseOver;
                 _Canvas.Children.Add(connector);
             }
         }
@@ -374,7 +376,8 @@ namespace NodeGraph.Controls
             int index = 0;
             foreach (var element in _Canvas.Children.OfType<NodeConnectorContent>())
             {
-                element.Position = new Point(0, offset + element.ActualHeight * index + (index + 1) * ConnectorMargin);
+                double margin = index * ConnectorMargin * 2 + ConnectorMargin;
+                element.Position = new Point(0, offset + element.ActualHeight * index + margin + index); // last adding index for non overlap other connector.
                 ++index;
             }
         }

@@ -81,6 +81,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="PreviewCommandParameter.cs" />
     <Compile Include="Controls\GridCanvas.cs" />
     <Compile Include="Controls\ICanvasObject.cs" />

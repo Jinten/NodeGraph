@@ -143,8 +143,6 @@ namespace NodeGraph.Controls
 			new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         public Point DragStartPosition { get; private set; } = new Point(0, 0);
-
-        public EventHandler<DependencyPropertyChangedEventArgs> MouseOverOnConnector { get; set; } = null;
         
 		Canvas Canvas { get; } = null;
 		NodeInput _NodeInput = null;
@@ -205,9 +203,6 @@ namespace NodeGraph.Controls
 		{
 			_NodeInput = GetTemplateChild("__NodeInput__") as NodeInput;
             _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
-
-            _NodeInput.MouseOverOnConnector += Connector_MouseOver;
-            _NodeOutput.MouseOverOnConnector += Connector_MouseOver;
         }
 
         public void UpdateOffset(Point offset)
@@ -237,8 +232,6 @@ namespace NodeGraph.Controls
 
 		public void Dispose()
 		{
-            _NodeInput.MouseOverOnConnector -= Connector_MouseOver;
-            _NodeOutput.MouseOverOnConnector -= Connector_MouseOver;
             SizeChanged -= Node_SizeChanged;
 		}
 
@@ -252,11 +245,6 @@ namespace NodeGraph.Controls
         {
             _NodeInput.UpdateLinkPosition(Canvas);
             _NodeOutput.UpdateLinkPosition(Canvas);
-        }
-
-        void Connector_MouseOver(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            MouseOverOnConnector?.Invoke(sender, e);
         }
 
         void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

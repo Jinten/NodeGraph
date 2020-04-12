@@ -19,18 +19,18 @@ namespace NodeGraph
         public ConnectorType ConnectTo { get; } = ConnectorType.Input;
 
         public Guid InputNodeGuid { get; } = Guid.Empty;
-        public Guid InputGuid { get; } = Guid.Empty;
+        public Guid InputConnectorGuid { get; } = Guid.Empty;
         public Guid OutputNodeGuid { get; } = Guid.Empty;
-        public Guid OutputGuid { get; } = Guid.Empty;
+        public Guid OutputConnectorGuid { get; } = Guid.Empty;
 
         public PreviewConnectCommandParameter(ConnectorType connectTo, Guid inputNodeGuid, Guid inputGuid, Guid outputNodeGuid, Guid outputGuid)
         {
             ConnectTo = connectTo;
 
             InputNodeGuid = inputNodeGuid;
-            InputGuid = inputGuid;
+            InputConnectorGuid = inputGuid;
             OutputNodeGuid = outputNodeGuid;
-            OutputGuid = outputGuid;
+            OutputConnectorGuid = outputGuid;
         }
     }
 }

@@ -8,7 +8,13 @@ using System.Threading.Tasks;
 
 namespace NodeGraph.ViewModels
 {
-    public class NodeInputViewModel : ViewModel
+    public interface NodeConnectorViewModel
+    {
+        Guid Guid { get; set; }
+        string Label { get; set; }
+    }
+
+    public class NodeInputViewModel : ViewModel, NodeConnectorViewModel
     {
         public Guid Guid
         {
@@ -30,7 +36,7 @@ namespace NodeGraph.ViewModels
         }
     }
 
-    public class NodeOutputViewModel : ViewModel
+    public class NodeOutputViewModel : ViewModel, NodeConnectorViewModel
     {
         public Guid Guid
         {
@@ -83,18 +89,44 @@ namespace NodeGraph.ViewModels
 
         public NodeViewModel()
         {
-            for (int i = 0; i < 2; ++i)
+            for (int i = 0; i < 4; ++i)
             {
-                _Inputs.Add(new NodeInputViewModel($"Input{i}"));
+                if(i % 2 == 0)
+                {
+                    _Inputs.Add(new NodeInputViewModel($"Input{i}"));
+                }
+                else
+                {
+                    _Inputs.Add(new NodeInputViewModel($"Limited Input"));
+                }
             }
 
 
             _Outputs.Add(new NodeOutputViewModel("Output"));
         }
+
+        public NodeConnectorViewModel FindConnector(Guid guid)
+        {
+            var input = Inputs.FirstOrDefault(arg => arg.Guid == guid);
+            if (input != null)
+            {
+                return input;
+            }
+
+            var output = Outputs.FirstOrDefault(arg => arg.Guid == guid);
+            return output;
+        }
     }
 
     public class NodeViewModel2 : ViewModel, INodeViewModel
     {
+        public Guid Guid
+        {
+            get => _Guid;
+            set => RaisePropertyChangedIfSet(ref _Guid, value);
+        }
+        Guid _Guid = Guid.NewGuid();
+
         public string Name
         {
             get => _Name;
@@ -122,11 +154,22 @@ namespace NodeGraph.ViewModels
                 _Inputs.Add(new NodeInputViewModel($"Input{i}"));
             }
 
-
-            for(int i=0; i<2;++i)
+            for (int i = 0; i < 2; ++i)
             {
                 _Outputs.Add(new NodeOutputViewModel($"Output{i}"));
             }
+        }
+
+        public NodeConnectorViewModel FindConnector(Guid guid)
+        {
+            var input = Inputs.FirstOrDefault(arg => arg.Guid == guid);
+            if (input != null)
+            {
+                return input;
+            }
+
+            var output = Outputs.FirstOrDefault(arg => arg.Guid == guid);
+            return output;
         }
     }
 }

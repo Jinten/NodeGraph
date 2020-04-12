@@ -1,6 +1,10 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:NodeGraph.Converters"
                     xmlns:local="clr-namespace:NodeGraph.Controls">
+
+    <BooleanToVisibilityConverter x:Key="BooleanToVisbilityConverter"/>
+    <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility"/>
 
     <Style TargetType="{x:Type local:NodeOutputContent}">
         <Setter Property="Content" Value="{Binding Label}"/>
@@ -24,7 +28,10 @@
 				BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
                 <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke"/>
-                <DockPanel x:Name="__OutputConnector__" Background="#00FFFFFF" Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeOutputContent}}}">
+                <DockPanel x:Name="__OutputConnector__"
+                           Background="#00FFFFFF"
+                           Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeOutputContent}}}"                           
+                           Visibility="{TemplateBinding CanConnect, Converter={StaticResource BooleanToVisbilityConverter}}">
                     <Ellipse Width="{x:Static local:ControlSize.ConnectorSize}"
                              Height="{x:Static local:ControlSize.ConnectorSize}"
                              StrokeThickness="{TemplateBinding StrokeThickness}"
@@ -40,6 +47,20 @@
                         </ContentPresenter.Content>
                     </ContentPresenter>
                 </DockPanel>
+
+                <ContentPresenter Margin="4,0,0,0"
+                                  VerticalAlignment="Center"
+                                  IsHitTestVisible="False"
+                                  Width="{Binding Width, ElementName=__OutputConnector__}"
+                                  Visibility="{TemplateBinding CanConnect, Converter={StaticResource InverseBooleanToVisibility}}">
+                    <ContentPresenter.Content>
+                        <Path Fill="Transparent"
+                              Stroke="Red"
+                              StrokeThickness="1"
+                              VerticalAlignment="Center"
+                              Data="M 0,0 L 11,0 L 11,11 L 0,11 Z M 0,0 L 0,0 L 11,11"/>
+                    </ContentPresenter.Content>
+                </ContentPresenter>
             </DockPanel>
         </Border>
     </ControlTemplate>
