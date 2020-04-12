@@ -267,28 +267,14 @@ namespace NodeGraph.Controls
             }
             else if (_DraggingNodeLink != null)
             {
-                foreach(var connector in _PreviewedConnectors)
-                {
-                    connector.CanConnect = true;
-                }
-                _PreviewedConnectors.Clear();
-
-                VisualTreeHelper.HitTest(Canvas, null, new HitTestResultCallback(arg =>
-                {
-                    var element = arg.VisualHit as FrameworkElement;
-                    if(element != null && element.Tag is NodeConnectorContent connector && _DraggingConnector != connector)
-                    {
-                        PreviewConnect(connector);
-                        _PreviewedConnectors.Add(connector);
-                        return HitTestResultBehavior.Stop;
-                    }
-                    return HitTestResultBehavior.Continue;
-                }), new PointHitTestParameters(posOnCanvas));
+                HitTestToPreviewConnector(posOnCanvas, _DraggingConnector);
 
                 _DraggingNodeLink.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
             }
             else if (_ReconnectingNodeLink != null)
             {
+                HitTestToPreviewConnector(posOnCanvas, _ReconnectingNodeLink.Output);
+
                 _ReconnectingNodeLink.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
             }
             else if (_PressMouseToSelect)
@@ -417,8 +403,6 @@ namespace NodeGraph.Controls
 
                 _DraggingNodeLink = null;
                 _DraggingConnector = null;
-
-                ClearPreviewedConnect();
             }
 
             if (_ReconnectingNodeLink != null)
@@ -450,6 +434,8 @@ namespace NodeGraph.Controls
                     _ReconnectingNodeLink = null;
                 }
             }
+
+            ClearPreviewedConnect();
         }
 
         protected override void OnMouseEnter(MouseEventArgs e)
@@ -482,6 +468,27 @@ namespace NodeGraph.Controls
                 connector.CanConnect = true;
             }
             _PreviewedConnectors.Clear();
+        }
+
+        void HitTestToPreviewConnector(Point pos, NodeConnectorContent startConnector)
+        {
+            foreach (var connector in _PreviewedConnectors)
+            {
+                connector.CanConnect = true;
+            }
+            _PreviewedConnectors.Clear();
+
+            VisualTreeHelper.HitTest(Canvas, null, new HitTestResultCallback(arg =>
+            {
+                var element = arg.VisualHit as FrameworkElement;
+                if (element != null && element.Tag is NodeConnectorContent toConnector && startConnector != toConnector)
+                {
+                    PreviewConnect(startConnector, toConnector);
+                    _PreviewedConnectors.Add(toConnector);
+                    return HitTestResultBehavior.Stop;
+                }
+                return HitTestResultBehavior.Continue;
+            }), new PointHitTestParameters(pos));
         }
 
         void ConnectNodeLink(FrameworkElement element, NodeInputContent input, NodeOutputContent output, NodeLink nodeLink, Point point)
@@ -546,41 +553,12 @@ namespace NodeGraph.Controls
             }
         }
 
-        void PreviewConnect(NodeConnectorContent connector)
+        void PreviewConnect(NodeConnectorContent start, NodeConnectorContent to)
         {
-            var connectTo = ConnectorType.Input;
-
-            Guid inputNodeGuid;
-            Guid inputGuid;
-            if (_DraggingNodeLink.Input != null)
-            {
-                inputNodeGuid = _DraggingNodeLink.Input.Node.Guid;
-                inputGuid = _DraggingNodeLink.Input.Guid;
-                connectTo = ConnectorType.Output;
-            }
-            else
-            {
-                inputNodeGuid = connector.Node.Guid;
-                inputGuid = connector.Guid;
-            }
-
-            Guid outputNodeGuid = Guid.Empty;
-            Guid outputGuid = Guid.Empty;
-            if (_DraggingNodeLink.Output != null)
-            {
-                outputNodeGuid = _DraggingNodeLink.Output.Node.Guid;
-                outputGuid = _DraggingNodeLink.Output.Guid;
-                connectTo = ConnectorType.Input;
-            }
-            else
-            {
-                outputNodeGuid = connector.Node.Guid;
-                outputGuid = connector.Guid;
-            }
-
-            var param = new PreviewConnectCommandParameter(connectTo, inputNodeGuid, inputGuid, outputNodeGuid, outputGuid);
+            var param = new PreviewConnectCommandParameter(start.Node.Guid, start.Guid, to.Node.Guid, to.Guid);
             PreviewConnectCommand.Execute(param);
-            connector.CanConnect = param.CanConnect;
+
+            to.CanConnect = param.CanConnect;
         }
 
         void NodeLink_MouseDown(object sender, MouseButtonEventArgs e)

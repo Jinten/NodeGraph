@@ -54,18 +54,9 @@ namespace NodeGraph.ViewModels
 
         void PreviewConnect(PreviewConnectCommandParameter param)
         {
-            switch(param.ConnectTo)
-            {
-                case ConnectorType.Input:
-                    {
-                        var inputNode = NodeViewModels.First(arg => arg.Guid == param.InputNodeGuid);
-                        var inputConnector = inputNode.FindConnector(param.InputConnectorGuid);
-                        param.CanConnect = inputConnector.Label == "Limited Input" == false;
-                    }
-                    break;
-                case ConnectorType.Output:
-                    break;
-            }
+            var inputNode = NodeViewModels.First(arg => arg.Guid == param.ConnectToNodeGuid);
+            var inputConnector = inputNode.FindConnector(param.ConnectToConnectorGuid);
+            param.CanConnect = inputConnector.Label == "Limited Input" == false;
         }
     }
 }

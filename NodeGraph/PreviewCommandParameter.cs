@@ -6,31 +6,25 @@ using System.Threading.Tasks;
 
 namespace NodeGraph
 {
-    public enum ConnectorType
-    {
-        Input,
-        Output
-    }
-
     public class PreviewConnectCommandParameter
     {
         public bool CanConnect { get; set; } = true;
 
-        public ConnectorType ConnectTo { get; } = ConnectorType.Input;
+        public Guid ConnectStartNodeGuid { get; } = Guid.Empty;
+        public Guid ConnectStartConnectorGuid { get; } = Guid.Empty;
+        public Guid ConnectToNodeGuid { get; } = Guid.Empty;
+        public Guid ConnectToConnectorGuid { get; } = Guid.Empty;
 
-        public Guid InputNodeGuid { get; } = Guid.Empty;
-        public Guid InputConnectorGuid { get; } = Guid.Empty;
-        public Guid OutputNodeGuid { get; } = Guid.Empty;
-        public Guid OutputConnectorGuid { get; } = Guid.Empty;
-
-        public PreviewConnectCommandParameter(ConnectorType connectTo, Guid inputNodeGuid, Guid inputGuid, Guid outputNodeGuid, Guid outputGuid)
+        public PreviewConnectCommandParameter(
+            Guid connectStartNodeGuid,
+            Guid connectStartConnectorGuid,
+            Guid connectToNodeGuid,
+            Guid connectToConnectorGuid)
         {
-            ConnectTo = connectTo;
-
-            InputNodeGuid = inputNodeGuid;
-            InputConnectorGuid = inputGuid;
-            OutputNodeGuid = outputNodeGuid;
-            OutputConnectorGuid = outputGuid;
+            ConnectStartNodeGuid = connectStartNodeGuid;
+            ConnectStartConnectorGuid = connectStartConnectorGuid;
+            ConnectToNodeGuid = connectToNodeGuid;
+            ConnectToConnectorGuid = connectToConnectorGuid;
         }
     }
 }
