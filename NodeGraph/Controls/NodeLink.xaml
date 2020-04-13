@@ -8,7 +8,7 @@
         </DoubleAnimationUsingKeyFrames>
     </Storyboard>
 
-    <Style TargetType="{x:Type local:NodeLink}">
+    <Style x:Key="__NodeLinkBaseStyle__" TargetType="{x:Type local:NodeLink}">
         <Setter Property="LinkSize" Value="2"/>
         <Setter Property="Fill" Value="#FFAAAAAA"/>
         <Setter Property="StrokeThickness" Value="10"/>
@@ -18,10 +18,10 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Fill" Value="Aqua"/>
                 <Trigger.ExitActions>
-                    <RemoveStoryboard BeginStoryboardName="NodeLinkAnimation"/>
+                    <RemoveStoryboard BeginStoryboardName="__NodeLinkAnimation__"/>
                 </Trigger.ExitActions>
                 <Trigger.EnterActions>
-                    <BeginStoryboard Name="NodeLinkAnimation" Storyboard="{StaticResource NodeLinkMouseOver}"/>
+                    <BeginStoryboard Name="__NodeLinkAnimation__" Storyboard="{StaticResource NodeLinkMouseOver}"/>
                 </Trigger.EnterActions>
             </Trigger>
         </Style.Triggers>

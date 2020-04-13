@@ -1,6 +1,7 @@
 ﻿using NodeGraph.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,17 @@ namespace NodeGraph.Controls
 
     public class NodeLink : Shape, ICanvasObject, IDisposable
     {
+        public Guid Guid
+        {
+            get => (Guid)GetValue(GuidProperty);
+            set => SetValue(GuidProperty, value);
+        }
+        public static readonly DependencyProperty GuidProperty = DependencyProperty.Register(
+            nameof(Guid),
+            typeof(Guid),
+            typeof(NodeLink),
+            new FrameworkPropertyMetadata(Guid.NewGuid()));
+
         public Guid InputGuid
         {
             get => (Guid)GetValue(InputGuidProperty);
@@ -81,6 +93,9 @@ namespace NodeGraph.Controls
         public NodeInputContent Input { get; private set; } = null;
         public NodeOutputContent Output { get; private set; } = null;
 
+        public NodeConnectorContent StartConnector { get; private set; } = null;
+        public NodeConnectorContent ToEndConnector { get; private set; } = null;
+
         protected override Geometry DefiningGeometry => Geometry.Empty;
 
         double EndPointX => _EndPoint.X / _Scale;
@@ -103,14 +118,28 @@ namespace NodeGraph.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeLink), new FrameworkPropertyMetadata(typeof(NodeLink)));
         }
 
-        public NodeLink(Canvas canvas, double x, double y, double scale, NodeInputContent input) : this(canvas, x, y, scale)
+        public NodeLink(Canvas canvas, double scale) : this(canvas, 0, 0, scale)
         {
-            Input = input;
+            // constructed from view model.
         }
 
-        public NodeLink(Canvas canvas, double x, double y, double scale, NodeOutputContent output) : this(canvas, x, y, scale)
+        public NodeLink(Canvas canvas, double x, double y, double scale, NodeConnectorContent connector) : this(canvas, x, y, scale)
         {
-            Output = output;
+            // constructed from view for previewing node link. 
+
+            switch (connector)
+            {
+                case NodeInputContent input:
+                    Input = input;
+                    StartConnector = input;
+                    break;
+                case NodeOutputContent output:
+                    Output = output;
+                    StartConnector = output;
+                    break;
+                default:
+                    throw new InvalidCastException($"Cannot cast this connector. {connector}");
+            }
         }
 
         NodeLink(Canvas canvas, double x, double y, double scale)
@@ -133,34 +162,32 @@ namespace NodeGraph.Controls
             Canvas.SetZIndex(this, -1);
         }
 
+        public void Validate()
+        {
+            if (Guid == Guid.Empty || InputGuid == Guid.Empty || OutputGuid == Guid.Empty)
+            {
+                throw new DataException("Does not assigned guid");
+            }
+        }
+
         public void Dispose()
         {
+            Input?.Disconnect(this);
             Input = null;
+            Output?.Disconnect(this);
             Output = null;
         }
 
-        public void Connect(NodeInputContent input)
+        public void Connect(NodeInputContent input, NodeOutputContent output)
         {
-            if(Input != null)
-            {
-                Input.Disconnect(this);
-            }
+            Input?.Disconnect(this);
+            Output?.Disconnect(this);
+
             Input = input;
-
-            IsHitTestVisible = true;
-
-            UpdateConnectPosition();
-
-            InvalidateVisual();
-        }
-
-        public void Connect(NodeOutputContent output)
-        {
-            if(Output != null)
-            {
-                Output.Disconnect(this);
-            }
             Output = output;
+
+            StartConnector = Output;
+            ToEndConnector = Input;
 
             IsHitTestVisible = true;
 
@@ -219,12 +246,6 @@ namespace NodeGraph.Controls
         {
             _StartPoint = new Point(x, y);
             InvalidateVisual();
-        }
-
-        public void Disconnect()
-        {
-            Input.Disconnect(this);
-            Output.Disconnect(this);
         }
 
         void UpdateConnectPosition()

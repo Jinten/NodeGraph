@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NodeGraph
+namespace NodeGraph.CommandParameters
 {
     public class PreviewConnectCommandParameter
     {
@@ -12,19 +12,19 @@ namespace NodeGraph
 
         public Guid ConnectStartNodeGuid { get; } = Guid.Empty;
         public Guid ConnectStartConnectorGuid { get; } = Guid.Empty;
-        public Guid ConnectToNodeGuid { get; } = Guid.Empty;
-        public Guid ConnectToConnectorGuid { get; } = Guid.Empty;
+        public Guid ConnectToEndNodeGuid { get; } = Guid.Empty;
+        public Guid ConnectToEndConnectorGuid { get; } = Guid.Empty;
 
         public PreviewConnectCommandParameter(
             Guid connectStartNodeGuid,
             Guid connectStartConnectorGuid,
-            Guid connectToNodeGuid,
-            Guid connectToConnectorGuid)
+            Guid connectToEndNodeGuid,
+            Guid connectToEndConnectorGuid)
         {
             ConnectStartNodeGuid = connectStartNodeGuid;
             ConnectStartConnectorGuid = connectStartConnectorGuid;
-            ConnectToNodeGuid = connectToNodeGuid;
-            ConnectToConnectorGuid = connectToConnectorGuid;
+            ConnectToEndNodeGuid = connectToEndNodeGuid;
+            ConnectToEndConnectorGuid = connectToEndConnectorGuid;
         }
     }
 }

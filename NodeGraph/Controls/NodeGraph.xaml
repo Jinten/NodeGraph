@@ -15,7 +15,8 @@
                 <ControlTemplate TargetType="{x:Type local:NodeGraph}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            ClipToBounds="True">
                         <Canvas>
                             <local:GridCanvas x:Name="__NodeGraphCanvas__"
                                               DockPanel.Dock="Bottom"
@@ -34,6 +35,7 @@
                                          Height="16"
                                          ClipToBounds="True"
                                          Orientation="Horizontal"
+                                         IsHitTestVisible="False"
                                          Color="Gray"/>
                             <local:Ruler Scale="{TemplateBinding Scale}"
                                          Offset="{TemplateBinding Offset}"
@@ -41,6 +43,7 @@
                                          Width="32"
                                          ClipToBounds="True"
                                          Orientation="Vertical"
+                                         IsHitTestVisible="False"
                                          Color="Gray" />
                         </Canvas>
                     </Border>

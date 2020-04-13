@@ -10,6 +10,7 @@ namespace NodeGraph.Controls
 {
     public interface ICanvasObject
     {
+        Guid Guid { get; set; }
         void UpdateOffset(Point offset);
     }
 }

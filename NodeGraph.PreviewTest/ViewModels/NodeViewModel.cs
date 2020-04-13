@@ -5,8 +5,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
-namespace NodeGraph.ViewModels
+namespace NodeGraph.PreviewTest.ViewModels
 {
     public interface NodeConnectorViewModel
     {
@@ -66,6 +67,13 @@ namespace NodeGraph.ViewModels
             set => RaisePropertyChangedIfSet(ref _Guid, value);
         }
         Guid _Guid = Guid.NewGuid();
+
+        public Point Position
+        {
+            get => _Position;
+            set => RaisePropertyChangedIfSet(ref _Position, value);
+        }
+        Point _Position = new Point(0, 0);
 
         public string Name
         {

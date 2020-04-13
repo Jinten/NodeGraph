@@ -109,6 +109,10 @@ namespace NodeGraph.Controls
         Point _Position = new Point();
         TranslateTransform _Translate = new TranslateTransform();
 
+        static public bool CanConnectEachOther(NodeConnectorContent start, NodeConnectorContent toEnd)
+        {
+            return start.CanConnectTo(toEnd) && toEnd.CanConnectTo(start);
+        }
 
         public NodeConnectorContent()
         {
@@ -236,6 +240,12 @@ namespace NodeGraph.Controls
         static void ConnectorLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             (d as NodeConnector<T>).UpdateConnectorsLayout();
+        }
+
+        public T FindNodeConnector(Guid guid)
+        {
+            var connectors = _Canvas.Children.OfType<T>().ToArray();
+            return connectors.FirstOrDefault(arg => arg.Guid == guid);
         }
 
         public void UpdateLinkPosition(Canvas canvas)
