@@ -9,57 +9,7 @@ using System.Windows;
 
 namespace NodeGraph.PreviewTest.ViewModels
 {
-    public interface NodeConnectorViewModel
-    {
-        Guid Guid { get; set; }
-        string Label { get; set; }
-    }
-
-    public class NodeInputViewModel : ViewModel, NodeConnectorViewModel
-    {
-        public Guid Guid
-        {
-            get => _Guid;
-            set => RaisePropertyChangedIfSet(ref _Guid, value);
-        }
-        Guid _Guid = Guid.NewGuid();
-
-        public string Label
-        {
-            get => _Label;
-            set => RaisePropertyChangedIfSet(ref _Label, value);
-        }
-        string _Label = string.Empty;
-
-        public NodeInputViewModel(string label)
-        {
-            Label = label;
-        }
-    }
-
-    public class NodeOutputViewModel : ViewModel, NodeConnectorViewModel
-    {
-        public Guid Guid
-        {
-            get => _Guid;
-            set => RaisePropertyChangedIfSet(ref _Guid, value);
-        }
-        Guid _Guid = Guid.NewGuid();
-
-        public string Label
-        {
-            get => _Label;
-            set => RaisePropertyChangedIfSet(ref _Label, value);
-        }
-        string _Label = string.Empty;
-
-        public NodeOutputViewModel(string label)
-        {
-            Label = label;
-        }
-    }
-
-    public class NodeViewModel : ViewModel, INodeViewModel
+    public abstract class NodeBaseViewModel : ViewModel, INodeViewModel
     {
         public Guid Guid
         {
@@ -75,6 +25,18 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         Point _Position = new Point(0, 0);
 
+        public bool IsSelected
+        {
+            get => _IsSelected;
+            set => RaisePropertyChangedIfSet(ref _IsSelected, value);
+        }
+        bool _IsSelected = false;
+
+        public abstract NodeConnectorViewModel FindConnector(Guid guid);
+    }
+
+    public class NodeViewModel1 : NodeBaseViewModel
+    {
         public string Name
         {
             get => _Name;
@@ -95,7 +57,7 @@ namespace NodeGraph.PreviewTest.ViewModels
         public IEnumerable<NodeOutputViewModel> Outputs => _Outputs;
         ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
-        public NodeViewModel()
+        public NodeViewModel1()
         {
             for (int i = 0; i < 4; ++i)
             {
@@ -109,11 +71,10 @@ namespace NodeGraph.PreviewTest.ViewModels
                 }
             }
 
-
             _Outputs.Add(new NodeOutputViewModel("Output"));
         }
 
-        public NodeConnectorViewModel FindConnector(Guid guid)
+        public override NodeConnectorViewModel FindConnector(Guid guid)
         {
             var input = Inputs.FirstOrDefault(arg => arg.Guid == guid);
             if (input != null)
@@ -126,15 +87,8 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
     }
 
-    public class NodeViewModel2 : ViewModel, INodeViewModel
+    public class NodeViewModel2 : NodeBaseViewModel
     {
-        public Guid Guid
-        {
-            get => _Guid;
-            set => RaisePropertyChangedIfSet(ref _Guid, value);
-        }
-        Guid _Guid = Guid.NewGuid();
-
         public string Name
         {
             get => _Name;
@@ -168,7 +122,7 @@ namespace NodeGraph.PreviewTest.ViewModels
             }
         }
 
-        public NodeConnectorViewModel FindConnector(Guid guid)
+        public override NodeConnectorViewModel FindConnector(Guid guid)
         {
             var input = Inputs.FirstOrDefault(arg => arg.Guid == guid);
             if (input != null)

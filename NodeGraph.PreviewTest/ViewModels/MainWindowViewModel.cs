@@ -18,6 +18,9 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand AddNodeCommand => _AddNodeCommand.Get(AddNode);
         ViewModelCommandHandler _AddNodeCommand = new ViewModelCommandHandler();
 
+        public ViewModelCommand RemoveNodesCommand => _RemoveNodesCommand.Get(RemoveNodes);
+        ViewModelCommandHandler _RemoveNodesCommand = new ViewModelCommandHandler();
+
         public ListenerCommand<PreviewConnectCommandParameter> PreviewConnectCommand => _PreviewConnectCommand.Get(PreviewConnect);
         ViewModelCommandHandle<PreviewConnectCommandParameter> _PreviewConnectCommand = new ViewModelCommandHandle<PreviewConnectCommandParameter>();
 
@@ -41,14 +44,23 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         public MainWindowViewModel()
         {
-            _NodeViewModels.Add(new NodeViewModel() { Name = "Node1", Body = "Content1" });
-            _NodeViewModels.Add(new NodeViewModel() { Name = "Node2", Body = "Content2" });
+            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node1", Body = "Content1" });
+            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node2", Body = "Content2" });
             //_NodeViewModels.Add(new NodeViewModel() { Name = "Node3", Body = "Content3" });
         }
 
         void AddNode()
         {
             _NodeViewModels.Add(new NodeViewModel2() { Name = "NewNode", Body = "NewContent" });
+        }
+
+        void RemoveNodes()
+        {
+            var removeNodes = _NodeViewModels.Where(arg => arg.IsSelected).ToArray();
+            foreach(var removeNode in removeNodes)
+            {
+                _NodeViewModels.Remove(removeNode);
+            }
         }
 
         void PreviewConnect(PreviewConnectCommandParameter param)
@@ -78,14 +90,14 @@ namespace NodeGraph.PreviewTest.ViewModels
         void AddTestNodeLink()
         {
             var nodeLink = new NodeLinkViewModel();
-            nodeLink.OutputGuid = (_NodeViewModels[0] as NodeViewModel).Outputs.ElementAt(0).Guid;
-            nodeLink.InputGuid = (_NodeViewModels[1] as NodeViewModel).Inputs.ElementAt(0).Guid;
+            nodeLink.OutputGuid = (_NodeViewModels[0] as NodeViewModel1).Outputs.ElementAt(0).Guid;
+            nodeLink.InputGuid = (_NodeViewModels[1] as NodeViewModel1).Inputs.ElementAt(0).Guid;
             _NodeLinkViewModels.Add(nodeLink);
         }
 
         void MoveTestNodes()
         {
-            (_NodeViewModels[0] as NodeViewModel).Position = new Point(0, 0);
+            _NodeViewModels[0].Position = new Point(0, 0);
         }
     }
 }

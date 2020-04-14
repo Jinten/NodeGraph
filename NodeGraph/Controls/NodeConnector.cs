@@ -101,7 +101,7 @@ namespace NodeGraph.Controls
         /// <summary>
         /// connecting node links.
         /// </summary>
-        protected IEnumerable<NodeLink> NodeLinks => _NodeLinks;
+        public IEnumerable<NodeLink> NodeLinks => _NodeLinks;
         List<NodeLink> _NodeLinks = new List<NodeLink>();
 
         protected abstract FrameworkElement ConnectorControl { get; }
@@ -136,7 +136,13 @@ namespace NodeGraph.Controls
 
         public void Dispose()
         {
+            var nodeLinks = _NodeLinks.ToArray();
 
+            // it must instance to nodeLinks because change node link collection in NodeLink Dispose.
+            foreach(var nodeLink in nodeLinks)
+            {
+                nodeLink.Dispose();
+            }
         }
 
         public void Connect(NodeLink nodeLink)
@@ -175,7 +181,7 @@ namespace NodeGraph.Controls
         }
     }
 
-    public abstract class NodeConnector<T> : MultiSelector where T : NodeConnectorContent, new()
+    public abstract class NodeConnector<T> : MultiSelector, IDisposable where T : NodeConnectorContent, new()
     {
         public ConnectorLayoutType ConnectorLayout
         {
@@ -240,6 +246,22 @@ namespace NodeGraph.Controls
         static void ConnectorLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             (d as NodeConnector<T>).UpdateConnectorsLayout();
+        }
+
+        public void Dispose()
+        {
+            var connectors = _Canvas.Children.OfType<NodeConnectorContent>().ToArray();
+
+            foreach(var connector in connectors)
+            {
+                connector.Dispose();
+            }
+        }
+
+        public NodeLink[] EnumerateConnectedNodeLinks()
+        {
+            var connectors = _Canvas.Children.OfType<NodeConnectorContent>().ToArray();
+            return connectors.SelectMany(arg => arg.NodeLinks).ToArray();
         }
 
         public T FindNodeConnector(Guid guid)

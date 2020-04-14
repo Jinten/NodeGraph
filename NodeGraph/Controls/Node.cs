@@ -225,6 +225,14 @@ namespace NodeGraph.Controls
             _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
         }
 
+        public NodeLink[] EnumrateConnectedNodeLinks()
+        {
+            var inputNodeLinks = _NodeInput.EnumerateConnectedNodeLinks();
+            var outputNodeLinks = _NodeOutput.EnumerateConnectedNodeLinks();
+
+            return inputNodeLinks.Concat(outputNodeLinks).ToArray();
+        }
+
         public NodeConnectorContent FindNodeConnectorContent(Guid guid)
         {
             var input = _NodeInput.FindNodeConnector(guid);
@@ -262,6 +270,8 @@ namespace NodeGraph.Controls
 
         public void Dispose()
         {
+            _NodeInput.Dispose();
+            _NodeOutput.Dispose();
             SizeChanged -= Node_SizeChanged;
         }
 

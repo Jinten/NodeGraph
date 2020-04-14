@@ -16,6 +16,7 @@
     <Window.Resources>
         <ContextMenu x:Key="NodeGraphContextMenu">
             <MenuItem Header="AddNode" Command="{Binding AddNodeCommand}"/>
+            <MenuItem Header="RemoveNodes" Command="{Binding RemoveNodesCommand}"/>
         </ContextMenu>
 
         <Style x:Key="NodeInputStyle" TargetType="{x:Type ctrl:NodeInputContent}" BasedOn="{StaticResource {x:Type ctrl:NodeInputContent}}">
@@ -37,13 +38,14 @@
         <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}">
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <!--disconnect position binding if you specify Mode=OneWay, because it will change binding position instance in view control.-->
-            <Setter Property="Position" Value="{Binding Position}"/> 
+            <Setter Property="Position" Value="{Binding Position}"/>
+            <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
             <Setter Property="Inputs" Value="{Binding Inputs}"/>
             <Setter Property="Outputs" Value="{Binding Outputs}"/>
             <Setter Property="OutputLayout" Value="Center"/>
             <Setter Property="InputMargin" Value="0"/>
             <Setter Property="InputStyle" Value="{StaticResource NodeInputStyle}"/>
-            <Setter Property="OutputStyle" Value="{StaticResource NodeOutputStyle}"/>
+            <Setter Property="OutputStyle" Value="{StaticResource NodeOutputStyle}"/>            
             <Setter Property="HeaderContentTemplate">
                 <Setter.Value>
                     <DataTemplate>

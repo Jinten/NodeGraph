@@ -717,6 +717,13 @@ namespace NodeGraph.Controls
 
                 removeElement.MouseUp -= Node_MouseUp;
                 removeElement.MouseDown -= Node_MouseDown;
+
+                var nodeLinks = removeElement.EnumrateConnectedNodeLinks();
+                foreach(var nodeLink in nodeLinks)
+                {
+                    Canvas.Children.Remove(nodeLink);
+                }
+
                 removeElement.Dispose();
             }
         }
