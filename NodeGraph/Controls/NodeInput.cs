@@ -44,7 +44,22 @@ namespace NodeGraph.Controls
 
         public override bool CanConnectTo(NodeConnectorContent connector)
         {
-            return CanConnect && ConnectedCount == 0 && connector is NodeOutputContent && Node != connector.Node;
+            if((CanConnect && ConnectedCount == 0 && connector is NodeOutputContent && Node != connector.Node) == false)
+            {
+                return false;
+            }
+
+            // check for circulation connecting.
+            var nodeLinks = connector.Node.EnumrateConnectedNodeLinks();
+            foreach(var nodeLink in nodeLinks)
+            {
+                if(nodeLink.Output?.Node == Node)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 

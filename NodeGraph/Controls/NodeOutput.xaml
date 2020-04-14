@@ -48,19 +48,20 @@
                     </ContentPresenter>
                 </DockPanel>
 
-                <ContentPresenter Margin="4,0,0,0"
+                <DockPanel Margin="4,0,0,0">
+                    <ContentPresenter VerticalAlignment="Center"
+                                      IsHitTestVisible="False"
+                                      Width="{Binding ActualWidth, ElementName=__OutputConnector__}"
+                                      Visibility="{TemplateBinding CanConnect, Converter={StaticResource InverseBooleanToVisibility}}">
+                        <ContentPresenter.Content>
+                            <Path Fill="Transparent"
+                                  Stroke="Red"
+                                  StrokeThickness="1"
                                   VerticalAlignment="Center"
-                                  IsHitTestVisible="False"
-                                  Width="{Binding Width, ElementName=__OutputConnector__}"
-                                  Visibility="{TemplateBinding CanConnect, Converter={StaticResource InverseBooleanToVisibility}}">
-                    <ContentPresenter.Content>
-                        <Path Fill="Transparent"
-                              Stroke="Red"
-                              StrokeThickness="1"
-                              VerticalAlignment="Center"
-                              Data="M 0,0 L 11,0 L 11,11 L 0,11 Z M 0,0 L 0,0 L 11,11"/>
-                    </ContentPresenter.Content>
-                </ContentPresenter>
+                                  Data="M 0,0 L 11,0 L 11,11 L 0,11 Z M 0,0 L 0,0 L 11,11"/>
+                        </ContentPresenter.Content>
+                    </ContentPresenter>
+                </DockPanel>
             </DockPanel>
         </Border>
     </ControlTemplate>

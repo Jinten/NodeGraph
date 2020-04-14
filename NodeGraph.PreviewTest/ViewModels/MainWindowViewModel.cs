@@ -27,6 +27,9 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ListenerCommand<ConnectCommandParameter> ConnectCommand => _ConnectCommand.Get(Connect);
         ViewModelCommandHandle<ConnectCommandParameter> _ConnectCommand = new ViewModelCommandHandle<ConnectCommandParameter>();
 
+        public ListenerCommand<DisconnectCommandParameter> DisconnectCommand => _DisconnectCommand.Get(Disconnect);
+        ViewModelCommandHandle<DisconnectCommandParameter> _DisconnectCommand = new ViewModelCommandHandle<DisconnectCommandParameter>();
+
         public ListenerCommand<MovedNodesCommandParameter> MovedNodesCommand => _MovedNodesCommand.Get(MovedNodes);
         ViewModelCommandHandle<MovedNodesCommandParameter> _MovedNodesCommand = new ViewModelCommandHandle<MovedNodesCommandParameter>();
 
@@ -80,6 +83,12 @@ namespace NodeGraph.PreviewTest.ViewModels
                 OutputNodeGuid = param.OutputNodeGuid,
             };
             _NodeLinkViewModels.Add(nodeLink);
+        }
+
+        void Disconnect(DisconnectCommandParameter param)
+        {
+            var nodeLink = _NodeLinkViewModels.First(arg => arg.Guid == param.NodeLinkGuid);
+            _NodeLinkViewModels.Remove(nodeLink);
         }
 
         void MovedNodes(MovedNodesCommandParameter param)

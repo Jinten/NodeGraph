@@ -84,6 +84,7 @@
                         NodeLinkStyle="{StaticResource NodeLinkStyle}"
                         PreviewConnectCommand="{Binding PreviewConnectCommand}"
                         ConnectCommand="{Binding ConnectCommand}"
+                        DisconnectCommand="{Binding DisconnectCommand}"
                         ContextMenu="{StaticResource NodeGraphContextMenu}"/>
     </Grid>
 </Window>

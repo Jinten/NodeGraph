@@ -98,6 +98,14 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty ConnectCommandProperty =
             DependencyProperty.Register(nameof(ConnectCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
+        public ICommand DisconnectCommand
+        {
+            get => (ICommand)GetValue(DisconnectCommandProperty);
+            set => SetValue(DisconnectCommandProperty, value);
+        }
+        public static readonly DependencyProperty DisconnectCommandProperty =
+            DependencyProperty.Register(nameof(DisconnectCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+
         public ICommand MovedNodesCommand
         {
             get => (ICommand)GetValue(MovedNodesCommandProperty);
@@ -181,7 +189,7 @@ namespace NodeGraph.Controls
 
         static void NodeLinkStylePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if(e.NewValue != null)
+            if (e.NewValue != null)
             {
                 var nodeGraph = d as NodeGraph;
                 var nodeLinkStyle = e.NewValue as Style;
@@ -191,9 +199,9 @@ namespace NodeGraph.Controls
                 // will occur exception cannot find name of element in this style scope if specified BasedOn that using RemoveStoryboard with BeginStoryboardName
                 // because override style doesn't know Name of BeginStoryboardName.
                 // so cannot find to remove element, so need to RegisterName that name and should be remove element here.
-                foreach(var trigger in nodeGraph.NodeLinkBaseStyle.Triggers)
+                foreach (var trigger in nodeGraph.NodeLinkBaseStyle.Triggers)
                 {
-                    foreach(var beginStoryboard in trigger.EnterActions.OfType<BeginStoryboard>())
+                    foreach (var beginStoryboard in trigger.EnterActions.OfType<BeginStoryboard>())
                     {
                         nodeLinkStyle.RegisterName(beginStoryboard.Name, beginStoryboard);
                     }
@@ -216,7 +224,7 @@ namespace NodeGraph.Controls
             }
 
             // below process is node collection changed.
-            if(nodeGraph.Canvas == null)
+            if (nodeGraph.Canvas == null)
             {
                 return;
             }
@@ -288,7 +296,7 @@ namespace NodeGraph.Controls
                 newCollection.CollectionChanged += NodeCollectionChanged;
             }
 
-            if(Canvas == null)
+            if (Canvas == null)
             {
                 return;
             }
@@ -388,7 +396,7 @@ namespace NodeGraph.Controls
             }
             else if (_DraggingNodeLinkParam != null)
             {
-                HitTestToPreviewConnector(posOnCanvas, _DraggingNodeLinkParam.StartConnector);
+                HitTestToPreviewConnector(posOnCanvas, _DraggingNodeLinkParam);
 
                 _DraggingNodeLinkParam.NodeLink.UpdateEdgePoint(posOnCanvas.X, posOnCanvas.Y);
             }
@@ -482,7 +490,7 @@ namespace NodeGraph.Controls
                 }
             }
             _IsNodeSelected = false;
-            if(_DraggingNodes.Count > 0)
+            if (_DraggingNodes.Count > 0)
             {
                 var param = new MovedNodesCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
                 MovedNodesCommand?.Execute(param);
@@ -498,12 +506,12 @@ namespace NodeGraph.Controls
 
                 // only be able to connect input to output or output to input.
                 // it will reject except above condition.
-                if (element != null && element.Tag is NodeConnectorContent toEndConnector )
+                if (element != null && element.Tag is NodeConnectorContent toEndConnector)
                 {
                     var nodeLink = _DraggingNodeLinkParam.NodeLink;
                     var startConnector = _DraggingNodeLinkParam.StartConnector;
 
-                    if(nodeLink.ToEndConnector == toEndConnector)
+                    if (nodeLink.ToEndConnector == toEndConnector)
                     {
                         // tried to reconnect but reconnecting same with before connector.
                         _DraggingNodeLinkParam = null;
@@ -511,7 +519,7 @@ namespace NodeGraph.Controls
 
                         connected = true;
                     }
-                    else if(NodeConnectorContent.CanConnectEachOther(startConnector, toEndConnector))
+                    else if (NodeConnectorContent.CanConnectEachOther(startConnector, toEndConnector))
                     {
                         NodeInputContent input = null;
                         NodeOutputContent output = null;
@@ -544,10 +552,9 @@ namespace NodeGraph.Controls
                     }
                 }
 
-                if(connected == false)
+                if (connected == false)
                 {
-                    Canvas.Children.Remove(_DraggingNodeLinkParam.NodeLink);
-                    _DraggingNodeLinkParam.NodeLink.Dispose();
+                    DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
                 }
 
                 _DraggingNodeLinkParam = null;
@@ -574,9 +581,28 @@ namespace NodeGraph.Controls
             _PressMouseToSelect = false;
             _PressMouseToMove = false;
             _IsStartDragging = false;
+            if (_DraggingNodeLinkParam != null)
+            {
+                DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
+            }
             _DraggingNodeLinkParam = null;
             _DraggingNodes.Clear();
+
             InvalidateVisual();
+        }
+
+        void DisconnectNodeLink(NodeLink nodeLink)
+        {
+            if (nodeLink.Input != null && nodeLink.Output != null)
+            {
+                var inputNode = nodeLink.Input.Node;
+                var outputNode = nodeLink.Output.Node;
+                var param = new DisconnectCommandParameter(nodeLink.Guid, inputNode.Guid, nodeLink.InputGuid, outputNode.Guid, nodeLink.OutputGuid);
+                DisconnectCommand?.Execute(param);
+            }
+
+            Canvas.Children.Remove(nodeLink);
+            nodeLink.Dispose();
         }
 
         void ClearPreviewedConnect()
@@ -588,7 +614,7 @@ namespace NodeGraph.Controls
             _PreviewedConnectors.Clear();
         }
 
-        void HitTestToPreviewConnector(Point pos, NodeConnectorContent startConnector)
+        void HitTestToPreviewConnector(Point pos, DraggingNodeLinkParam param)
         {
             foreach (var connector in _PreviewedConnectors)
             {
@@ -599,11 +625,14 @@ namespace NodeGraph.Controls
             VisualTreeHelper.HitTest(Canvas, null, new HitTestResultCallback(arg =>
             {
                 var element = arg.VisualHit as FrameworkElement;
-                if (element != null && element.Tag is NodeConnectorContent toConnector && startConnector != toConnector)
+                if (element != null && element.Tag is NodeConnectorContent toConnector)
                 {
-                    PreviewConnect(startConnector, toConnector);
-                    _PreviewedConnectors.Add(toConnector);
-                    return HitTestResultBehavior.Stop;
+                    if(param.StartConnector != toConnector && param.NodeLink.ToEndConnector != toConnector)
+                    {
+                        PreviewConnect(param.StartConnector, toConnector);
+                        _PreviewedConnectors.Add(toConnector);
+                        return HitTestResultBehavior.Stop;
+                    }
                 }
                 return HitTestResultBehavior.Continue;
             }), new PointHitTestParameters(pos));
@@ -611,7 +640,7 @@ namespace NodeGraph.Controls
 
         void NodeLinkCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if(e.OldItems?.Count > 0)
+            if (e.OldItems?.Count > 0)
             {
                 RemoveNodeLinksFromCanvas(e.OldItems.OfType<object>());
             }
@@ -655,7 +684,7 @@ namespace NodeGraph.Controls
                 nodeLink.Validate();
 
                 var nodeLinks = Canvas.Children.OfType<NodeLink>().ToArray();
-                if(nodeLinks.Any(arg => arg.Guid == nodeLink.Guid))
+                if (nodeLinks.Any(arg => arg.Guid == nodeLink.Guid))
                 {
                     throw new InvalidOperationException($"Already exists adding node link. Guid = {nodeLink.Guid}");
                 }
@@ -719,7 +748,7 @@ namespace NodeGraph.Controls
                 removeElement.MouseDown -= Node_MouseDown;
 
                 var nodeLinks = removeElement.EnumrateConnectedNodeLinks();
-                foreach(var nodeLink in nodeLinks)
+                foreach (var nodeLink in nodeLinks)
                 {
                     Canvas.Children.Remove(nodeLink);
                 }
@@ -748,7 +777,7 @@ namespace NodeGraph.Controls
 
         void PreviewConnect(NodeConnectorContent start, NodeConnectorContent toEnd)
         {
-            if (start.Node != toEnd.Node)
+            if (start.CanConnectTo(toEnd) && toEnd.CanConnectTo(start))
             {
                 var param = new PreviewConnectCommandParameter(start.Node.Guid, start.Guid, toEnd.Node.Guid, toEnd.Guid);
                 PreviewConnectCommand.Execute(param);
