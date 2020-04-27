@@ -278,15 +278,6 @@ namespace NodeGraph.Controls
         {
             base.OnItemsSourceChanged(oldValue, newValue);
 
-            if (Canvas == null)
-            {
-                _DelayToBindVMs.AddRange(newValue.OfType<object>());
-            }
-            else
-            {
-                AddNodesToCanvas(newValue.OfType<object>());
-            }
-
             if (oldValue != null && oldValue is INotifyCollectionChanged oldCollection)
             {
                 oldCollection.CollectionChanged -= NodeCollectionChanged;
@@ -298,6 +289,7 @@ namespace NodeGraph.Controls
 
             if (Canvas == null)
             {
+                _DelayToBindVMs.AddRange(newValue.OfType<object>());
                 return;
             }
 
