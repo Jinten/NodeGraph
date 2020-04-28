@@ -9,7 +9,7 @@
         <ResourceDictionary Source="/NodeGraph;component/Controls/NodeOutput.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <Style x:Key="__NodeBaseStyle__" TargetType="{x:Type local:Node}">
+    <Style TargetType="{x:Type local:Node}">
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="#FF888888"/>
         <Setter Property="InputMargin" Value="2"/>

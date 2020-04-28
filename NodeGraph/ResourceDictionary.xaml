@@ -4,6 +4,7 @@
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/NodeGraph;component/Controls/Node.xaml"/>
+        <ResourceDictionary Source="/NodeGraph;component/Controls/NodeLink.xaml"/>
         <ResourceDictionary Source="/NodeGraph;component/Controls/NodeGraph.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     

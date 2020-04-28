@@ -133,11 +133,8 @@ namespace NodeGraph.Controls
         ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
         ResourceInstance<ControlTemplate> _NodeTemplate = new ResourceInstance<ControlTemplate>();
 
-        Style NodeBaseStyle => _NodeBaseStyle.Get("__NodeBaseStyle__");
-        ResourceInstance<Style> _NodeBaseStyle = new ResourceInstance<Style>();
-
-        Style NodeLinkBaseStyle => _NodeLinkBaseStyle.Get("__NodeLinkBaseStyle__");
-        ResourceInstance<Style> _NodeLinkBaseStyle = new ResourceInstance<Style>();
+        Style NodeLinkAnimationStyle => _NodeLinkAnimationStyle.Get("__NodeLinkAnimationStyle__");
+        ResourceInstance<Style> _NodeLinkAnimationStyle = new ResourceInstance<Style>();
 
         bool _IsNodeSelected = false;
         bool _IsStartDragging = false;
@@ -194,12 +191,10 @@ namespace NodeGraph.Controls
                 var nodeGraph = d as NodeGraph;
                 var nodeLinkStyle = e.NewValue as Style;
 
-                nodeLinkStyle.BasedOn = nodeGraph.NodeLinkBaseStyle;
-
                 // will occur exception cannot find name of element in this style scope if specified BasedOn that using RemoveStoryboard with BeginStoryboardName
                 // because override style doesn't know Name of BeginStoryboardName.
                 // so cannot find to remove element, so need to RegisterName that name and should be remove element here.
-                foreach (var trigger in nodeGraph.NodeLinkBaseStyle.Triggers)
+                foreach (var trigger in nodeGraph.NodeLinkAnimationStyle.Triggers)
                 {
                     foreach (var beginStoryboard in trigger.EnterActions.OfType<BeginStoryboard>())
                     {
@@ -261,16 +256,6 @@ namespace NodeGraph.Controls
             {
                 AddNodesToCanvas(_DelayToBindVMs.OfType<object>());
                 _DelayToBindVMs.Clear();
-            }
-        }
-
-        protected override void OnItemContainerStyleChanged(Style oldItemContainerStyle, Style newItemContainerStyle)
-        {
-            base.OnItemContainerStyleChanged(oldItemContainerStyle, newItemContainerStyle);
-            if (newItemContainerStyle != null)
-            {
-                newItemContainerStyle.BasedOn = NodeBaseStyle;
-                newItemContainerStyle.Seal();
             }
         }
 
@@ -670,7 +655,7 @@ namespace NodeGraph.Controls
                 var nodeLink = new NodeLink(Canvas, Scale)
                 {
                     DataContext = vm,
-                    Style = NodeLinkStyle ?? NodeLinkBaseStyle,
+                    Style = NodeLinkStyle ?? NodeLinkAnimationStyle,
                 };
 
                 nodeLink.Validate();
@@ -832,7 +817,7 @@ namespace NodeGraph.Controls
                 var nodeLink = new NodeLink(Canvas, posOnCanvas.X, posOnCanvas.Y, Scale, connector)
                 {
                     DataContext = null,
-                    Style = NodeLinkStyle ?? NodeLinkBaseStyle
+                    Style = NodeLinkStyle ?? NodeLinkAnimationStyle
                 };
 
                 _DraggingNodeLinkParam = new DraggingNodeLinkParam(nodeLink, connector);

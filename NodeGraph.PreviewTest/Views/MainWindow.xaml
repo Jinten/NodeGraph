@@ -29,13 +29,13 @@
             <Setter Property="Content" Value="{Binding Label}"/>
         </Style>
 
-        <Style x:Key="NodeLinkStyle" TargetType="{x:Type ctrl:NodeLink}">
+        <Style x:Key="NodeLinkStyle" TargetType="{x:Type ctrl:NodeLink}" BasedOn="{StaticResource {x:Type ctrl:NodeLink}}">
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="InputGuid" Value="{Binding InputGuid, Mode=OneWay}"/>
             <Setter Property="OutputGuid" Value="{Binding OutputGuid, Mode=OneWay}"/>
         </Style>
 
-        <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}">
+        <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}" BasedOn="{StaticResource {x:Type ctrl:Node}}">
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <!--disconnect position binding if you specify Mode=OneWay, because it will change binding position instance in view control.-->
             <Setter Property="Position" Value="{Binding Position}"/>

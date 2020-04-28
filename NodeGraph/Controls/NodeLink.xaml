@@ -8,12 +8,7 @@
         </DoubleAnimationUsingKeyFrames>
     </Storyboard>
 
-    <Style x:Key="__NodeLinkBaseStyle__" TargetType="{x:Type local:NodeLink}">
-        <Setter Property="LinkSize" Value="2"/>
-        <Setter Property="Fill" Value="#FFAAAAAA"/>
-        <Setter Property="StrokeThickness" Value="10"/>
-        <Setter Property="StrokeEndLineCap" Value="Round"/>
-        <Setter Property="StrokeStartLineCap" Value="Round"/>
+    <Style x:Key="__NodeLinkAnimationStyle__" TargetType="{x:Type local:NodeLink}">
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Fill" Value="Aqua"/>
@@ -25,6 +20,14 @@
                 </Trigger.EnterActions>
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <Style TargetType="{x:Type local:NodeLink}">
+        <Setter Property="LinkSize" Value="2"/>
+        <Setter Property="Fill" Value="#FFAAAAAA"/>
+        <Setter Property="StrokeThickness" Value="10"/>
+        <Setter Property="StrokeEndLineCap" Value="Round"/>
+        <Setter Property="StrokeStartLineCap" Value="Round"/>
     </Style>
     
 </ResourceDictionary>
