@@ -757,7 +757,7 @@ namespace NodeGraph.Controls
             if (start.CanConnectTo(toEnd) && toEnd.CanConnectTo(start))
             {
                 var param = new PreviewConnectCommandParameter(start.Node.Guid, start.Guid, toEnd.Node.Guid, toEnd.Guid);
-                PreviewConnectCommand.Execute(param);
+                PreviewConnectCommand?.Execute(param);
                 toEnd.CanConnect = param.CanConnect;
             }
             else
