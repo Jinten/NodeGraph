@@ -277,7 +277,7 @@ namespace NodeGraph.Controls
             if (connectorContents.Count() > 0)
             {
                 Width = connectorContents.Max(arg => arg.ActualWidth);
-                Height = connectorContents.Sum(arg => arg.ActualHeight) + connectorContents.Count() * (ConnectorMargin.Top + ConnectorMargin.Bottom) * 2;
+                Height = connectorContents.Sum(arg => arg.ActualHeight) + connectorContents.Count() * (ConnectorMargin.Top + ConnectorMargin.Bottom);
             }
         }
 
@@ -371,7 +371,7 @@ namespace NodeGraph.Controls
             int index = 0;
             foreach (var element in _Canvas.Children.OfType<NodeConnectorContent>())
             {
-                double margin = index * ConnectorMargin.Top * 2 + ConnectorMargin.Top;
+                double margin = index * (ConnectorMargin.Top + ConnectorMargin.Bottom) + ConnectorMargin.Top;
                 element.Padding = new Thickness(ConnectorMargin.Left, 0, ConnectorMargin.Right, 0);
                 element.Position = new Point(0, offset + element.ActualHeight * index + margin + index); // last adding index for non overlap other connector.
                 ++index;

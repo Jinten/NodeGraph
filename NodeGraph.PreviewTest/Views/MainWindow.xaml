@@ -43,9 +43,9 @@
             <Setter Property="Inputs" Value="{Binding Inputs}"/>
             <Setter Property="InputLayout" Value="Center"/>
             <Setter Property="Outputs" Value="{Binding Outputs}"/>
-            <Setter Property="OutputLayout" Value="Top"/>
+            <Setter Property="OutputLayout" Value="Center"/>
             <Setter Property="InputMargin" Value="5,1,5,1"/>
-            <Setter Property="OutputMargin" Value="5,1,5,1"/>
+            <Setter Property="OutputMargin" Value="4,0,4,10"/>
             <Setter Property="InputStyle" Value="{StaticResource NodeInputStyle}"/>
             <Setter Property="OutputStyle" Value="{StaticResource NodeOutputStyle}"/>            
             <Setter Property="HeaderContentTemplate">
