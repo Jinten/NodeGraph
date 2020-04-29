@@ -67,7 +67,7 @@
                     </ContentPresenter>
                 </DockPanel>
 
-                <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke" VerticalContentAlignment="Center" Padding="{TemplateBinding Padding}"/>
+                <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke" VerticalAlignment="Center" VerticalContentAlignment="Center" Padding="{TemplateBinding Padding}"/>
             </DockPanel>
         </Border>
 

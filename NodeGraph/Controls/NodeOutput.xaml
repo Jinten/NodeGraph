@@ -32,7 +32,7 @@
 				BorderBrush="{TemplateBinding BorderBrush}"
 				BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
-                <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke" VerticalAlignment="Center" Padding="{TemplateBinding Padding}"/>
+                <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke" VerticalAlignment="Center" VerticalContentAlignment="Center" Padding="{TemplateBinding Padding}"/>
                 <DockPanel x:Name="__OutputConnector__"
                            Background="#00FFFFFF"
                            DockPanel.Dock="Right"
