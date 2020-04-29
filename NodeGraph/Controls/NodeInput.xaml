@@ -52,7 +52,7 @@
                     </ContentPresenter>
                 </DockPanel>
 
-                <DockPanel Margin="4,0,0,0">
+                <DockPanel Margin="4,0,0,0" HorizontalAlignment="Center">
                     <ContentPresenter VerticalAlignment="Center"
                                       IsHitTestVisible="False"
                                       Width="{Binding ActualWidth, ElementName=__InputConnector__}"
@@ -80,6 +80,7 @@
     </ControlTemplate>
 
     <Style TargetType="{x:Type local:NodeInput}">
+        <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:NodeInput}">

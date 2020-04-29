@@ -82,6 +82,7 @@
     </ControlTemplate>
 
     <Style TargetType="{x:Type local:NodeOutput}">
+        <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:NodeOutput}">
