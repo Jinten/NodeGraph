@@ -55,7 +55,7 @@
 
                     <local:NodeOutput x:Name="__NodeOutput__"
                                       Node="{Binding Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                      ConnectorMargin="{Binding OutputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                      ConnectorMargin="{TemplateBinding OutputMargin}"
                                       ItemsSource="{Binding Outputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                       VerticalAlignment="{TemplateBinding OutputLayout}"
                                       ItemContainerStyle="{TemplateBinding OutputStyle}"/>

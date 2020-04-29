@@ -176,16 +176,16 @@ namespace NodeGraph.Controls
 
     public abstract class NodeConnector<T> : MultiSelector, IDisposable where T : NodeConnectorContent, new()
     {
-        public double ConnectorMargin
+        public Thickness ConnectorMargin
         {
-            get => (double)GetValue(ConnectorMarginProperty);
+            get => (Thickness)GetValue(ConnectorMarginProperty);
             set => SetValue(ConnectorMarginProperty, value);
         }
         public static readonly DependencyProperty ConnectorMarginProperty = DependencyProperty.Register(
             nameof(ConnectorMargin),
-            typeof(double),
+            typeof(Thickness),
             typeof(NodeConnector<T>),
-            new FrameworkPropertyMetadata(2.0, ConnectorMarginPropertyChanged));
+            new FrameworkPropertyMetadata(new Thickness(2.0), ConnectorMarginPropertyChanged));
 
         public Node Node
         {
@@ -197,8 +197,6 @@ namespace NodeGraph.Controls
             typeof(Node),
             typeof(NodeConnector<T>),
             new FrameworkPropertyMetadata(null));
-
-        public EventHandler<DependencyPropertyChangedEventArgs> MouseOverOnConnector { get; set; } = null;
 
         /// <summary>
         /// must implement connector canvas name.
@@ -267,6 +265,11 @@ namespace NodeGraph.Controls
 
         public void UpdateConnectorsLayout()
         {
+            if(_Canvas == null)
+            {
+                return;
+            }
+
             ReplaceConnectElements(0);
 
             var connectorContents = _Canvas.Children.OfType<NodeConnectorContent>();
@@ -274,7 +277,7 @@ namespace NodeGraph.Controls
             if (connectorContents.Count() > 0)
             {
                 Width = connectorContents.Max(arg => arg.ActualWidth);
-                Height = connectorContents.Sum(arg => arg.ActualHeight) + connectorContents.Count() * ConnectorMargin * 2;
+                Height = connectorContents.Sum(arg => arg.ActualHeight) + connectorContents.Count() * (ConnectorMargin.Top + ConnectorMargin.Bottom) * 2;
             }
         }
 
@@ -363,17 +366,13 @@ namespace NodeGraph.Controls
             UpdateConnectorsLayout();
         }
 
-        void Connector_MouseOver(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            MouseOverOnConnector?.Invoke(sender, e);
-        }
-
         void ReplaceConnectElements(double offset)
         {
             int index = 0;
             foreach (var element in _Canvas.Children.OfType<NodeConnectorContent>())
             {
-                double margin = index * ConnectorMargin * 2 + ConnectorMargin;
+                double margin = index * ConnectorMargin.Top * 2 + ConnectorMargin.Top;
+                element.Padding = new Thickness(ConnectorMargin.Left, 0, ConnectorMargin.Right, 0);
                 element.Position = new Point(0, offset + element.ActualHeight * index + margin + index); // last adding index for non overlap other connector.
                 ++index;
             }

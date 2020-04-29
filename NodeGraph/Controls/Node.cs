@@ -54,16 +54,16 @@ namespace NodeGraph.Controls
             typeof(Node),
             new FrameworkPropertyMetadata(VerticalAlignment.Top));
 
-        public double InputMargin
+        public Thickness InputMargin
         {
-            get => (double)GetValue(InputMarginProperty);
+            get => (Thickness)GetValue(InputMarginProperty);
             set => SetValue(InputMarginProperty, value);
         }
         public static readonly DependencyProperty InputMarginProperty = DependencyProperty.Register(
             nameof(InputMargin),
-            typeof(double),
+            typeof(Thickness),
             typeof(Node),
-            new FrameworkPropertyMetadata(2.0));
+            new FrameworkPropertyMetadata(new Thickness(2.0)));
 
         public IEnumerable Inputs
         {
@@ -98,16 +98,16 @@ namespace NodeGraph.Controls
             typeof(Node),
             new FrameworkPropertyMetadata(VerticalAlignment.Top));
 
-        public double OutputMargin
+        public Thickness OutputMargin
         {
-            get => (double)GetValue(OutputMarginProperty);
+            get => (Thickness)GetValue(OutputMarginProperty);
             set => SetValue(OutputMarginProperty, value);
         }
         public static readonly DependencyProperty OutputMarginProperty = DependencyProperty.Register(
             nameof(OutputMargin),
-            typeof(double),
+            typeof(Thickness),
             typeof(Node),
-            new FrameworkPropertyMetadata(2.0));
+            new FrameworkPropertyMetadata(new Thickness(2.0)));
 
         public IEnumerable Outputs
         {

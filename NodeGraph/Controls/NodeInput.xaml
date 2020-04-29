@@ -1,6 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:res="clr-namespace:NodeGraph.Resources"
                     xmlns:converters="clr-namespace:NodeGraph.Converters"
                     xmlns:local="clr-namespace:NodeGraph.Controls">
 
@@ -42,7 +41,7 @@
                              Stroke="{TemplateBinding Stroke}"
                              Fill="{TemplateBinding Fill}"
                              IsHitTestVisible="False"/>
-                    <ContentPresenter Margin="4,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                    <ContentPresenter Margin="4,2,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
                         <ContentPresenter.Content>
                             <Path x:Name="ConnectorShape2"
                                   Fill="{TemplateBinding Fill}"
@@ -68,7 +67,7 @@
                     </ContentPresenter>
                 </DockPanel>
 
-                <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke" VerticalContentAlignment="Center"/>
+                <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke" VerticalContentAlignment="Center" Padding="{TemplateBinding Padding}"/>
             </DockPanel>
         </Border>
 

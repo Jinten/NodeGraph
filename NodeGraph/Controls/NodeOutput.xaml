@@ -11,11 +11,15 @@
         <Setter Property="Stroke" Value="Gray"/>
         <Setter Property="Fill" Value="Transparent"/>
         <Setter Property="MinWidth" Value="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type local:NodeOutput}}}"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Fill" Value="DarkRed"/>
+        <Style.Triggers>            
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True"/>
+                    <Condition Property="CanConnect" Value="True"/>
+                </MultiTrigger.Conditions>
                 <Setter Property="Stroke" Value="PaleVioletRed"/>
-            </Trigger>
+            </MultiTrigger>
+            
             <Trigger Property="IsEnabled" Value="False">
                 <Setter Property="Fill" Value="#55888888"/>
                 <Setter Property="Stroke" Value="#55888888"/>
@@ -28,21 +32,23 @@
 				BorderBrush="{TemplateBinding BorderBrush}"
 				BorderThickness="{TemplateBinding BorderThickness}">
             <DockPanel>
-                <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke"/>
+                <Label Content="{TemplateBinding Content}" Foreground="WhiteSmoke" VerticalAlignment="Center" Padding="{TemplateBinding Padding}"/>
                 <DockPanel x:Name="__OutputConnector__"
                            Background="#00FFFFFF"
                            DockPanel.Dock="Right"
                            Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeOutputContent}}}"                           
                            Visibility="{TemplateBinding CanConnect, Converter={StaticResource BooleanToVisbilityConverter}}">
-                    <Ellipse Width="{x:Static local:ControlSize.ConnectorSize}"
+                    <Ellipse x:Name="ConnectorShape1"
+                             Width="{x:Static local:ControlSize.ConnectorSize}"
                              Height="{x:Static local:ControlSize.ConnectorSize}"
                              StrokeThickness="{TemplateBinding StrokeThickness}"
                              Stroke="{TemplateBinding Stroke}"
                              Fill="{TemplateBinding Fill}"
                              IsHitTestVisible="False"/>
-                    <ContentPresenter Margin="4,0,2,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                    <ContentPresenter Margin="4,2,2,0" VerticalAlignment="Center" IsHitTestVisible="False">
                         <ContentPresenter.Content>
-                            <Path Fill="{TemplateBinding Fill}"
+                            <Path x:Name="ConnectorShape2"
+                                  Fill="{TemplateBinding Fill}"
                                   Stroke="{TemplateBinding Stroke}"
                                   StrokeThickness="{TemplateBinding StrokeThickness}"
                                   Data="M 0,0 L 5,4.5 L 0,9 Z"/>
@@ -66,6 +72,13 @@
                 </DockPanel>
             </DockPanel>
         </Border>
+
+        <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsMouseOver, ElementName=__OutputConnector__}" Value="True">
+                <Setter Property="Fill" Value="DarkRed" TargetName="ConnectorShape1"/>
+                <Setter Property="Fill" Value="DarkRed" TargetName="ConnectorShape2"/>
+            </DataTrigger>
+        </ControlTemplate.Triggers>
     </ControlTemplate>
 
     <Style TargetType="{x:Type local:NodeOutput}">
