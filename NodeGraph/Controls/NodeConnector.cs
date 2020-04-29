@@ -276,8 +276,9 @@ namespace NodeGraph.Controls
 
             if (connectorContents.Count() > 0)
             {
+                var numElement = connectorContents.Count();
                 Width = connectorContents.Max(arg => arg.ActualWidth);
-                Height = connectorContents.Sum(arg => arg.ActualHeight) + connectorContents.Count() * (ConnectorMargin.Top + ConnectorMargin.Bottom);
+                Height = connectorContents.Sum(arg => arg.ActualHeight) + numElement * (ConnectorMargin.Top + ConnectorMargin.Bottom) + numElement; // last adding numElement is 1px border each other.
             }
         }
 
