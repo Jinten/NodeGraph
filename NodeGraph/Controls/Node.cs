@@ -134,7 +134,7 @@ namespace NodeGraph.Controls
         public bool IsSelected
         {
             get => (bool)GetValue(IsSelectedProperty);
-            set => SetValue(IsSelectedProperty, value);
+            set => UpdateSelectedState(value);
         }
         public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register(
             nameof(IsSelected),
@@ -273,6 +273,12 @@ namespace NodeGraph.Controls
             _NodeInput.Dispose();
             _NodeOutput.Dispose();
             SizeChanged -= Node_SizeChanged;
+        }
+
+        void UpdateSelectedState(bool value)
+        {
+            SetValue(IsSelectedProperty, value);
+            Panel.SetZIndex(this, value ? 1 : 0);
         }
 
         void UpdatePosition()
