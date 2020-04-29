@@ -41,8 +41,9 @@
             <Setter Property="Position" Value="{Binding Position}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
             <Setter Property="Inputs" Value="{Binding Inputs}"/>
+            <Setter Property="InputLayout" Value="Center"/>
             <Setter Property="Outputs" Value="{Binding Outputs}"/>
-            <Setter Property="OutputLayout" Value="Center"/>
+            <Setter Property="OutputLayout" Value="Top"/>
             <Setter Property="InputMargin" Value="0"/>
             <Setter Property="InputStyle" Value="{StaticResource NodeInputStyle}"/>
             <Setter Property="OutputStyle" Value="{StaticResource NodeOutputStyle}"/>            

@@ -71,7 +71,10 @@ namespace NodeGraph.PreviewTest.ViewModels
                 }
             }
 
-            _Outputs.Add(new NodeOutputViewModel("Output"));
+            for (int i = 0; i < 2; ++i)
+            {
+                _Outputs.Add(new NodeOutputViewModel("Output"));
+            }
         }
 
         public override NodeConnectorViewModel FindConnector(Guid guid)

@@ -13,13 +13,6 @@ using System.Windows.Media;
 
 namespace NodeGraph.Controls
 {
-    public enum ConnectorLayoutType
-    {
-        Top,
-        Center,
-        Bottom,
-    }
-
     public abstract class NodeConnectorContent : ContentControl, IDisposable
     {
         public Guid Guid
@@ -183,17 +176,6 @@ namespace NodeGraph.Controls
 
     public abstract class NodeConnector<T> : MultiSelector, IDisposable where T : NodeConnectorContent, new()
     {
-        public ConnectorLayoutType ConnectorLayout
-        {
-            get => (ConnectorLayoutType)GetValue(ConnectorLayoutProperty);
-            set => SetValue(ConnectorLayoutProperty, value);
-        }
-        public static readonly DependencyProperty ConnectorLayoutProperty = DependencyProperty.Register(
-            nameof(ConnectorLayout),
-            typeof(ConnectorLayoutType),
-            typeof(NodeConnector<T>),
-            new FrameworkPropertyMetadata(ConnectorLayoutType.Top, ConnectorLayoutPropertyChanged));
-
         public double ConnectorMargin
         {
             get => (double)GetValue(ConnectorMarginProperty);
@@ -285,24 +267,7 @@ namespace NodeGraph.Controls
 
         public void UpdateConnectorsLayout()
         {
-            switch (ConnectorLayout)
-            {
-                case ConnectorLayoutType.Top:
-                    ReplaceConnectElements(0);
-                    break;
-                case ConnectorLayoutType.Center:
-                    {
-                        var halfSize = _Canvas.Children.Count * FontSize * 0.5;
-                        ReplaceConnectElements(ActualHeight * 0.5 - halfSize);
-                        break;
-                    }
-                case ConnectorLayoutType.Bottom:
-                    {
-                        var totalSize = _Canvas.Children.Count * FontSize;
-                        ReplaceConnectElements(ActualHeight - totalSize);
-                        break;
-                    }
-            }
+            ReplaceConnectElements(0);
 
             var connectorContents = _Canvas.Children.OfType<NodeConnectorContent>();
 

@@ -43,16 +43,16 @@ namespace NodeGraph.Controls
             typeof(Node),
             new FrameworkPropertyMetadata(null));
 
-        public ConnectorLayoutType InputLayout
+        public VerticalAlignment InputLayout
         {
-            get => (ConnectorLayoutType)GetValue(InputLayoutProperty);
+            get => (VerticalAlignment)GetValue(InputLayoutProperty);
             set => SetValue(InputLayoutProperty, value);
         }
         public static readonly DependencyProperty InputLayoutProperty = DependencyProperty.Register(
             nameof(InputLayout),
-            typeof(ConnectorLayoutType),
+            typeof(VerticalAlignment),
             typeof(Node),
-            new FrameworkPropertyMetadata(ConnectorLayoutType.Top));
+            new FrameworkPropertyMetadata(VerticalAlignment.Top));
 
         public double InputMargin
         {
@@ -87,16 +87,16 @@ namespace NodeGraph.Controls
             typeof(Node),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public ConnectorLayoutType OutputLayout
+        public VerticalAlignment OutputLayout
         {
-            get => (ConnectorLayoutType)GetValue(OutputLayoutProperty);
+            get => (VerticalAlignment)GetValue(OutputLayoutProperty);
             set => SetValue(OutputLayoutProperty, value);
         }
         public static readonly DependencyProperty OutputLayoutProperty = DependencyProperty.Register(
             nameof(OutputLayout),
-            typeof(ConnectorLayoutType),
+            typeof(VerticalAlignment),
             typeof(Node),
-            new FrameworkPropertyMetadata(ConnectorLayoutType.Top));
+            new FrameworkPropertyMetadata(VerticalAlignment.Top));
 
         public double OutputMargin
         {
