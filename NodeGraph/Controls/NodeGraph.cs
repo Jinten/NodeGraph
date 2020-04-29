@@ -738,18 +738,26 @@ namespace NodeGraph.Controls
         {
             foreach (var vm in addVMs)
             {
-                var node = new Node(Canvas, Offset, Scale)
-                {
-                    DataContext = vm,
-                    Template = NodeTemplate,
-                    Style = ItemContainerStyle
-                };
+                var node = new Node(Canvas, Offset, Scale);
+                node.DataContext = vm;
+                node.Template = NodeTemplate;
+                node.Style = GetNodeStyle(vm, node);
 
                 node.MouseDown += Node_MouseDown;
                 node.MouseUp += Node_MouseUp;
 
                 Canvas.Children.Add(node);
             }
+        }
+
+        Style GetNodeStyle(object dataContext, DependencyObject element)
+        {
+            if (ItemContainerStyleSelector != null)
+            {
+                return ItemContainerStyleSelector.SelectStyle(dataContext, element);
+            }
+
+            return ItemContainerStyle;
         }
 
         void PreviewConnect(NodeConnectorContent start, NodeConnectorContent toEnd)
