@@ -250,7 +250,7 @@ namespace NodeGraph.Controls
 
         void UpdateConnectPosition()
         {
-            _EndPoint = Input.GetContentPosition(Canvas, 0.5, 0.5);
+            _EndPoint = Input.GetContentPosition(Canvas, 0, 0.5);
             _StartPoint = Output.GetContentPosition(Canvas, 0.5, 0.5);
         }
 

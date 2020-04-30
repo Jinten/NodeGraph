@@ -28,6 +28,17 @@
         <Setter Property="StrokeThickness" Value="10"/>
         <Setter Property="StrokeEndLineCap" Value="Round"/>
         <Setter Property="StrokeStartLineCap" Value="Round"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Fill" Value="Aqua"/>
+                <Trigger.ExitActions>
+                    <RemoveStoryboard BeginStoryboardName="__NodeLinkAnimation__"/>
+                </Trigger.ExitActions>
+                <Trigger.EnterActions>
+                    <BeginStoryboard Name="__NodeLinkAnimation__" Storyboard="{StaticResource NodeLinkMouseOver}"/>
+                </Trigger.EnterActions>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     
 </ResourceDictionary>
