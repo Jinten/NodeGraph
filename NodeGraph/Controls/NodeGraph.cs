@@ -519,8 +519,17 @@ namespace NodeGraph.Controls
                                 throw new InvalidCastException();
                         }
 
-                        Canvas.Children.Remove(_DraggingNodeLinkParam.NodeLink);
-                        _DraggingNodeLinkParam.NodeLink.Dispose();
+                        if(_DraggingNodeLinkParam.NodeLink.IsConnecting)
+                        {
+                            // node link was already connected, so need to dispatch disconnect command.
+                            DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
+                        }
+                        else
+                        {
+                            // preview node link.
+                            Canvas.Children.Remove(_DraggingNodeLinkParam.NodeLink);
+                            _DraggingNodeLinkParam.NodeLink.Dispose();
+                        }
 
                         var param = new ConnectCommandParameter(input.Node.Guid, input.Guid, output.Node.Guid, output.Guid);
                         ConnectCommand?.Execute(param);

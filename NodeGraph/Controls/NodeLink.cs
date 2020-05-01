@@ -90,6 +90,8 @@ namespace NodeGraph.Controls
             nodeLink.InvalidateVisual();
         }
 
+        public bool IsConnecting => Input != null && Output != null;
+
         public NodeInputContent Input { get; private set; } = null;
         public NodeOutputContent Output { get; private set; } = null;
 
@@ -105,8 +107,6 @@ namespace NodeGraph.Controls
         double StartPointX => _StartPoint.X / _Scale;
         double StartPointY => _StartPoint.Y / _Scale;
         Point _StartPoint = new Point(0, 0);
-
-        bool IsConnecting => Input != null && Output != null;
 
         Canvas Canvas { get; } = null;
 
