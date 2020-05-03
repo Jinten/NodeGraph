@@ -750,7 +750,10 @@ namespace NodeGraph.Controls
                 var node = new Node(Canvas, Offset, Scale);
                 node.DataContext = vm;
                 node.Template = NodeTemplate;
+                node.ApplyTemplate();
+
                 node.Style = GetNodeStyle(vm, node);
+                node.Initialize();
 
                 node.MouseDown += Node_MouseDown;
                 node.MouseUp += Node_MouseUp;

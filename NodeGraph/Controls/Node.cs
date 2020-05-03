@@ -222,7 +222,16 @@ namespace NodeGraph.Controls
         public override void OnApplyTemplate()
         {
             _NodeInput = GetTemplateChild("__NodeInput__") as NodeInput;
+            _NodeInput.ApplyTemplate();
+
             _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
+            _NodeOutput.ApplyTemplate();
+        }
+
+        public void Initialize()
+        {
+            _NodeInput.Initialize();
+            _NodeOutput.Initialize();
         }
 
         public NodeLink[] EnumrateConnectedNodeLinks()

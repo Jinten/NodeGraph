@@ -31,19 +31,12 @@
                                       VerticalAlignment="Stretch"
                                       HorizontalAlignment="Stretch"
                                       ContentTemplate="{Binding HeaderContentTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
-                </Border>
-                
-                <!--
-                ConnectorMargin and ItemsSource must bind with RelativeSource.
-                Because these are must process first OnApplyTemplate before depends parent properties.
-                it will incompletely initialize if not called OnApplyTemplate before ones.
-                -->
+                </Border>                
 
                 <DockPanel>
                     <local:NodeInput x:Name="__NodeInput__"
-                                     Node="{Binding Mode=OneWay,RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                     ConnectorMargin="{Binding InputMargin, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
-                                     ItemsSource="{Binding Inputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                     ConnectorMargin="{TemplateBinding InputMargin}"
+                                     ItemsSource="{TemplateBinding Inputs}"
                                      VerticalAlignment="{TemplateBinding InputLayout}"
                                      ItemContainerStyle="{TemplateBinding InputStyle}"/>
 
@@ -54,9 +47,8 @@
                                       ContentTemplate="{TemplateBinding ContentTemplate}"/>
 
                     <local:NodeOutput x:Name="__NodeOutput__"
-                                      Node="{Binding Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
                                       ConnectorMargin="{TemplateBinding OutputMargin}"
-                                      ItemsSource="{Binding Outputs, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"
+                                      ItemsSource="{TemplateBinding Outputs}"
                                       VerticalAlignment="{TemplateBinding OutputLayout}"
                                       ItemContainerStyle="{TemplateBinding OutputStyle}"/>
                 </DockPanel>

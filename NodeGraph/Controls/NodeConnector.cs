@@ -114,10 +114,8 @@ namespace NodeGraph.Controls
             RenderTransform = transfromGroup;
         }
 
-        public override void OnApplyTemplate()
+        public void Initialize()
         {
-            base.OnApplyTemplate();
-
             var parent = VisualTreeHelper.GetParent(this);
             while (parent.GetType() != typeof(Node))
             {
@@ -187,17 +185,6 @@ namespace NodeGraph.Controls
             typeof(NodeConnector<T>),
             new FrameworkPropertyMetadata(new Thickness(2.0), ConnectorMarginPropertyChanged));
 
-        public Node Node
-        {
-            get => (Node)GetValue(NodeProperty);
-            set => SetValue(NodeProperty, value);
-        }
-        public static readonly DependencyProperty NodeProperty = DependencyProperty.Register(
-            nameof(Node),
-            typeof(Node),
-            typeof(NodeConnector<T>),
-            new FrameworkPropertyMetadata(null));
-
         /// <summary>
         /// must implement connector canvas name.
         /// </summary>
@@ -214,8 +201,6 @@ namespace NodeGraph.Controls
         protected abstract Style NodeConnectorContentBaseStyle { get; }
 
         Canvas _Canvas = null;
-        bool _IsStyleInitialized = false;
-        List<object> _DelayToBindVMs = new List<object>();
 
 
         static void ConnectorMarginPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -226,6 +211,16 @@ namespace NodeGraph.Controls
         static void ConnectorLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             (d as NodeConnector<T>).UpdateConnectorsLayout();
+        }
+
+        public void Initialize()
+        {
+            foreach(var connector in _Canvas.Children.OfType<NodeConnectorContent>())
+            {
+                // ItemContainerStyle is still null during applying template, so need to apply at initialize.(ApplyTemplate later)
+                connector.Style = ItemContainerStyle;
+                connector.Initialize();
+            }
         }
 
         public void Dispose()
@@ -289,42 +284,20 @@ namespace NodeGraph.Controls
             _Canvas = GetTemplateChild(ConnectorCanvasName) as Canvas;
         }
 
-        protected override void OnItemContainerStyleChanged(Style oldItemContainerStyle, Style newItemContainerStyle)
-        {
-            base.OnItemContainerStyleChanged(oldItemContainerStyle, newItemContainerStyle);
-
-            _IsStyleInitialized = true;
-
-            if (_DelayToBindVMs.Count > 0 && _Canvas != null)
-            {
-                AddConnectorsToCanvas(_DelayToBindVMs.OfType<object>());
-
-                UpdateConnectorsLayout();
-
-                _DelayToBindVMs.Clear();
-            }
-        }
-
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue)
         {
             base.OnItemsSourceChanged(oldValue, newValue);
-            if (_Canvas == null || _IsStyleInitialized == false)
-            {
-                _DelayToBindVMs.AddRange(newValue.OfType<object>());
-            }
-            else
-            {
-                if (oldValue != null)
-                {
-                    RemoveConnectorFromCanvas(oldValue.OfType<object>());
-                }
-                if (newValue != null)
-                {
-                    AddConnectorsToCanvas(newValue.OfType<object>());
-                }
 
-                UpdateConnectorsLayout();
+            if (oldValue != null)
+            {
+                RemoveConnectorFromCanvas(oldValue.OfType<object>());
             }
+            if (newValue != null)
+            {
+                AddConnectorsToCanvas(newValue.OfType<object>());
+            }
+
+            UpdateConnectorsLayout();
         }
 
         void RemoveConnectorFromCanvas(IEnumerable<object> removeVMs)
@@ -354,8 +327,8 @@ namespace NodeGraph.Controls
                 {
                     DataContext = vm,
                     Template = NodeConnectorContentTemplate,
-                    Style = ItemContainerStyle
                 };
+                connector.ApplyTemplate();
 
                 connector.SizeChanged += Connector_SizeChanged;
                 _Canvas.Children.Add(connector);
