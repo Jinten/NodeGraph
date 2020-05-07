@@ -885,18 +885,18 @@ namespace NodeGraph.Controls
 
         void UpdateSelectedItems(Node node)
         {
-            if(SelectedItems.Contains(node))
+            if(SelectedItems.Contains(node.DataContext))
             {
                 if(node.IsSelected == false)
                 {
-                    SelectedItems.Remove(node);
+                    SelectedItems.Remove(node.DataContext);
                 }
             }
             else
             {
                 if(node.IsSelected)
                 {
-                    SelectedItems.Add(node);
+                    SelectedItems.Add(node.DataContext);
                 }
             }
         }
