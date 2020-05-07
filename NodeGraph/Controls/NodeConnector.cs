@@ -39,6 +39,19 @@ namespace NodeGraph.Controls
 
         public static readonly DependencyProperty ConnectedCountProperty = ConnectedCountPropertyKey.DependencyProperty;
 
+        public bool IsConnected
+        {
+            get => (bool)GetValue(IsConnectedProperty);
+            private set => SetValue(IsConnectedPropertyKey, value);
+        }
+        public static readonly DependencyPropertyKey IsConnectedPropertyKey = DependencyProperty.RegisterReadOnly(
+            nameof(IsConnected),
+            typeof(bool),
+            typeof(NodeConnectorContent),
+            new PropertyMetadata(false));
+
+        public static readonly DependencyProperty IsConnectedProperty = IsConnectedPropertyKey.DependencyProperty;
+
         public Brush Stroke
         {
             get => (Brush)GetValue(StrokeProperty);
@@ -140,12 +153,14 @@ namespace NodeGraph.Controls
         {
             _NodeLinks.Add(nodeLink);
             ConnectedCount = _NodeLinks.Count;
+            IsConnected = ConnectedCount > 0;
         }
 
         public void Disconnect(NodeLink nodeLink)
         {
             _NodeLinks.Remove(nodeLink);
             ConnectedCount = _NodeLinks.Count;
+            IsConnected = ConnectedCount > 0;
         }
 
         public Point GetContentPosition(Canvas canvas, double xScaleOffset = 0.5, double yScaleOffset = 0.5)

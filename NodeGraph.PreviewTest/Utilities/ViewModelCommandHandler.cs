@@ -23,7 +23,7 @@ namespace NodeGraph.Utilities
         ViewModelCommand _Command;
     }
 
-    public class ViewModelCommandHandle<T>
+    public class ViewModelCommandHandler<T>
     {
         public ListenerCommand<T> Get(Action<T> execute, Func<bool> canExecute = null)
         {

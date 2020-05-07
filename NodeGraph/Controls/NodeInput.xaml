@@ -22,6 +22,10 @@
                 <Setter Property="Fill" Value="#55888888"/>
                 <Setter Property="Stroke" Value="#55888888"/>
             </Trigger>
+
+            <Trigger Property="IsConnected" Value="True">
+                <Setter Property="Fill" Value="WhiteSmoke"/>
+            </Trigger>
         </Style.Triggers>
     </Style>
 

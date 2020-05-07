@@ -4,6 +4,7 @@ using NodeGraph.CommandParameters;
 using NodeGraph.PreviewTest.ViewModels;
 using NodeGraph.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -22,16 +23,19 @@ namespace NodeGraph.PreviewTest.ViewModels
         ViewModelCommandHandler _RemoveNodesCommand = new ViewModelCommandHandler();
 
         public ListenerCommand<PreviewConnectCommandParameter> PreviewConnectCommand => _PreviewConnectCommand.Get(PreviewConnect);
-        ViewModelCommandHandle<PreviewConnectCommandParameter> _PreviewConnectCommand = new ViewModelCommandHandle<PreviewConnectCommandParameter>();
+        ViewModelCommandHandler<PreviewConnectCommandParameter> _PreviewConnectCommand = new ViewModelCommandHandler<PreviewConnectCommandParameter>();
 
         public ListenerCommand<ConnectCommandParameter> ConnectCommand => _ConnectCommand.Get(Connect);
-        ViewModelCommandHandle<ConnectCommandParameter> _ConnectCommand = new ViewModelCommandHandle<ConnectCommandParameter>();
+        ViewModelCommandHandler<ConnectCommandParameter> _ConnectCommand = new ViewModelCommandHandler<ConnectCommandParameter>();
 
         public ListenerCommand<DisconnectCommandParameter> DisconnectCommand => _DisconnectCommand.Get(Disconnect);
-        ViewModelCommandHandle<DisconnectCommandParameter> _DisconnectCommand = new ViewModelCommandHandle<DisconnectCommandParameter>();
+        ViewModelCommandHandler<DisconnectCommandParameter> _DisconnectCommand = new ViewModelCommandHandler<DisconnectCommandParameter>();
 
         public ListenerCommand<MovedNodesCommandParameter> MovedNodesCommand => _MovedNodesCommand.Get(MovedNodes);
-        ViewModelCommandHandle<MovedNodesCommandParameter> _MovedNodesCommand = new ViewModelCommandHandle<MovedNodesCommandParameter>();
+        ViewModelCommandHandler<MovedNodesCommandParameter> _MovedNodesCommand = new ViewModelCommandHandler<MovedNodesCommandParameter>();
+
+        public ListenerCommand<IList> SelectionChangedCommand => _SelectionChangedCommand.Get(SelectionChanged);
+        ViewModelCommandHandler<IList> _SelectionChangedCommand = new ViewModelCommandHandler<IList>();
 
         public ViewModelCommand AddTestNodeLinkCommand => _AddTestNodeLinkCommand.Get(AddTestNodeLink);
         ViewModelCommandHandler _AddTestNodeLinkCommand = new ViewModelCommandHandler();
@@ -92,6 +96,11 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
 
         void MovedNodes(MovedNodesCommandParameter param)
+        {
+
+        }
+
+        void SelectionChanged(IList list)
         {
 
         }

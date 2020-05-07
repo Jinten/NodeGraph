@@ -341,15 +341,20 @@ namespace NodeGraph.Controls
                     }
                     else
                     {
+                        BeginUpdateSelectedItems();
+
                         _DraggingNodes[0].IsSelected = true; // select first drag node.
+                        UpdateSelectedItems(_DraggingNodes[0]);
 
                         foreach (var node in Canvas.Children.OfType<Node>())
                         {
                             if (node != _DraggingNodes[0])
                             {
                                 node.IsSelected = false;
+                                UpdateSelectedItems(node);
                             }
                         }
+                        EndUpdateSelectedItems();
                     }
 
                     _IsStartDragging = true;
@@ -388,6 +393,8 @@ namespace NodeGraph.Controls
 
                 _RangeSelector.RangeRect = new Rect(_DragStartPointToSelect, posOnCanvas);
 
+                BeginUpdateSelectedItems();
+
                 bool anyIntersects = false;
                 foreach (var node in Canvas.Children.OfType<Node>())
                 {
@@ -396,8 +403,12 @@ namespace NodeGraph.Controls
                     node.IsSelected = _RangeSelector.RangeRect.IntersectsWith(boundingBox);
 
                     anyIntersects |= node.IsSelected;
+
+                    UpdateSelectedItems(node);
                 }
                 _RangeSelector.IsIntersects = anyIntersects;
+
+                EndUpdateSelectedItems();
             }
         }
 
@@ -461,10 +472,13 @@ namespace NodeGraph.Controls
             else if (_IsNodeSelected == false)
             {
                 // click empty area to unselect nodes.
+                BeginUpdateSelectedItems();
                 foreach (var node in Canvas.Children.OfType<Node>())
                 {
                     node.IsSelected = false;
+                    UpdateSelectedItems(node);
                 }
+                EndUpdateSelectedItems();
             }
             _IsNodeSelected = false;
             if (_DraggingNodes.Count > 0)
@@ -804,25 +818,22 @@ namespace NodeGraph.Controls
                 return;
             }
 
+            BeginUpdateSelectedItems();
             if ((Keyboard.GetKeyStates(Key.LeftCtrl) & KeyStates.Down) != 0)
             {
                 var node = sender as Node;
                 node.IsSelected = !node.IsSelected;
+                UpdateSelectedItems(node);
             }
             else
             {
                 foreach (var node in Canvas.Children.OfType<Node>())
                 {
-                    if (node != sender)
-                    {
-                        node.IsSelected = false;
-                    }
-                    else
-                    {
-                        node.IsSelected = true;
-                    }
+                    node.IsSelected = node == sender;
+                    UpdateSelectedItems(node);
                 }
             }
+            EndUpdateSelectedItems();
         }
 
         void Node_MouseDown(object sender, MouseButtonEventArgs e)
@@ -869,6 +880,24 @@ namespace NodeGraph.Controls
                     return e.RightButton == MouseButtonState.Pressed;
                 default:
                     throw new InvalidCastException();
+            }
+        }
+
+        void UpdateSelectedItems(Node node)
+        {
+            if(SelectedItems.Contains(node))
+            {
+                if(node.IsSelected == false)
+                {
+                    SelectedItems.Remove(node);
+                }
+            }
+            else
+            {
+                if(node.IsSelected)
+                {
+                    SelectedItems.Add(node);
+                }
             }
         }
     }

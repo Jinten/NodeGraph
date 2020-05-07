@@ -92,7 +92,6 @@
     <Compile Include="Controls\RangeSelector.cs" />
     <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
-    <Compile Include="Utilities\ViewModelCommandHandler.cs" />
     <Page Include="Controls\Node.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

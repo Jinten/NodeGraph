@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:NodeGraph.PreviewTest"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
-        <ResourceDictionary Source="/NodeGraph.PreviewTest;component/ResourceDictionary.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/NodeGraph;component/ResourceDictionary.xaml"/>
     </Application.Resources>
 </Application>
