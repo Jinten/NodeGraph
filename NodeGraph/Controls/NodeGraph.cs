@@ -588,6 +588,12 @@ namespace NodeGraph.Controls
             _DraggingNodeLinkParam = null;
             _DraggingNodes.Clear();
 
+            if (_IsRangeSelecting)
+            {
+                Canvas.Children.Remove(_RangeSelector);
+                _IsRangeSelecting = false;
+            }
+
             InvalidateVisual();
         }
 
