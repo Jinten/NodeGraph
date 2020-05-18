@@ -161,6 +161,17 @@ namespace NodeGraph.Controls
             Canvas.SetZIndex(this, -1);
         }
 
+        public NodeLink CreateGhost()
+        {
+            var ghost = new NodeLink(Canvas, _Scale);
+            ghost._StartPoint = _StartPoint;
+            ghost._EndPoint = _EndPoint;
+            ghost.IsHitTestVisible = false;
+            ghost.Fill = new SolidColorBrush(Color.FromArgb(128, 128, 128, 128));
+
+            return ghost;
+        }
+
         public void Validate()
         {
             if (Guid == Guid.Empty || InputGuid == Guid.Empty || OutputGuid == Guid.Empty)

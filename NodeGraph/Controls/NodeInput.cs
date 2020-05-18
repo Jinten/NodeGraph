@@ -16,6 +16,8 @@ namespace NodeGraph.Controls
 {
     public class NodeInputContent : NodeConnectorContent
     {
+        public static bool AllowToOverrideConnection { get; set; } = false;
+
         protected override FrameworkElement ConnectorControl => _ConnectorControl;
         FrameworkElement _ConnectorControl = null;
 
@@ -45,7 +47,12 @@ namespace NodeGraph.Controls
 
         public override bool CanConnectTo(NodeConnectorContent connector)
         {
-            if((CanConnect && ConnectedCount == 0 && connector is NodeOutputContent && Node != connector.Node) == false)
+            if(AllowToOverrideConnection == false && ConnectedCount > 0)
+            {
+                // already connected to other node link.
+                return false;
+            }
+            if((CanConnect && connector is NodeOutputContent && Node != connector.Node) == false)
             {
                 return false;
             }

@@ -80,7 +80,7 @@ namespace NodeGraph.Controls
             set => SetValue(OffsetProperty, value);
         }
         public static readonly DependencyProperty OffsetProperty =
-            DependencyProperty.Register(nameof(Offset), typeof(Point), typeof(NodeGraph), new FrameworkPropertyMetadata(new Point(0, 0), OffsetPropertyChanged));
+            DependencyProperty.Register(nameof(Offset), typeof(Point), typeof(NodeGraph), new FrameworkPropertyMetadata(new Point(0, 0), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OffsetPropertyChanged));
 
         public ICommand PreviewConnectCommand
         {
@@ -130,6 +130,14 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty NodeLinksProperty =
             DependencyProperty.Register(nameof(NodeLinks), typeof(IEnumerable), typeof(NodeGraph), new FrameworkPropertyMetadata(null, NodeLinksPropertyChanged));
 
+        public bool AllowToOverrideConnection
+        {
+            get => (bool)GetValue(AllowToOverrideConnectionProperty);
+            set => SetValue(AllowToOverrideConnectionProperty, value);
+        }
+        public static readonly DependencyProperty AllowToOverrideConnectionProperty =
+            DependencyProperty.Register(nameof(AllowToOverrideConnection), typeof(bool), typeof(NodeGraph), new FrameworkPropertyMetadata(false, AllowToOverrideConnectionPropertyChanged));
+
         ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
         ResourceInstance<ControlTemplate> _NodeTemplate = new ResourceInstance<ControlTemplate>();
 
@@ -156,6 +164,7 @@ namespace NodeGraph.Controls
         }
 
         List<Node> _DraggingNodes = new List<Node>();
+        NodeLink _ReconnectGhostNodeLink = null;
         DraggingNodeLinkParam _DraggingNodeLinkParam = null;
         Point _DragStartPointToMoveNode = new Point();
         Point _DragStartPointToMoveOffset = new Point();
@@ -234,6 +243,11 @@ namespace NodeGraph.Controls
                 var newEnumerable = e.NewValue as IEnumerable;
                 nodeGraph.AddNodeLinksToCanvas(newEnumerable.OfType<object>());
             }
+        }
+
+        static void AllowToOverrideConnectionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            NodeInputContent.AllowToOverrideConnection = (bool)e.NewValue;
         }
 
         static NodeGraph()
@@ -389,6 +403,7 @@ namespace NodeGraph.Controls
                     Canvas.Children.Add(_RangeSelector);
 
                     _IsRangeSelecting = true;
+                    Cursor = Cursors.SizeAll;
                 }
 
                 _RangeSelector.RangeRect = new Rect(_DragStartPointToSelect, posOnCanvas);
@@ -418,28 +433,6 @@ namespace NodeGraph.Controls
 
             var posOnCanvas = e.GetPosition(Canvas);
 
-            switch (MoveWithMouse)
-            {
-                case MouseButton.Left:
-                    if (MoveWithKey == Key.None)
-                    {
-                        throw new InvalidProgramException("Not allow combination that no set MoveWithKey(Key.None) and left click.");
-                    }
-
-                    if (Keyboard.GetKeyStates(MoveWithKey) == KeyStates.Down)
-                    {
-                        // offset center focus.
-                        _PressMouseToMove = e.LeftButton == MouseButtonState.Pressed;
-                    }
-                    break;
-                case MouseButton.Middle:
-                    _PressMouseToMove = e.MiddleButton == MouseButtonState.Pressed;
-                    break;
-                case MouseButton.Right:
-                    _PressMouseToMove = e.RightButton == MouseButtonState.Pressed;
-                    break;
-            }
-
             if (e.LeftButton == MouseButtonState.Pressed && (MoveWithKey == Key.None || Keyboard.GetKeyStates(MoveWithKey) != KeyStates.Down))
             {
                 // start to select by range rect.
@@ -449,10 +442,17 @@ namespace NodeGraph.Controls
                 _DragStartPointToSelect = posOnCanvas;
             }
 
+            // it is able to offset only in state of not operating anything.
+            if (_DraggingNodes.Count == 0 && _DraggingNodeLinkParam == null && _PressMouseToSelect == false)
+            {
+                UpdateMouseMoveState(e);
+            }
+
             if (_PressMouseToMove)
             {
                 _CaptureOffset = Offset;
                 _DragStartPointToMoveOffset = posOnCanvas;
+                Cursor = Cursors.ScrollAll;
             }
         }
 
@@ -460,8 +460,19 @@ namespace NodeGraph.Controls
         {
             base.OnMouseUp(e);
 
+            UpdateMouseMoveState(e);
+            if (_PressKeyToMove == false)
+            {
+                Cursor = Cursors.Arrow;
+            }
+
+            // not related if not released left mouse button.
+            if (e.LeftButton != MouseButtonState.Released)
+            {
+                return;
+            }
+
             _IsStartDragging = false;
-            _PressMouseToMove = false;
             _PressMouseToSelect = false;
 
             if (_IsRangeSelecting)
@@ -521,6 +532,14 @@ namespace NodeGraph.Controls
                                 {
                                     input = inputConnector;
                                     output = _DraggingNodeLinkParam.StartConnector as NodeOutputContent;
+
+                                    if (AllowToOverrideConnection && input.ConnectedCount > 0)
+                                    {
+                                        // it has to disconnect previous connected node link.
+                                        var nodeLinks = Canvas.Children.OfType<NodeLink>().ToArray();
+                                        var disconnectNodeLink = nodeLinks.First(arg => arg.InputGuid == input.Guid);
+                                        DisconnectNodeLink(disconnectNodeLink);
+                                    }
                                 }
                                 break;
                             case NodeOutputContent outputConnector:
@@ -533,7 +552,7 @@ namespace NodeGraph.Controls
                                 throw new InvalidCastException();
                         }
 
-                        if(_DraggingNodeLinkParam.NodeLink.IsConnecting)
+                        if (_DraggingNodeLinkParam.NodeLink.IsConnecting)
                         {
                             // node link was already connected, so need to dispatch disconnect command.
                             DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
@@ -558,14 +577,24 @@ namespace NodeGraph.Controls
                 }
 
                 _DraggingNodeLinkParam = null;
+
+                if (_ReconnectGhostNodeLink != null)
+                {
+                    Canvas.Children.Remove(_ReconnectGhostNodeLink);
+                    _ReconnectGhostNodeLink = null;
+                }
             }
 
             ClearPreviewedConnect();
+
+            e.Handled = Offset != _CaptureOffset;
         }
 
         protected override void OnMouseEnter(MouseEventArgs e)
         {
             base.OnMouseEnter(e);
+
+            Cursor = Cursors.Arrow;
 
             _PressMouseToSelect = false;
             _PressMouseToMove = false;
@@ -578,12 +607,19 @@ namespace NodeGraph.Controls
         {
             base.OnMouseLeave(e);
 
+            Cursor = Cursors.Arrow;
+
             _PressMouseToSelect = false;
             _PressMouseToMove = false;
             _IsStartDragging = false;
             if (_DraggingNodeLinkParam != null)
             {
                 DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
+                if(_ReconnectGhostNodeLink != null)
+                {
+                    Canvas.Children.Remove(_ReconnectGhostNodeLink);
+                    _ReconnectGhostNodeLink = null;
+                }
             }
             _DraggingNodeLinkParam = null;
             _DraggingNodes.Clear();
@@ -595,6 +631,32 @@ namespace NodeGraph.Controls
             }
 
             InvalidateVisual();
+        }
+
+        void UpdateMouseMoveState(MouseButtonEventArgs e)
+        {
+            switch (MoveWithMouse)
+            {
+                case MouseButton.Left:
+                    if (MoveWithKey == Key.None)
+                    {
+                        throw new InvalidProgramException("Not allow combination that no set MoveWithKey(Key.None) and left click.");
+                    }
+
+                    if (Keyboard.GetKeyStates(MoveWithKey) == KeyStates.Down)
+                    {
+                        // offset center focus.
+                        _PressMouseToMove = e.LeftButton == MouseButtonState.Pressed;
+                    }
+                    _PressMouseToMove = e.LeftButton == MouseButtonState.Pressed;
+                    break;
+                case MouseButton.Middle:
+                    _PressMouseToMove = e.MiddleButton == MouseButtonState.Pressed;
+                    break;
+                case MouseButton.Right:
+                    _PressMouseToMove = e.RightButton == MouseButtonState.Pressed;
+                    break;
+            }
         }
 
         void DisconnectNodeLink(NodeLink nodeLink)
@@ -628,15 +690,18 @@ namespace NodeGraph.Controls
             }
             _PreviewedConnectors.Clear();
 
+            Cursor = Cursors.Cross;
+
             VisualTreeHelper.HitTest(Canvas, null, new HitTestResultCallback(arg =>
             {
                 var element = arg.VisualHit as FrameworkElement;
                 if (element != null && element.Tag is NodeConnectorContent toConnector)
                 {
-                    if(param.StartConnector != toConnector && param.NodeLink.ToEndConnector != toConnector)
+                    if (param.StartConnector != toConnector && param.NodeLink.ToEndConnector != toConnector)
                     {
                         PreviewConnect(param.StartConnector, toConnector);
                         _PreviewedConnectors.Add(toConnector);
+
                         return HitTestResultBehavior.Stop;
                     }
                 }
@@ -805,12 +870,20 @@ namespace NodeGraph.Controls
                 // connecting to same connect in node connector.
                 toEnd.CanConnect = false;
             }
+
+            Cursor = toEnd.CanConnect ? Cursors.Cross : Cursors.No;
         }
 
         void NodeLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var nodeLink = sender as NodeLink;
             _DraggingNodeLinkParam = new DraggingNodeLinkParam(nodeLink, nodeLink.StartConnector);
+
+            _ReconnectGhostNodeLink = nodeLink.CreateGhost();
+            _ReconnectGhostNodeLink.Style = NodeLinkStyle ?? NodeLinkAnimationStyle;
+            Canvas.Children.Add(_ReconnectGhostNodeLink);
+
+            Cursor = Cursors.Cross;
 
             nodeLink.ReleaseEndPoint();
         }
@@ -819,7 +892,7 @@ namespace NodeGraph.Controls
         {
             _IsNodeSelected = true;
 
-            if (_IsStartDragging)
+            if (_IsStartDragging || _IsRangeSelecting)
             {
                 return;
             }
@@ -859,6 +932,8 @@ namespace NodeGraph.Controls
 
                 _DraggingNodeLinkParam = new DraggingNodeLinkParam(nodeLink, connector);
                 Canvas.Children.Add(_DraggingNodeLinkParam.NodeLink);
+
+                Cursor = Cursors.Cross;
             }
             else if (IsOffsetMoveWithMouse(e) == false)
             {
@@ -871,6 +946,8 @@ namespace NodeGraph.Controls
                 _DraggingNodes.Add(firstNode);
 
                 _DragStartPointToMoveNode = e.GetPosition(Canvas);
+
+                Cursor = Cursors.SizeAll;
             }
         }
 
@@ -891,16 +968,16 @@ namespace NodeGraph.Controls
 
         void UpdateSelectedItems(Node node)
         {
-            if(SelectedItems.Contains(node.DataContext))
+            if (SelectedItems.Contains(node.DataContext))
             {
-                if(node.IsSelected == false)
+                if (node.IsSelected == false)
                 {
                     SelectedItems.Remove(node.DataContext);
                 }
             }
             else
             {
-                if(node.IsSelected)
+                if (node.IsSelected)
                 {
                     SelectedItems.Add(node.DataContext);
                 }

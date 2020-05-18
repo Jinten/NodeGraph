@@ -82,6 +82,7 @@
         <Button Grid.Row="1" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
         <ctrl:NodeGraph Grid.Row="2"
                         x:Name="NodeGraph"
+                        MoveWithMouse="Right"
                         ItemsSource="{Binding NodeViewModels}"
                         ItemContainerStyle="{StaticResource NodeStyle}"
                         NodeLinks="{Binding NodeLinkViewModels}"
@@ -89,6 +90,7 @@
                         PreviewConnectCommand="{Binding PreviewConnectCommand}"
                         ConnectCommand="{Binding ConnectCommand}"
                         DisconnectCommand="{Binding DisconnectCommand}"
+                        AllowToOverrideConnection="True"
                         ContextMenu="{StaticResource NodeGraphContextMenu}">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
