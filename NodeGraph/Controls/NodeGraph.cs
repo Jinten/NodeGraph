@@ -175,7 +175,8 @@ namespace NodeGraph.Controls
 
         HashSet<NodeConnectorContent> _PreviewedConnectors = new HashSet<NodeConnectorContent>();
 
-        List<object> _DelayToBindVMs = new List<object>();
+        List<object> _DelayToBindNodeVMs = new List<object>();
+        List<object> _DelayToBindNodeLinkVMs = new List<object>();
 
         static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -230,6 +231,10 @@ namespace NodeGraph.Controls
             // below process is node collection changed.
             if (nodeGraph.Canvas == null)
             {
+                if (e.NewValue != null && e.NewValue is IEnumerable enumerable)
+                {
+                    nodeGraph._DelayToBindNodeLinkVMs.AddRange(enumerable.OfType<object>());
+                }
                 return;
             }
 
@@ -266,10 +271,17 @@ namespace NodeGraph.Controls
 
             Canvas = GetTemplateChild("__NodeGraphCanvas__") as Canvas;
 
-            if (_DelayToBindVMs.Count > 0)
+            if (_DelayToBindNodeVMs.Count > 0)
             {
-                AddNodesToCanvas(_DelayToBindVMs.OfType<object>());
-                _DelayToBindVMs.Clear();
+                AddNodesToCanvas(_DelayToBindNodeVMs.OfType<object>());
+                _DelayToBindNodeVMs.Clear();
+            }
+
+
+            if (_DelayToBindNodeLinkVMs.Count > 0)
+            {
+                AddNodeLinksToCanvas(_DelayToBindNodeLinkVMs.OfType<object>());
+                _DelayToBindNodeLinkVMs.Clear();
             }
         }
 
@@ -288,7 +300,7 @@ namespace NodeGraph.Controls
 
             if (Canvas == null)
             {
-                _DelayToBindVMs.AddRange(newValue.OfType<object>());
+                _DelayToBindNodeVMs.AddRange(newValue.OfType<object>());
                 return;
             }
 
