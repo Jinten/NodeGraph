@@ -4,5 +4,7 @@ Node graph control in WPF.
 
 You can customize a node visual by style.
 
+You need to install **Blend for Visual Studio SDK for .NET** with Visual Studio Installer.
+
 # License
 *  [MIT](https://github.com/Jinten/NodeGraph/blob/master/LICENSE)
