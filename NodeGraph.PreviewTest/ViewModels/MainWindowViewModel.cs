@@ -43,6 +43,9 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand MoveTestNodesCommand => _MoveTestNodesCommand.Get(MoveTestNodes);
         ViewModelCommandHandler _MoveTestNodesCommand = new ViewModelCommandHandler();
 
+        public ViewModelCommand ClearTestNodesCommand => _ClearTestNodesCommand.Get(ClearTestNodes);
+        ViewModelCommandHandler _ClearTestNodesCommand = new ViewModelCommandHandler();
+
         public IEnumerable<INodeViewModel> NodeViewModels => _NodeViewModels;
         ObservableCollection<INodeViewModel> _NodeViewModels = new ObservableCollection<INodeViewModel>();
 
@@ -68,6 +71,11 @@ namespace NodeGraph.PreviewTest.ViewModels
             {
                 _NodeViewModels.Remove(removeNode);
             }
+        }
+
+        void ClearTestNodes()
+        {
+            _NodeViewModels.Clear();
         }
 
         void PreviewConnect(PreviewConnectCommandParameter param)

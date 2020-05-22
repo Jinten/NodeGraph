@@ -627,7 +627,7 @@ namespace NodeGraph.Controls
             if (_DraggingNodeLinkParam != null)
             {
                 DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
-                if(_ReconnectGhostNodeLink != null)
+                if (_ReconnectGhostNodeLink != null)
                 {
                     Canvas.Children.Remove(_ReconnectGhostNodeLink);
                     _ReconnectGhostNodeLink = null;
@@ -802,41 +802,53 @@ namespace NodeGraph.Controls
 
         void NodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.OldItems?.Count > 0)
+            if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                RemoveNodesFromCanvas(e.OldItems.OfType<object>());
+                RemoveNodesFromCanvas(Canvas.Children.OfType<Node>().ToArray());
             }
-            if (e.NewItems?.Count > 0)
+            else
             {
-                AddNodesToCanvas(e.NewItems.OfType<object>());
+                if (e.OldItems?.Count > 0)
+                {
+                    RemoveNodesFromCanvas(e.OldItems.OfType<object>().ToArray());
+                }
+                if (e.NewItems?.Count > 0)
+                {
+                    AddNodesToCanvas(e.NewItems.OfType<object>().ToArray());
+                }
             }
         }
 
-        void RemoveNodesFromCanvas(IEnumerable<object> removeVMs)
+        void RemoveNodesFromCanvas(object[] removeVMs)
         {
-            var removeElements = new List<Node>();
+            var removeNodes = new List<Node>();
             var children = Canvas.Children.OfType<Node>().ToArray();
 
             foreach (var removeVM in removeVMs)
             {
                 var removeElement = children.First(arg => arg.DataContext == removeVM);
-                removeElements.Add(removeElement);
+                removeNodes.Add(removeElement);
             }
 
-            foreach (var removeElement in removeElements)
+            RemoveNodesFromCanvas(removeNodes.ToArray());
+        }
+
+        void RemoveNodesFromCanvas(Node[] removeNodes)
+        {
+            foreach (var removeNode in removeNodes)
             {
-                Canvas.Children.Remove(removeElement);
+                Canvas.Children.Remove(removeNode);
 
-                removeElement.MouseUp -= Node_MouseUp;
-                removeElement.MouseDown -= Node_MouseDown;
+                removeNode.MouseUp -= Node_MouseUp;
+                removeNode.MouseDown -= Node_MouseDown;
 
-                var nodeLinks = removeElement.EnumrateConnectedNodeLinks();
+                var nodeLinks = removeNode.EnumrateConnectedNodeLinks();
                 foreach (var nodeLink in nodeLinks)
                 {
                     Canvas.Children.Remove(nodeLink);
                 }
 
-                removeElement.Dispose();
+                removeNode.Dispose();
             }
         }
 
