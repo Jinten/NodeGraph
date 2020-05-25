@@ -11,6 +11,17 @@ using System.Windows.Input;
 
 namespace NodeGraph.PreviewTest.ViewModels
 {
+    public interface INodeViewModel
+    {
+        Guid Guid { get; set; }
+        Point Position { get; set; }
+        bool IsSelected { get; set; }
+
+        IEnumerable<NodeConnectorViewModel> Inputs { get; }
+        IEnumerable<NodeConnectorViewModel> Outputs { get; }
+        NodeConnectorViewModel FindConnector(Guid guid);
+    }
+
     public abstract class NodeBaseViewModel : ViewModel, INodeViewModel
     {
         public double Width
@@ -51,6 +62,9 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ICommand SizeChangedCommand => _SizeChangedCommand.Get(SizeChanged);
         ViewModelCommandHandler<Size> _SizeChangedCommand = new ViewModelCommandHandler<Size>();
 
+        public abstract IEnumerable<NodeConnectorViewModel> Inputs { get; }
+        public abstract IEnumerable<NodeConnectorViewModel> Outputs { get; }
+
         public abstract NodeConnectorViewModel FindConnector(Guid guid);
 
         void SizeChanged(Size newSize)
@@ -76,17 +90,17 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         string _Body = string.Empty;
 
-        public IEnumerable<NodeInputViewModel> Inputs => _Inputs;
+        public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
         ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 
-        public IEnumerable<NodeOutputViewModel> Outputs => _Outputs;
+        public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
         ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
         public NodeViewModel1()
         {
             for (int i = 0; i < 3; ++i)
             {
-                if(i % 2 == 0)
+                if (i % 2 == 0)
                 {
                     _Inputs.Add(new NodeInputViewModel($"Input{i}"));
                 }
@@ -131,10 +145,10 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         string _Body = string.Empty;
 
-        public IEnumerable<NodeInputViewModel> Inputs => _Inputs;
+        public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
         ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 
-        public IEnumerable<NodeOutputViewModel> Outputs => _Outputs;
+        public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
         ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
         public NodeViewModel2()

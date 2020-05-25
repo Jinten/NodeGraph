@@ -84,7 +84,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Utilities\ViewModelCommandHandler.cs" />
-    <Compile Include="ViewModels\INodeViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\NodeConnectorViewModel.cs" />
     <Compile Include="ViewModels\NodeLinkViewModel.cs" />

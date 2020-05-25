@@ -11,6 +11,7 @@ namespace NodeGraph.PreviewTest.ViewModels
     {
         Guid Guid { get; set; }
         string Label { get; set; }
+        bool IsEnable { get; set; }
     }
 
     public class NodeInputViewModel : ViewModel, NodeConnectorViewModel
@@ -28,6 +29,13 @@ namespace NodeGraph.PreviewTest.ViewModels
             set => RaisePropertyChangedIfSet(ref _Label, value);
         }
         string _Label = string.Empty;
+
+        public bool IsEnable
+        {
+            get => _IsEnable;
+            set => RaisePropertyChangedIfSet(ref _IsEnable, value);
+        }
+        bool _IsEnable = true;
 
         public NodeInputViewModel(string label)
         {
@@ -50,6 +58,13 @@ namespace NodeGraph.PreviewTest.ViewModels
             set => RaisePropertyChangedIfSet(ref _Label, value);
         }
         string _Label = string.Empty;
+
+        public bool IsEnable
+        {
+            get => _IsEnable;
+            set => RaisePropertyChangedIfSet(ref _IsEnable, value);
+        }
+        bool _IsEnable = true;
 
         public NodeOutputViewModel(string label)
         {

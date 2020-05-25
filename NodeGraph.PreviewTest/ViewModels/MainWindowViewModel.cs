@@ -59,6 +59,13 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         bool _IsFreezeAllNodeLinks = false;
 
+        public bool IsEnableAllNodeConnectors
+        {
+            get => _IsEnableAllNodeConnectors;
+            set => UpdateIsEnableAllNodeConnectorsProperty(value);
+        }
+        bool _IsEnableAllNodeConnectors = true;
+
 
         public MainWindowViewModel()
         {
@@ -96,6 +103,25 @@ namespace NodeGraph.PreviewTest.ViewModels
             }
 
             RaisePropertyChanged(nameof(IsFreezeAllNodeLinks));
+        }
+
+        void UpdateIsEnableAllNodeConnectorsProperty(bool value)
+        {
+            _IsEnableAllNodeConnectors = !_IsEnableAllNodeConnectors;
+
+            foreach (var node in _NodeViewModels)
+            {
+                foreach(var input in node.Inputs)
+                {
+                    input.IsEnable = _IsEnableAllNodeConnectors;
+                }
+                foreach (var output in node.Outputs)
+                {
+                    output.IsEnable = _IsEnableAllNodeConnectors;
+                }
+            }
+
+            RaisePropertyChanged(nameof(IsEnableAllNodeConnectors));
         }
 
         void PreviewConnect(PreviewConnectCommandParameter param)

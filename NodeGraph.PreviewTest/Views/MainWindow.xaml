@@ -23,11 +23,13 @@
         <Style x:Key="NodeInputStyle" TargetType="{x:Type ctrl:NodeInputContent}" BasedOn="{StaticResource {x:Type ctrl:NodeInputContent}}">
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="Content" Value="{Binding Label}"/>
+            <Setter Property="IsEnabled" Value="{Binding IsEnable}"/>
         </Style>
 
         <Style x:Key="NodeOutputStyle" TargetType="{x:Type ctrl:NodeOutputContent}" BasedOn="{StaticResource {x:Type ctrl:NodeOutputContent}}">
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="Content" Value="{Binding Label}"/>
+            <Setter Property="IsEnabled" Value="{Binding IsEnable}"/>
         </Style>
 
         <Style x:Key="NodeLinkStyle" TargetType="{x:Type ctrl:NodeLink}" BasedOn="{StaticResource {x:Type ctrl:NodeLink}}">
@@ -88,6 +90,7 @@
             <Button Margin="4" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
             <Button Margin="4" Height="24" Content="ClearTestNode" Command="{Binding ClearTestNodesCommand}"/>
             <CheckBox Margin="4" Height="24" Content="IsFreezeAllNodeLinks" IsChecked="{Binding IsFreezeAllNodeLinks}" VerticalContentAlignment="Center"/>
+            <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
         </DockPanel>
         <ctrl:NodeGraph Grid.Row="3"
                         x:Name="NodeGraph"
