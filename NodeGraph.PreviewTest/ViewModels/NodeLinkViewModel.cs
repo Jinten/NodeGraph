@@ -43,5 +43,12 @@ namespace NodeGraph.PreviewTest.ViewModels
             set => RaisePropertyChangedIfSet(ref _OutputNodeGuid, value);
         }
         Guid _OutputNodeGuid = Guid.NewGuid();
+
+        public bool IsFreeze
+        {
+            get => _IsFreeze;
+            set => RaisePropertyChangedIfSet(ref _IsFreeze, value);
+        }
+        bool _IsFreeze = false;
     }
 }

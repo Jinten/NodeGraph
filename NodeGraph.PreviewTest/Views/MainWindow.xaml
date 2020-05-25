@@ -34,6 +34,7 @@
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="InputGuid" Value="{Binding InputGuid, Mode=OneWay}"/>
             <Setter Property="OutputGuid" Value="{Binding OutputGuid, Mode=OneWay}"/>
+            <Setter Property="IsFreeze" Value="{Binding IsFreeze, Mode=OneWay}"/>
         </Style>
 
         <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}" BasedOn="{StaticResource {x:Type ctrl:Node}}">
@@ -48,7 +49,8 @@
             <Setter Property="InputMargin" Value="5,1,5,1"/>
             <Setter Property="OutputMargin" Value="4,0,4,10"/>
             <Setter Property="InputStyle" Value="{StaticResource NodeInputStyle}"/>
-            <Setter Property="OutputStyle" Value="{StaticResource NodeOutputStyle}"/>            
+            <Setter Property="OutputStyle" Value="{StaticResource NodeOutputStyle}"/>
+            <Setter Property="SizeChangedCommand" Value="{Binding SizeChangedCommand}"/>
             <Setter Property="HeaderContentTemplate">
                 <Setter.Value>
                     <DataTemplate>
@@ -65,6 +67,10 @@
                     <DataTemplate>
                         <StackPanel DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:Node}}}">
                             <TextBox Text="{Binding Body}"/>
+                            <DockPanel TextBlock.Foreground="WhiteSmoke">
+                                <TextBlock Margin="0,0,0,4" Text="{Binding Width, StringFormat=Width:{0}}"/>
+                                <TextBlock Margin="4,0,0,0" Text="{Binding Height, StringFormat=Height:{0}}"/>
+                            </DockPanel>
                         </StackPanel>
                     </DataTemplate>
                 </Setter.Value>
@@ -74,14 +80,15 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="24"/>
-            <RowDefinition Height="24"/>
-            <RowDefinition Height="24"/>
+            <RowDefinition Height="32"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button Grid.Row="0" Height="24" Content="AddTestNodeLink" Command="{Binding AddTestNodeLinkCommand}"/>
-        <Button Grid.Row="1" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
-        <Button Grid.Row="2" Height="24" Content="ClearTestNode" Command="{Binding ClearTestNodesCommand}"/>
+        <DockPanel Grid.Row="0" LastChildFill="False">
+            <Button Margin="4" Height="24" Content="AddTestNodeLink" Command="{Binding AddTestNodeLinkCommand}"/>
+            <Button Margin="4" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
+            <Button Margin="4" Height="24" Content="ClearTestNode" Command="{Binding ClearTestNodesCommand}"/>
+            <CheckBox Margin="4" Height="24" Content="IsFreezeAllNodeLinks" IsChecked="{Binding IsFreezeAllNodeLinks}" VerticalContentAlignment="Center"/>
+        </DockPanel>
         <ctrl:NodeGraph Grid.Row="3"
                         x:Name="NodeGraph"
                         MoveWithMouse="Right"

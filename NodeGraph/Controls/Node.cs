@@ -153,6 +153,17 @@ namespace NodeGraph.Controls
             typeof(Node),
             new FrameworkPropertyMetadata(new Point(0, 0), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PositionPropertyChanged));
 
+        public ICommand SizeChangedCommand
+        {
+            get => GetValue(SizeChangedCommandProperty) as ICommand;
+            set => SetValue(SizeChangedCommandProperty, value);
+        }
+        public static readonly DependencyProperty SizeChangedCommandProperty = DependencyProperty.Register(
+            nameof(SizeChangedCommand),
+            typeof(ICommand),
+            typeof(Node),
+            new FrameworkPropertyMetadata(null));
+
         public Point DragStartPosition { get; private set; } = new Point(0, 0);
 
         Canvas Canvas { get; } = null;
@@ -162,7 +173,7 @@ namespace NodeGraph.Controls
         TranslateTransform _Translate = new TranslateTransform(0, 0);
 
         static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
+        {            
             var node = d as Node;
 
             if (e.OldValue is INotifyCollectionChanged oldCollection)
@@ -300,6 +311,8 @@ namespace NodeGraph.Controls
         {
             _NodeInput.UpdateLinkPosition(Canvas);
             _NodeOutput.UpdateLinkPosition(Canvas);
+
+            SizeChangedCommand?.Execute(e.NewSize);
         }
 
         void OutputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

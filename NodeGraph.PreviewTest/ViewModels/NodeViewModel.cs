@@ -1,4 +1,5 @@
 ﻿using Livet;
+using NodeGraph.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,11 +7,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace NodeGraph.PreviewTest.ViewModels
 {
     public abstract class NodeBaseViewModel : ViewModel, INodeViewModel
     {
+        public double Width
+        {
+            get => _Width;
+            set => RaisePropertyChangedIfSet(ref _Width, value);
+        }
+        double _Width = 0;
+
+        public double Height
+        {
+            get => _Height;
+            set => RaisePropertyChangedIfSet(ref _Height, value);
+        }
+        double _Height = 0;
+
         public Guid Guid
         {
             get => _Guid;
@@ -32,7 +48,16 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         bool _IsSelected = false;
 
+        public ICommand SizeChangedCommand => _SizeChangedCommand.Get(SizeChanged);
+        ViewModelCommandHandler<Size> _SizeChangedCommand = new ViewModelCommandHandler<Size>();
+
         public abstract NodeConnectorViewModel FindConnector(Guid guid);
+
+        void SizeChanged(Size newSize)
+        {
+            Width = newSize.Width;
+            Height = newSize.Height;
+        }
     }
 
     public class NodeViewModel1 : NodeBaseViewModel

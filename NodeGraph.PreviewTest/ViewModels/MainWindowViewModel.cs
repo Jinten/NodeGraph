@@ -52,6 +52,14 @@ namespace NodeGraph.PreviewTest.ViewModels
         public IEnumerable<NodeLinkViewModel> NodeLinkViewModels => _NodeLinkViewModels;
         ObservableCollection<NodeLinkViewModel> _NodeLinkViewModels = new ObservableCollection<NodeLinkViewModel>();
 
+        public bool IsFreezeAllNodeLinks
+        {
+            get => _IsFreezeAllNodeLinks;
+            set => UpdateIsFreezeAllNodeLinksProperty(value);
+        }
+        bool _IsFreezeAllNodeLinks = false;
+
+
         public MainWindowViewModel()
         {
             _NodeViewModels.Add(new NodeViewModel1() { Name = "Node1", Body = "Content1" });
@@ -76,6 +84,18 @@ namespace NodeGraph.PreviewTest.ViewModels
         void ClearTestNodes()
         {
             _NodeViewModels.Clear();
+        }
+
+        void UpdateIsFreezeAllNodeLinksProperty(bool value)
+        {
+            _IsFreezeAllNodeLinks = !_IsFreezeAllNodeLinks;
+
+            foreach (var nodeLink in _NodeLinkViewModels)
+            {
+                nodeLink.IsFreeze = _IsFreezeAllNodeLinks;
+            }
+
+            RaisePropertyChanged(nameof(IsFreezeAllNodeLinks));
         }
 
         void PreviewConnect(PreviewConnectCommandParameter param)
