@@ -77,14 +77,6 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty LinkTypeProperty =
             DependencyProperty.Register(nameof(LinkType), typeof(NodeLinkType), typeof(NodeLink), new FrameworkPropertyMetadata(NodeLinkType.Curve, LinkTypePropertyChanged));
 
-        public bool IsFreeze
-        {
-            get => (bool)GetValue(IsFreezeProperty);
-            set => SetValue(IsFreezeProperty, value);
-        }
-        public static readonly DependencyProperty IsFreezeProperty =
-            DependencyProperty.Register(nameof(IsFreeze), typeof(bool), typeof(NodeLink), new FrameworkPropertyMetadata(false, IsFreezePropertyChanged));
-
         static void DashOffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var nodeLink = d as NodeLink;
@@ -95,12 +87,6 @@ namespace NodeGraph.Controls
         {
             var nodeLink = d as NodeLink;
             nodeLink.InvalidateVisual();
-        }
-        
-        static void IsFreezePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var nodeLink = d as NodeLink;
-            nodeLink.IsHitTestVisible = (bool)e.NewValue == false;
         }
 
         public bool IsConnecting => Input != null && Output != null;

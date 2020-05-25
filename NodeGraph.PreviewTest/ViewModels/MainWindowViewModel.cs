@@ -52,12 +52,12 @@ namespace NodeGraph.PreviewTest.ViewModels
         public IEnumerable<NodeLinkViewModel> NodeLinkViewModels => _NodeLinkViewModels;
         ObservableCollection<NodeLinkViewModel> _NodeLinkViewModels = new ObservableCollection<NodeLinkViewModel>();
 
-        public bool IsFreezeAllNodeLinks
+        public bool IsEnableAllNodeLinks
         {
-            get => _IsFreezeAllNodeLinks;
-            set => UpdateIsFreezeAllNodeLinksProperty(value);
+            get => _IsEnableAllNodeLinks;
+            set => UpdateIsEnableAllNodeLinksProperty(value);
         }
-        bool _IsFreezeAllNodeLinks = false;
+        bool _IsEnableAllNodeLinks = true;
 
         public bool IsEnableAllNodeConnectors
         {
@@ -93,16 +93,16 @@ namespace NodeGraph.PreviewTest.ViewModels
             _NodeViewModels.Clear();
         }
 
-        void UpdateIsFreezeAllNodeLinksProperty(bool value)
+        void UpdateIsEnableAllNodeLinksProperty(bool value)
         {
-            _IsFreezeAllNodeLinks = !_IsFreezeAllNodeLinks;
+            _IsEnableAllNodeLinks = !_IsEnableAllNodeLinks;
 
             foreach (var nodeLink in _NodeLinkViewModels)
             {
-                nodeLink.IsFreeze = _IsFreezeAllNodeLinks;
+                nodeLink.IsEnable = _IsEnableAllNodeLinks;
             }
 
-            RaisePropertyChanged(nameof(IsFreezeAllNodeLinks));
+            RaisePropertyChanged(nameof(IsEnableAllNodeLinks));
         }
 
         void UpdateIsEnableAllNodeConnectorsProperty(bool value)

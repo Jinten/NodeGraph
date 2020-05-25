@@ -36,7 +36,7 @@
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="InputGuid" Value="{Binding InputGuid, Mode=OneWay}"/>
             <Setter Property="OutputGuid" Value="{Binding OutputGuid, Mode=OneWay}"/>
-            <Setter Property="IsFreeze" Value="{Binding IsFreeze, Mode=OneWay}"/>
+            <Setter Property="IsEnabled" Value="{Binding IsEnable, Mode=OneWay}"/>
         </Style>
 
         <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}" BasedOn="{StaticResource {x:Type ctrl:Node}}">
@@ -89,7 +89,7 @@
             <Button Margin="4" Height="24" Content="AddTestNodeLink" Command="{Binding AddTestNodeLinkCommand}"/>
             <Button Margin="4" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
             <Button Margin="4" Height="24" Content="ClearTestNode" Command="{Binding ClearTestNodesCommand}"/>
-            <CheckBox Margin="4" Height="24" Content="IsFreezeAllNodeLinks" IsChecked="{Binding IsFreezeAllNodeLinks}" VerticalContentAlignment="Center"/>
+            <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeLinks" IsChecked="{Binding IsEnableAllNodeLinks}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
         </DockPanel>
         <ctrl:NodeGraph Grid.Row="3"
