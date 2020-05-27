@@ -19,6 +19,9 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand AddNodeCommand => _AddNodeCommand.Get(AddNode);
         ViewModelCommandHandler _AddNodeCommand = new ViewModelCommandHandler();
 
+        public ViewModelCommand AddGroupNodeCommand => _AddGroupNodeCommand.Get(AddGroupNode);
+        ViewModelCommandHandler _AddGroupNodeCommand = new ViewModelCommandHandler();
+
         public ViewModelCommand RemoveNodesCommand => _RemoveNodesCommand.Get(RemoveNodes);
         ViewModelCommandHandler _RemoveNodesCommand = new ViewModelCommandHandler();
 
@@ -46,11 +49,14 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand ClearTestNodesCommand => _ClearTestNodesCommand.Get(ClearTestNodes);
         ViewModelCommandHandler _ClearTestNodesCommand = new ViewModelCommandHandler();
 
-        public IEnumerable<INodeViewModel> NodeViewModels => _NodeViewModels;
-        ObservableCollection<INodeViewModel> _NodeViewModels = new ObservableCollection<INodeViewModel>();
+        public IEnumerable<NodeBaseViewModel> NodeViewModels => _NodeViewModels;
+        ObservableCollection<NodeBaseViewModel> _NodeViewModels = new ObservableCollection<NodeBaseViewModel>();
 
         public IEnumerable<NodeLinkViewModel> NodeLinkViewModels => _NodeLinkViewModels;
         ObservableCollection<NodeLinkViewModel> _NodeLinkViewModels = new ObservableCollection<NodeLinkViewModel>();
+
+        public IEnumerable<GroupNodeViewModel> GroupNodeViewModels => _GroupNodeViewModels;
+        ObservableCollection<GroupNodeViewModel> _GroupNodeViewModels = new ObservableCollection<GroupNodeViewModel>();
 
         public bool IsEnableAllNodeLinks
         {
@@ -77,6 +83,11 @@ namespace NodeGraph.PreviewTest.ViewModels
         void AddNode()
         {
             _NodeViewModels.Add(new NodeViewModel2() { Name = "NewNode", Body = "NewContent" });
+        }
+
+        void AddGroupNode()
+        {
+            _GroupNodeViewModels.Add(new GroupNodeViewModel() { Name = "NewGroupNode" });
         }
 
         void RemoveNodes()

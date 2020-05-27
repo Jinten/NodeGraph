@@ -17,6 +17,7 @@
     <Window.Resources>
         <ContextMenu x:Key="NodeGraphContextMenu">
             <MenuItem Header="AddNode" Command="{Binding AddNodeCommand}"/>
+            <MenuItem Header="AddGroupNode" Command="{Binding AddGroupNodeCommand}"/>
             <MenuItem Header="RemoveNodes" Command="{Binding RemoveNodesCommand}"/>
         </ContextMenu>
 
@@ -78,6 +79,25 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="GroupNodeStyle" TargetType="{x:Type ctrl:GroupNode}" BasedOn="{StaticResource {x:Type ctrl:GroupNode}}">
+            <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
+            <!--disconnect position binding if you specify Mode=OneWay, because it will change binding position instance in view control.-->
+            <Setter Property="Position" Value="{Binding Position}"/>
+            <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+            <Setter Property="SizeChangedCommand" Value="{Binding SizeChangedCommand}"/>
+            <Setter Property="HeaderContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <StackPanel Background="#FF666666" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:GroupNode}}}">
+                            <StackPanel HorizontalAlignment="Center">
+                                <Label Content="{Binding Name}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -98,7 +118,9 @@
                         ItemsSource="{Binding NodeViewModels}"
                         ItemContainerStyle="{StaticResource NodeStyle}"
                         NodeLinks="{Binding NodeLinkViewModels}"
-                        NodeLinkStyle="{StaticResource NodeLinkStyle}"
+                        NodeLinkStyle="{StaticResource NodeLinkStyle}"                        
+                        GroupNodes="{Binding GroupNodeViewModels}"
+                        GroupNodeStyle="{StaticResource GroupNodeStyle}"
                         PreviewConnectCommand="{Binding PreviewConnectCommand}"
                         ConnectCommand="{Binding ConnectCommand}"
                         DisconnectCommand="{Binding DisconnectCommand}"

@@ -19,19 +19,8 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
-    public class Node : ContentControl, ICanvasObject, IDisposable
+    public class Node : NodeBase
     {
-        public Guid Guid
-        {
-            get => (Guid)GetValue(GuidProperty);
-            set => SetValue(GuidProperty, value);
-        }
-        public static readonly DependencyProperty GuidProperty = DependencyProperty.Register(
-            nameof(Guid),
-            typeof(Guid),
-            typeof(Node),
-            new PropertyMetadata(Guid.NewGuid()));
-
         public DataTemplate HeaderContentTemplate
         {
             get => (DataTemplate)GetValue(HeaderContentTemplateProperty);
@@ -131,28 +120,6 @@ namespace NodeGraph.Controls
             typeof(Node),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public bool IsSelected
-        {
-            get => (bool)GetValue(IsSelectedProperty);
-            set => UpdateSelectedState(value);
-        }
-        public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register(
-            nameof(IsSelected),
-            typeof(bool),
-            typeof(Node),
-            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
-
-        public Point Position
-        {
-            get => (Point)GetValue(PositionProperty);
-            set => SetValue(PositionProperty, value);
-        }
-        public static readonly DependencyProperty PositionProperty = DependencyProperty.Register(
-            nameof(Position),
-            typeof(Point),
-            typeof(Node),
-            new FrameworkPropertyMetadata(new Point(0, 0), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, PositionPropertyChanged));
-
         public ICommand SizeChangedCommand
         {
             get => GetValue(SizeChangedCommandProperty) as ICommand;
@@ -164,13 +131,8 @@ namespace NodeGraph.Controls
             typeof(Node),
             new FrameworkPropertyMetadata(null));
 
-        public Point DragStartPosition { get; private set; } = new Point(0, 0);
-
-        Canvas Canvas { get; } = null;
         NodeInput _NodeInput = null;
         NodeOutput _NodeOutput = null;
-        Point _Offset = new Point(0, 0);
-        TranslateTransform _Translate = new TranslateTransform(0, 0);
 
         static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {            
@@ -184,16 +146,6 @@ namespace NodeGraph.Controls
             {
                 newCollection.CollectionChanged += node.OutputCollectionChanged;
             }
-        }
-
-        static void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var node = d as Node;
-
-            node.UpdatePosition();
-
-            node._NodeInput.UpdateLinkPosition(node.Canvas);
-            node._NodeOutput.UpdateLinkPosition(node.Canvas);
         }
 
         static void InputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -215,19 +167,9 @@ namespace NodeGraph.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(Node), new FrameworkPropertyMetadata(typeof(Node)));
         }
 
-        public Node(Canvas canvas, Point offset, double scale)
+        public Node(Canvas canvas, Point offset, double scale) : base(canvas, offset)
         {
-            Canvas = canvas;
             SizeChanged += Node_SizeChanged;
-
-            var transformGroup = new TransformGroup();
-
-            _Offset = offset;
-
-            UpdatePosition();
-
-            transformGroup.Children.Add(_Translate);
-            RenderTransform = transformGroup;
         }
 
         public override void OnApplyTemplate()
@@ -264,47 +206,27 @@ namespace NodeGraph.Controls
             return _NodeOutput.FindNodeConnector(guid);
         }
 
-        public void UpdateOffset(Point offset)
-        {
-            _Offset = offset;
-
-            UpdatePosition();
-
-            InvalidateVisual();
-        }
-
-        public void UpdatePosition(double x, double y)
-        {
-            Position = new Point(x, y);
-
-            UpdatePosition();
-
-            _NodeInput.UpdateLinkPosition(Canvas);
-            _NodeOutput.UpdateLinkPosition(Canvas);
-        }
-
-        public void CaptureDragStartPosition()
-        {
-            DragStartPosition = Position;
-        }
-
-        public void Dispose()
+        protected override void OnDisposing()
         {
             _NodeInput.Dispose();
             _NodeOutput.Dispose();
             SizeChanged -= Node_SizeChanged;
         }
 
-        void UpdateSelectedState(bool value)
+        protected override void OnUpdateTranslation()
         {
-            SetValue(IsSelectedProperty, value);
-            Panel.SetZIndex(this, value ? 1 : 0);
+            _NodeInput.UpdateLinkPosition(Canvas);
+            _NodeOutput.UpdateLinkPosition(Canvas);
         }
 
-        void UpdatePosition()
+        protected override void OnMouseMove(MouseEventArgs e)
         {
-            _Translate.X = Position.X + _Offset.X;
-            _Translate.Y = Position.Y + _Offset.Y;
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnMouseUp(e);
         }
 
         void Node_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -323,16 +245,6 @@ namespace NodeGraph.Controls
         void InputCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             // Implement if need anything.
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-        }
-
-        protected override void OnMouseUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseUp(e);
         }
     }
 }

@@ -16,10 +16,45 @@ namespace NodeGraph.PreviewTest.ViewModels
         Guid Guid { get; set; }
         Point Position { get; set; }
         bool IsSelected { get; set; }
+    }
 
-        IEnumerable<NodeConnectorViewModel> Inputs { get; }
-        IEnumerable<NodeConnectorViewModel> Outputs { get; }
-        NodeConnectorViewModel FindConnector(Guid guid);
+    public class GroupNodeViewModel : ViewModel, INodeViewModel
+    {
+        public Guid Guid
+        {
+            get => _Guid;
+            set => RaisePropertyChangedIfSet(ref _Guid, value);
+        }
+        Guid _Guid = Guid.NewGuid();
+
+        public string Name
+        {
+            get => _Name;
+            set => RaisePropertyChangedIfSet(ref _Name, value);
+        }
+        string _Name = string.Empty;
+
+        public Point Position
+        {
+            get => _Position;
+            set => RaisePropertyChangedIfSet(ref _Position, value);
+        }
+        Point _Position = new Point(0, 0);
+
+        public bool IsSelected
+        {
+            get => _IsSelected;
+            set => RaisePropertyChangedIfSet(ref _IsSelected, value);
+        }
+        bool _IsSelected = false;
+
+        public ICommand SizeChangedCommand => _SizeChangedCommand.Get(SizeChanged);
+        ViewModelCommandHandler<Size> _SizeChangedCommand = new ViewModelCommandHandler<Size>();
+
+        void SizeChanged(Size newSize)
+        {
+
+        }
     }
 
     public abstract class NodeBaseViewModel : ViewModel, INodeViewModel

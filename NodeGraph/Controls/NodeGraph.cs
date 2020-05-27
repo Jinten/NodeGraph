@@ -122,6 +122,14 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty NodeLinkStyleProperty =
             DependencyProperty.Register(nameof(NodeLinkStyle), typeof(Style), typeof(NodeGraph), new FrameworkPropertyMetadata(null, NodeLinkStylePropertyChanged));
 
+        public Style GroupNodeStyle
+        {
+            get => (Style)GetValue(GroupNodeStyleProperty);
+            set => SetValue(GroupNodeStyleProperty, value);
+        }
+        public static readonly DependencyProperty GroupNodeStyleProperty =
+            DependencyProperty.Register(nameof(GroupNodeStyle), typeof(Style), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+
         public IEnumerable NodeLinks
         {
             get => (IEnumerable)GetValue(NodeLinksProperty);
@@ -129,6 +137,14 @@ namespace NodeGraph.Controls
         }
         public static readonly DependencyProperty NodeLinksProperty =
             DependencyProperty.Register(nameof(NodeLinks), typeof(IEnumerable), typeof(NodeGraph), new FrameworkPropertyMetadata(null, NodeLinksPropertyChanged));
+
+        public IEnumerable GroupNodes
+        {
+            get => (IEnumerable)GetValue(GroupNodesProperty);
+            set => SetValue(GroupNodesProperty, value);
+        }
+        public static readonly DependencyProperty GroupNodesProperty =
+            DependencyProperty.Register(nameof(GroupNodes), typeof(IEnumerable), typeof(NodeGraph), new FrameworkPropertyMetadata(null, GroupNodesPropertyChanged));
 
         public bool AllowToOverrideConnection
         {
@@ -140,6 +156,9 @@ namespace NodeGraph.Controls
 
         ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
         ResourceInstance<ControlTemplate> _NodeTemplate = new ResourceInstance<ControlTemplate>();
+
+        ControlTemplate GroupNodeTemplate => _GroupNodeTemplate.Get("__GroupNodeTemplate__");
+        ResourceInstance<ControlTemplate> _GroupNodeTemplate = new ResourceInstance<ControlTemplate>();
 
         Style NodeLinkAnimationStyle => _NodeLinkAnimationStyle.Get("__NodeLinkAnimationStyle__");
         ResourceInstance<Style> _NodeLinkAnimationStyle = new ResourceInstance<Style>();
@@ -163,7 +182,7 @@ namespace NodeGraph.Controls
             }
         }
 
-        List<Node> _DraggingNodes = new List<Node>();
+        List<NodeBase> _DraggingNodes = new List<NodeBase>();
         NodeLink _ReconnectGhostNodeLink = null;
         DraggingNodeLinkParam _DraggingNodeLinkParam = null;
         Point _DragStartPointToMoveNode = new Point();
@@ -177,6 +196,7 @@ namespace NodeGraph.Controls
 
         List<object> _DelayToBindNodeVMs = new List<object>();
         List<object> _DelayToBindNodeLinkVMs = new List<object>();
+        List<object> _DelayToBindGroupNodeVMs = new List<object>();
 
         static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -189,6 +209,11 @@ namespace NodeGraph.Controls
             }
 
             foreach (var obj in nodeGraph.Canvas.Children.OfType<NodeLink>())
+            {
+                obj.UpdateOffset(nodeGraph.Offset);
+            }
+
+            foreach (var obj in nodeGraph.Canvas.Children.OfType<GroupNode>())
             {
                 obj.UpdateOffset(nodeGraph.Offset);
             }
@@ -219,34 +244,71 @@ namespace NodeGraph.Controls
         {
             var nodeGraph = d as NodeGraph;
 
-            if (e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
+            var oldValue = e.OldValue as IEnumerable;
+            var newValue = e.NewValue as IEnumerable;
+            CollectionPropertyChanged<NodeLink>(
+                nodeGraph,
+                oldValue,
+                newValue,
+                nodeGraph.NodeLinkCollectionChanged,
+                nodeGraph._DelayToBindNodeLinkVMs,
+                nodeGraph.AddNodeLinksToCanvas);
+        }
+
+        static void GroupNodesPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var nodeGraph = d as NodeGraph;
+
+            var oldValue = e.OldValue as IEnumerable;
+            var newValue = e.NewValue as IEnumerable;
+            CollectionPropertyChanged<GroupNode>(
+                nodeGraph,
+                oldValue,
+                newValue,
+                nodeGraph.GroupNodeCollectionChanged,
+                nodeGraph._DelayToBindGroupNodeVMs,
+                nodeGraph.AddGroupNodesToCanvas);
+        }
+
+        static void CollectionPropertyChanged<T>(
+            NodeGraph nodeGraph,
+            IEnumerable oldValue,
+            IEnumerable newValue,
+            NotifyCollectionChangedEventHandler collectionChanged,
+            List<object> delayToBindVMs,
+            Action<object[]> addElementToCanvas) where T : UIElement, ICanvasObject
+        {
+            if (oldValue != null && oldValue is INotifyCollectionChanged oldCollection)
             {
-                oldCollection.CollectionChanged -= nodeGraph.NodeLinkCollectionChanged;
+                oldCollection.CollectionChanged -= collectionChanged;
             }
-            if (e.NewValue != null && e.NewValue is INotifyCollectionChanged newCollection)
+            if (newValue != null && newValue is INotifyCollectionChanged newCollection)
             {
-                newCollection.CollectionChanged += nodeGraph.NodeLinkCollectionChanged;
+                newCollection.CollectionChanged += collectionChanged;
             }
 
             // below process is node collection changed.
             if (nodeGraph.Canvas == null)
             {
-                if (e.NewValue != null && e.NewValue is IEnumerable enumerable)
+                if (newValue != null && newValue is IEnumerable enumerable)
                 {
-                    nodeGraph._DelayToBindNodeLinkVMs.AddRange(enumerable.OfType<object>());
+                    delayToBindVMs.AddRange(enumerable.OfType<object>());
                 }
                 return;
             }
 
             // remove old node links
-            var removeNodeLinks = nodeGraph.Canvas.Children.OfType<NodeLink>().ToArray();
-            nodeGraph.RemoveNodeLinksFromCanvas(removeNodeLinks);
+            var removeElements = nodeGraph.Canvas.Children.OfType<T>().ToArray();
+            foreach (var removeElement in removeElements)
+            {
+                nodeGraph.Canvas.Children.Remove(removeElement);
+            }
 
             // add new node links
-            if (e.NewValue != null)
+            if (newValue != null)
             {
-                var newEnumerable = e.NewValue as IEnumerable;
-                nodeGraph.AddNodeLinksToCanvas(newEnumerable.OfType<object>());
+                var newEnumerable = newValue as IEnumerable;
+                addElementToCanvas(newEnumerable.OfType<object>().ToArray());
             }
         }
 
@@ -273,15 +335,20 @@ namespace NodeGraph.Controls
 
             if (_DelayToBindNodeVMs.Count > 0)
             {
-                AddNodesToCanvas(_DelayToBindNodeVMs.OfType<object>());
+                AddNodesToCanvas(_DelayToBindNodeVMs.OfType<object>().ToArray());
                 _DelayToBindNodeVMs.Clear();
             }
 
-
             if (_DelayToBindNodeLinkVMs.Count > 0)
             {
-                AddNodeLinksToCanvas(_DelayToBindNodeLinkVMs.OfType<object>());
+                AddNodeLinksToCanvas(_DelayToBindNodeLinkVMs.OfType<object>().ToArray());
                 _DelayToBindNodeLinkVMs.Clear();
+            }
+
+            if (_DelayToBindGroupNodeVMs.Count > 0)
+            {
+                AddGroupNodesToCanvas(_DelayToBindGroupNodeVMs.OfType<object>().ToArray());
+                _DelayToBindGroupNodeVMs.Clear();
             }
         }
 
@@ -289,35 +356,13 @@ namespace NodeGraph.Controls
         {
             base.OnItemsSourceChanged(oldValue, newValue);
 
-            if (oldValue != null && oldValue is INotifyCollectionChanged oldCollection)
-            {
-                oldCollection.CollectionChanged -= NodeCollectionChanged;
-            }
-            if (newValue != null && newValue is INotifyCollectionChanged newCollection)
-            {
-                newCollection.CollectionChanged += NodeCollectionChanged;
-            }
-
-            if (Canvas == null)
-            {
-                _DelayToBindNodeVMs.AddRange(newValue.OfType<object>());
-                return;
-            }
-
-            // below process is node collection changed.
-
-            // remove old nodes
-            var removeNodes = Canvas.Children.OfType<Node>().ToArray();
-            foreach (var removeNode in removeNodes)
-            {
-                Canvas.Children.Remove(removeNode);
-            }
-
-            // add new nodes
-            if (newValue != null)
-            {
-                AddNodesToCanvas(newValue.OfType<object>());
-            }
+            CollectionPropertyChanged<Node>(
+                this,
+                oldValue,
+                newValue,
+                NodeCollectionChanged, 
+                _DelayToBindNodeVMs,
+                AddNodesToCanvas);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -721,20 +766,42 @@ namespace NodeGraph.Controls
             }), new PointHitTestParameters(pos));
         }
 
+        void NodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged<Node>(e.Action, e.OldItems, e.NewItems, RemoveNodesFromCanvas, AddNodesToCanvas);
+        }
+
+        void GroupNodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            CollectionChanged<GroupNode>(e.Action, e.OldItems, e.NewItems, RemoveGroupNodesFromCanvas, AddGroupNodesToCanvas);
+        }
+
         void NodeLinkCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.OldItems?.Count > 0)
-            {
-                RemoveNodeLinksFromCanvas(e.OldItems.OfType<object>());
-            }
+            CollectionChanged<NodeLink>(e.Action, e.OldItems, e.NewItems, RemoveNodeLinksFromCanvas, AddNodeLinksToCanvas);
+        }
 
-            if (e.NewItems?.Count > 0)
+        void CollectionChanged<T>(NotifyCollectionChangedAction action, IList oldItems, IList newItems, Action<object[]> removeItem, Action<object[]> addItem) where T : UIElement, ICanvasObject
+        {
+            switch (action)
             {
-                AddNodeLinksToCanvas(e.NewItems.OfType<object>());
+                case NotifyCollectionChangedAction.Reset:
+                    removeItem(Canvas.Children.OfType<T>().ToArray());
+                    break;
+                default:
+                    if (oldItems?.Count > 0)
+                    {
+                        removeItem(oldItems.OfType<object>().ToArray());
+                    }
+                    if (newItems?.Count > 0)
+                    {
+                        addItem(newItems.OfType<object>().ToArray());
+                    }
+                    break;
             }
         }
 
-        void RemoveNodeLinksFromCanvas(IEnumerable<object> removeVMs)
+        void RemoveNodeLinksFromCanvas(object[] removeVMs)
         {
             var removeNodeLinks = new List<NodeLink>();
             var children = Canvas.Children.OfType<NodeLink>().ToArray();
@@ -754,7 +821,7 @@ namespace NodeGraph.Controls
             }
         }
 
-        void AddNodeLinksToCanvas(IEnumerable<object> addVMs)
+        void AddNodeLinksToCanvas(object[] addVMs)
         {
             foreach (var vm in addVMs)
             {
@@ -783,39 +850,6 @@ namespace NodeGraph.Controls
                 nodeLink.MouseDown += NodeLink_MouseDown;
 
                 Canvas.Children.Add(nodeLink);
-            }
-        }
-
-        T FindConnectorContentInNodes<T>(Node[] nodes, Guid guid) where T : NodeConnectorContent
-        {
-            foreach (var node in nodes)
-            {
-                var connectorContent = node.FindNodeConnectorContent(guid);
-                if (connectorContent != null)
-                {
-                    return (T)connectorContent;
-                }
-            }
-
-            return null;
-        }
-
-        void NodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Reset)
-            {
-                RemoveNodesFromCanvas(Canvas.Children.OfType<Node>().ToArray());
-            }
-            else
-            {
-                if (e.OldItems?.Count > 0)
-                {
-                    RemoveNodesFromCanvas(e.OldItems.OfType<object>().ToArray());
-                }
-                if (e.NewItems?.Count > 0)
-                {
-                    AddNodesToCanvas(e.NewItems.OfType<object>().ToArray());
-                }
             }
         }
 
@@ -852,7 +886,7 @@ namespace NodeGraph.Controls
             }
         }
 
-        void AddNodesToCanvas(IEnumerable<object> addVMs)
+        void AddNodesToCanvas(object[] addVMs)
         {
             foreach (var vm in addVMs)
             {
@@ -869,6 +903,74 @@ namespace NodeGraph.Controls
 
                 Canvas.Children.Add(node);
             }
+        }
+
+        void RemoveGroupNodesFromCanvas(object[] removeVMs)
+        {
+            var removeGroupNodes = new List<GroupNode>();
+            var children = Canvas.Children.OfType<GroupNode>().ToArray();
+
+            foreach (var removeVM in removeVMs)
+            {
+                var removeElement = children.First(arg => arg.DataContext == removeVM);
+                removeGroupNodes.Add(removeElement);
+            }
+
+            RemoveGroupNodesFromCanvas(removeGroupNodes.ToArray());
+        }
+
+        void RemoveGroupNodesFromCanvas(GroupNode[] removeGroupNodes)
+        {
+            foreach (var removeGroupNode in removeGroupNodes)
+            {
+                Canvas.Children.Remove(removeGroupNode);
+
+                removeGroupNode.MouseUp -= Node_MouseDown;
+                removeGroupNode.MouseDown -= GroupNode_MouseDown;
+
+                /*
+                var nodeLinks = removeGroupNode.EnumrateConnectedNodeLinks();
+                foreach (var nodeLink in nodeLinks)
+                {
+                    Canvas.Children.Remove(nodeLink);
+                }
+                */
+
+                removeGroupNode.Dispose();
+            }
+        }
+
+        void AddGroupNodesToCanvas(object[] addVMs)
+        {
+            foreach (var vm in addVMs)
+            {
+                var groupNode = new GroupNode(Canvas, Offset, Scale);
+                groupNode.DataContext = vm;
+                groupNode.Template = GroupNodeTemplate;
+                groupNode.ApplyTemplate();
+
+                groupNode.Style = GroupNodeStyle;
+                groupNode.Initialize();
+
+                groupNode.MouseDown += GroupNode_MouseDown;
+                groupNode.MouseUp += Node_MouseDown;
+
+                Canvas.Children.Add(groupNode);
+            }
+        }
+
+        T FindConnectorContentInNodes<T>(Node[] nodes, Guid guid) where T : NodeConnectorContent
+        {
+            foreach (var node in nodes)
+            {
+                var connectorContent = node.FindNodeConnectorContent(guid);
+                if (connectorContent != null)
+                {
+                    return (T)connectorContent;
+                }
+            }
+
+            return null;
         }
 
         Style GetNodeStyle(object dataContext, DependencyObject element)
@@ -921,22 +1023,7 @@ namespace NodeGraph.Controls
                 return;
             }
 
-            BeginUpdateSelectedItems();
-            if ((Keyboard.GetKeyStates(Key.LeftCtrl) & KeyStates.Down) != 0)
-            {
-                var node = sender as Node;
-                node.IsSelected = !node.IsSelected;
-                UpdateSelectedItems(node);
-            }
-            else
-            {
-                foreach (var node in Canvas.Children.OfType<Node>())
-                {
-                    node.IsSelected = node == sender;
-                    UpdateSelectedItems(node);
-                }
-            }
-            EndUpdateSelectedItems();
+            UpdateNodeSelection(sender as NodeBase);
         }
 
         void Node_MouseDown(object sender, MouseButtonEventArgs e)
@@ -945,7 +1032,7 @@ namespace NodeGraph.Controls
 
             if (element != null && element.Tag is NodeConnectorContent connector)
             {
-                // clicked on connector
+                // clicked on the connector
                 var posOnCanvas = connector.GetContentPosition(Canvas);
 
                 var nodeLink = new NodeLink(Canvas, posOnCanvas.X, posOnCanvas.Y, Scale, connector)
@@ -961,18 +1048,50 @@ namespace NodeGraph.Controls
             }
             else if (IsOffsetMoveWithMouse(e) == false)
             {
-                // clicked on Node
-                var pos = e.GetPosition(Canvas);
-
-                var firstNode = e.Source as Node;
-                firstNode.CaptureDragStartPosition();
-
-                _DraggingNodes.Add(firstNode);
-
-                _DragStartPointToMoveNode = e.GetPosition(Canvas);
-
-                Cursor = Cursors.SizeAll;
+                // clicked on the Node
+                StartToMoveDraggingNode(e.GetPosition(Canvas), e.Source as NodeBase);
             }
+        }
+
+        void GroupNode_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var element = e.OriginalSource as FrameworkElement;
+
+            if (IsOffsetMoveWithMouse(e) == false)
+            {
+                // clicked on the GroupNode
+                StartToMoveDraggingNode(e.GetPosition(Canvas), e.Source as NodeBase);
+            }
+        }
+
+        void UpdateNodeSelection(NodeBase targetNode)
+        {
+            BeginUpdateSelectedItems();
+            if ((Keyboard.GetKeyStates(Key.LeftCtrl) & KeyStates.Down) != 0)
+            {
+                targetNode.IsSelected = !targetNode.IsSelected;
+                UpdateSelectedItems(targetNode);
+            }
+            else
+            {
+                foreach (var node in Canvas.Children.OfType<Node>())
+                {
+                    node.IsSelected = node == targetNode;
+                    UpdateSelectedItems(node);
+                }
+            }
+            EndUpdateSelectedItems();
+        }
+
+        void StartToMoveDraggingNode(Point pos, NodeBase node)
+        {
+            node.CaptureDragStartPosition();
+
+            _DraggingNodes.Add(node);
+
+            _DragStartPointToMoveNode = pos;
+
+            Cursor = Cursors.SizeAll;
         }
 
         bool IsOffsetMoveWithMouse(MouseButtonEventArgs e)
@@ -990,7 +1109,7 @@ namespace NodeGraph.Controls
             }
         }
 
-        void UpdateSelectedItems(Node node)
+        void UpdateSelectedItems(NodeBase node)
         {
             if (SelectedItems.Contains(node.DataContext))
             {

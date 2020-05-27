@@ -84,6 +84,8 @@
     <Compile Include="CommandParameters\ConnectCommandParameter.cs" />
     <Compile Include="CommandParameters\DisconnectCommandParameter.cs" />
     <Compile Include="CommandParameters\MovedNodesCommandParameter.cs" />
+    <Compile Include="Controls\GroupNode.cs" />
+    <Compile Include="Controls\NodeBase.cs" />
     <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="CommandParameters\PreviewConnectCommandParameter.cs" />
     <Compile Include="Controls\GridCanvas.cs" />
@@ -92,6 +94,10 @@
     <Compile Include="Controls\RangeSelector.cs" />
     <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
+    <Page Include="Controls\GroupNode.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\Node.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
