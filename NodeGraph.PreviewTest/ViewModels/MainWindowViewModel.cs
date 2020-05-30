@@ -49,6 +49,9 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand ClearTestNodesCommand => _ClearTestNodesCommand.Get(ClearTestNodes);
         ViewModelCommandHandler _ClearTestNodesCommand = new ViewModelCommandHandler();
 
+        public ViewModelCommand MoveGroupNodeCommand => _MoveGroupNodeCommand.Get(MoveGroupNode);
+        ViewModelCommandHandler _MoveGroupNodeCommand = new ViewModelCommandHandler();
+
         public IEnumerable<NodeBaseViewModel> NodeViewModels => _NodeViewModels;
         ObservableCollection<NodeBaseViewModel> _NodeViewModels = new ObservableCollection<NodeBaseViewModel>();
 
@@ -75,9 +78,10 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         public MainWindowViewModel()
         {
-            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node1", Body = "Content1" });
-            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node2", Body = "Content2" });
-            //_NodeViewModels.Add(new NodeViewModel() { Name = "Node3", Body = "Content3" });
+            _GroupNodeViewModels.Add(new GroupNodeViewModel() { Name = "Group1" });
+            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node1", Body = "Content1", Position = new Point(0, 100) });
+            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node2", Body = "Content2", Position = new Point(100, 200) });
+            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node3", Body = "Content3", Position = new Point(200, 300) });
         }
 
         void AddNode()
@@ -93,7 +97,7 @@ namespace NodeGraph.PreviewTest.ViewModels
         void RemoveNodes()
         {
             var removeNodes = _NodeViewModels.Where(arg => arg.IsSelected).ToArray();
-            foreach(var removeNode in removeNodes)
+            foreach (var removeNode in removeNodes)
             {
                 _NodeViewModels.Remove(removeNode);
             }
@@ -102,6 +106,11 @@ namespace NodeGraph.PreviewTest.ViewModels
         void ClearTestNodes()
         {
             _NodeViewModels.Clear();
+        }
+
+        void MoveGroupNode()
+        {
+            _GroupNodeViewModels[0].InterlockPosition = new Point(0, 0);
         }
 
         void UpdateIsEnableAllNodeLinksProperty(bool value)
@@ -122,7 +131,7 @@ namespace NodeGraph.PreviewTest.ViewModels
 
             foreach (var node in _NodeViewModels)
             {
-                foreach(var input in node.Inputs)
+                foreach (var input in node.Inputs)
                 {
                     input.IsEnable = _IsEnableAllNodeConnectors;
                 }

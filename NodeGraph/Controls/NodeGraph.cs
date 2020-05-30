@@ -442,28 +442,6 @@ namespace NodeGraph.Controls
                         EndUpdateSelectedItems();
                     }
 
-                    void AddDraggingNodeRecursively(GroupNode draggingGroupNode, NodeBase[] nodes)
-                    {
-                        var boundingBox = draggingGroupNode.GetBoundingBox();
-                        foreach (var target in nodes)
-                        {
-                            if (draggingGroupNode == target)
-                            {
-                                continue;
-                            }
-                            if (boundingBox.IntersectsWith(target.GetBoundingBox()))
-                            {
-                                target.CaptureDragStartPosition();
-                                _DraggingNodes.Add(target);
-
-                                if (target is GroupNode targetGroupNode)
-                                {
-                                    AddDraggingNodeRecursively(targetGroupNode, nodes.Where(arg => arg != targetGroupNode).ToArray());
-                                }
-                            }
-                        }
-                    }
-
                     var draggingGroupNodes = _DraggingNodes.OfType<GroupNode>().ToArray();
                     var movingNodeTargets = Canvas.Children.OfType<NodeBase>().Where(arg => draggingGroupNodes.Contains(arg) == false).ToArray();
                     foreach (var target in movingNodeTargets)
@@ -473,23 +451,8 @@ namespace NodeGraph.Controls
                         {
                             if (groupNodeTarget.IsInsideCompletely(target_bb))
                             {
-                                if (target is GroupNode groupNode)
-                                {
-                                    // with group node be able to move only when completely inside parent group.
-                                    if (groupNodeTarget.IsInsideCompletely(groupNode.GetBoundingBox()))
-                                    {
-                                        target.CaptureDragStartPosition();
-                                        _DraggingNodes.Add(target);
-
-                                        AddDraggingNodeRecursively(groupNode, movingNodeTargets.Where(arg => arg != groupNode).ToArray());
-                                    }
-                                }
-                                else
-                                {
-                                    // Default node inside.
-                                    target.CaptureDragStartPosition();
-                                    _DraggingNodes.Add(target);
-                                }
+                                target.CaptureDragStartPosition();
+                                _DraggingNodes.Add(target);
                             }
                         }
                     }

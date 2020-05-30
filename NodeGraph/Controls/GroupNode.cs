@@ -23,6 +23,21 @@ namespace NodeGraph.Controls
             typeof(GroupNode),
             new FrameworkPropertyMetadata(null));
 
+        /// <summary>
+        /// This property is set only where script.
+        /// Do not use at UI code.
+        /// </summary>
+        public Point InterlockPosition
+        {
+            get => (Point)GetValue(InterlockPositionProperty);
+            set => SetValue(InterlockPositionProperty, value);
+        }
+        public static readonly DependencyProperty InterlockPositionProperty = DependencyProperty.Register(
+            nameof(InterlockPosition),
+            typeof(Point),
+            typeof(GroupNode),
+            new FrameworkPropertyMetadata(new Point(0, 0), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, InterlockPositionPropertyChanged));
+
         public double BorderSize
         {
             get => (double)GetValue(BorderSizeProperty);
@@ -65,7 +80,7 @@ namespace NodeGraph.Controls
             nameof(InnerColor),
             typeof(SolidColorBrush),
             typeof(GroupNode),
-            new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromArgb(0,0,0,0))));
+            new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromArgb(0, 0, 0, 0))));
 
         public ICommand SizeChangedCommand
         {
@@ -79,6 +94,7 @@ namespace NodeGraph.Controls
             new FrameworkPropertyMetadata(null));
 
         bool _IsInside = false;
+        bool _InternalPositionUpdating = false;
         Border _GroupNodeHeader = null;
 
         static GroupNode()
@@ -137,7 +153,11 @@ namespace NodeGraph.Controls
 
         protected override void OnUpdateTranslation()
         {
-            // TODO:
+            _InternalPositionUpdating = true;
+
+            InterlockPosition = Position;
+
+            _InternalPositionUpdating = false;
         }
 
         protected override void OnDisposing()
@@ -148,6 +168,28 @@ namespace NodeGraph.Controls
         void Group_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             SizeChangedCommand?.Execute(e.NewSize);
+        }
+
+        static void InterlockPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var groupNode = d as GroupNode;
+            if(groupNode._InternalPositionUpdating)
+            {
+                return;
+            }
+
+            var move = groupNode.InterlockPosition - groupNode.Position;
+
+            var otherNodes = groupNode.Canvas.Children.OfType<NodeBase>().Where(arg => arg != groupNode).ToArray();
+            foreach (var node in otherNodes)
+            {
+                if (groupNode.IsInsideCompletely(node.GetBoundingBox()))
+                {
+                    node.Position = node.Position + move;
+                }
+            }
+
+            groupNode.Position = groupNode.InterlockPosition;
         }
     }
 }

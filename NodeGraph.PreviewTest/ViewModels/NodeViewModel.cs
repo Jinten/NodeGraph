@@ -41,6 +41,13 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         Point _Position = new Point(0, 0);
 
+        public Point InterlockPosition
+        {
+            get => _InterlockPosition;
+            set => RaisePropertyChangedIfSet(ref _InterlockPosition, value);
+        }
+        Point _InterlockPosition = new Point(0, 0);
+
         public bool IsSelected
         {
             get => _IsSelected;
