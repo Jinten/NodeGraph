@@ -31,7 +31,8 @@
                 <Canvas Width="{TemplateBinding InnerWidth}"
                         Height="{TemplateBinding InnerHeight}"                        
                         Background="{TemplateBinding InnerColor}"
-                        IsHitTestVisible="False">
+                        IsHitTestVisible="False"
+                        ClipToBounds="True">
                     <TextBlock Text="{Binding Comment, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"
                                Margin="{Binding CommentMargin, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"
                                FontSize="{Binding CommentSize, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"
