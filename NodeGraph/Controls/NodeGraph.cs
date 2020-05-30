@@ -360,7 +360,7 @@ namespace NodeGraph.Controls
                 this,
                 oldValue,
                 newValue,
-                NodeCollectionChanged, 
+                NodeCollectionChanged,
                 _DelayToBindNodeVMs,
                 AddNodesToCanvas);
         }
@@ -768,25 +768,31 @@ namespace NodeGraph.Controls
 
         void NodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            CollectionChanged<Node>(e.Action, e.OldItems, e.NewItems, RemoveNodesFromCanvas, AddNodesToCanvas);
+            CollectionChanged<Node>(e.Action, e.OldItems, e.NewItems, RemoveNodesFromCanvas, RemoveNodesFromCanvas, AddNodesToCanvas);
         }
 
         void GroupNodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            CollectionChanged<GroupNode>(e.Action, e.OldItems, e.NewItems, RemoveGroupNodesFromCanvas, AddGroupNodesToCanvas);
+            CollectionChanged<GroupNode>(e.Action, e.OldItems, e.NewItems, RemoveGroupNodesFromCanvas, RemoveGroupNodesFromCanvas, AddGroupNodesToCanvas);
         }
 
         void NodeLinkCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            CollectionChanged<NodeLink>(e.Action, e.OldItems, e.NewItems, RemoveNodeLinksFromCanvas, AddNodeLinksToCanvas);
+            CollectionChanged<NodeLink>(e.Action, e.OldItems, e.NewItems, RemoveNodeLinksFromCanvas, RemoveNodeLinksFromCanvas, AddNodeLinksToCanvas);
         }
 
-        void CollectionChanged<T>(NotifyCollectionChangedAction action, IList oldItems, IList newItems, Action<object[]> removeItem, Action<object[]> addItem) where T : UIElement, ICanvasObject
+        void CollectionChanged<T>(
+            NotifyCollectionChangedAction action,
+            IList oldItems,
+            IList newItems,
+            Action<object[]> removeItem,
+            Action<T[]> removeItemDirectly,
+            Action<object[]> addItem) where T : UIElement, ICanvasObject
         {
             switch (action)
             {
                 case NotifyCollectionChangedAction.Reset:
-                    removeItem(Canvas.Children.OfType<T>().ToArray());
+                    removeItemDirectly(Canvas.Children.OfType<T>().ToArray());
                     break;
                 default:
                     if (oldItems?.Count > 0)
