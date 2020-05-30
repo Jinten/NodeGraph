@@ -1,4 +1,5 @@
 ﻿using NodeGraph.CommandParameters;
+using NodeGraph.Extensions;
 using NodeGraph.Utilities;
 using System;
 using System.Collections;
@@ -199,6 +200,8 @@ namespace NodeGraph.Controls
 
         Point _DragStartPointToSelect = new Point();
         RangeSelector _RangeSelector = new RangeSelector();
+
+        GroupNode _DraggingToResizeGroupNode = null;
 
         HashSet<NodeConnectorContent> _PreviewedConnectors = new HashSet<NodeConnectorContent>();
 
@@ -447,7 +450,7 @@ namespace NodeGraph.Controls
                     foreach (var target in movingNodeTargets)
                     {
                         var target_bb = target.GetBoundingBox();
-                        foreach(var groupNodeTarget in draggingGroupNodes)
+                        foreach (var groupNodeTarget in draggingGroupNodes)
                         {
                             if (groupNodeTarget.IsInsideCompletely(target_bb))
                             {
@@ -514,9 +517,10 @@ namespace NodeGraph.Controls
                 BeginUpdateSelectedItems();
 
                 bool anyIntersects = false;
+                var actualRangeRect = new Rect(_DragStartPointToSelect.Sub(Offset), posOnCanvas.Sub(Offset));
                 foreach (var node in Canvas.Children.OfType<DefaultNode>())
                 {
-                    node.IsSelected = _RangeSelector.RangeRect.IntersectsWith(node.GetBoundingBox());
+                    node.IsSelected = actualRangeRect.IntersectsWith(node.GetBoundingBox());
 
                     anyIntersects |= node.IsSelected;
 
@@ -525,6 +529,10 @@ namespace NodeGraph.Controls
                 _RangeSelector.IsIntersects = anyIntersects;
 
                 EndUpdateSelectedItems();
+            }
+            else if (_DraggingToResizeGroupNode != null)
+            {
+                _DraggingToResizeGroupNode.Resize(posOnCanvas.Sub(Offset));
             }
         }
 
@@ -576,6 +584,9 @@ namespace NodeGraph.Controls
             _IsStartDragging = false;
             _PressMouseToSelect = false;
 
+            _DraggingToResizeGroupNode?.ReleaseToResizeDragging();
+            _DraggingToResizeGroupNode = null;
+
             if (_IsRangeSelecting)
             {
                 Canvas.Children.Remove(_RangeSelector);
@@ -612,7 +623,7 @@ namespace NodeGraph.Controls
                     var targetGroupNodes = groupNodes.Where(arg => rect.IntersectsWith(arg.GetBoundingBox())).ToArray();
                     foreach (var targetGroupNode in targetGroupNodes)
                     {
-                        targetGroupNode.Expand(rect);
+                        targetGroupNode.ExpandSize(rect);
                     }
                 }
             }
@@ -1082,6 +1093,9 @@ namespace NodeGraph.Controls
         {
             _IsNodeSelected = true;
 
+            _DraggingToResizeGroupNode?.ReleaseToResizeDragging();
+            _DraggingToResizeGroupNode = null;
+
             if (_IsStartDragging || _IsRangeSelecting)
             {
                 return;
@@ -1119,6 +1133,16 @@ namespace NodeGraph.Controls
 
         void GroupNode_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            var groupNode = sender as GroupNode;
+            groupNode.CaptureToResizeDragging();
+
+            if (groupNode.IsDraggingToResize)
+            {
+                _DraggingToResizeGroupNode = groupNode;
+                e.Handled = true;
+                return;
+            }
+
             var element = e.OriginalSource as FrameworkElement;
 
             if (IsOffsetMoveWithMouse(e) == false)

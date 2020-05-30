@@ -93,6 +93,7 @@
     <Compile Include="Controls\DefaultNode.cs" />
     <Compile Include="Controls\RangeSelector.cs" />
     <Compile Include="Controls\Ruler.cs" />
+    <Compile Include="Extensions\PointExtension.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
     <Page Include="Controls\GroupNode.xaml">
       <SubType>Designer</SubType>

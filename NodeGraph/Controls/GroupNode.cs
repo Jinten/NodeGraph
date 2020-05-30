@@ -10,6 +10,19 @@ using System.Windows.Media;
 
 namespace NodeGraph.Controls
 {
+    enum DragResizeType
+    {
+        None,
+        LeftTop,
+        RightTop,
+        LeftBottom,
+        RightBottom,
+        Top,
+        Bottom,
+        Left,
+        Right,
+    }
+
     public class GroupNode : NodeBase
     {
         public DataTemplate HeaderContentTemplate
@@ -82,6 +95,50 @@ namespace NodeGraph.Controls
             typeof(GroupNode),
             new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromArgb(0, 0, 0, 0))));
 
+        public string Comment
+        {
+            get => (string)GetValue(CommentProperty);
+            set => SetValue(CommentProperty, value);
+        }
+        public static readonly DependencyProperty CommentProperty = DependencyProperty.Register(
+            nameof(Comment),
+            typeof(string),
+            typeof(GroupNode),
+            new FrameworkPropertyMetadata(string.Empty));
+
+        public double CommentSize
+        {
+            get => (double)GetValue(CommentSizeProperty);
+            set => SetValue(CommentSizeProperty, value);
+        }
+        public static readonly DependencyProperty CommentSizeProperty = DependencyProperty.Register(
+            nameof(CommentSize),
+            typeof(double),
+            typeof(GroupNode),
+            new FrameworkPropertyMetadata(12.0));
+
+        public SolidColorBrush CommentForeground
+        {
+            get => (SolidColorBrush)GetValue(CommentForegroundProperty);
+            set => SetValue(CommentForegroundProperty, value);
+        }
+        public static readonly DependencyProperty CommentForegroundProperty = DependencyProperty.Register(
+            nameof(CommentForeground),
+            typeof(SolidColorBrush),
+            typeof(GroupNode),
+            new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromArgb(64, 255, 255, 255))));
+
+        public Thickness CommentMargin
+        {
+            get => (Thickness)GetValue(CommentMarginProperty);
+            set => SetValue(CommentMarginProperty, value);
+        }
+        public static readonly DependencyProperty CommentMarginProperty = DependencyProperty.Register(
+            nameof(CommentMargin),
+            typeof(Thickness),
+            typeof(GroupNode),
+            new FrameworkPropertyMetadata(new Thickness(8)));
+
         public ICommand SizeChangedCommand
         {
             get => GetValue(SizeChangedCommandProperty) as ICommand;
@@ -93,8 +150,13 @@ namespace NodeGraph.Controls
             typeof(GroupNode),
             new FrameworkPropertyMetadata(null));
 
+        public bool IsDraggingToResize { get; private set; } = false;
+
         bool _IsInside = false;
         bool _InternalPositionUpdating = false;
+
+        Rect _CapturedNodeRect;
+        DragResizeType _IsDraggingToResizeType = DragResizeType.None;
         Border _GroupNodeHeader = null;
 
         static GroupNode()
@@ -119,7 +181,7 @@ namespace NodeGraph.Controls
             _GroupNodeHeader = GetTemplateChild("__GroupNodeHeader__") as Border;
         }
 
-        public void Expand(Rect rect)
+        public void ExpandSize(Rect rect)
         {
             var oldPosition = Position;
             var maxX = Math.Max(oldPosition.X + Width, rect.Right + BorderSize);
@@ -133,6 +195,99 @@ namespace NodeGraph.Controls
             var h = rect.Height + BorderSize * 2 + _GroupNodeHeader.ActualHeight;
             Width = Math.Max(w, maxX - Position.X);
             Height = Math.Max(h, maxY - Position.Y);
+            InnerWidth = Width - BorderSize * 2;
+            InnerHeight = Height - BorderSize * 2 - _GroupNodeHeader.ActualHeight;
+        }
+
+        public void CaptureToResizeDragging()
+        {
+            if (_IsDraggingToResizeType != DragResizeType.None)
+            {
+                IsDraggingToResize = true;
+                _CapturedNodeRect = new Rect(Position, new Size(ActualWidth, ActualHeight));
+            }
+        }
+
+        public void ReleaseToResizeDragging()
+        {
+            IsDraggingToResize = false;
+        }
+
+        public void Resize(Point pos)
+        {
+            switch (_IsDraggingToResizeType)
+            {
+                case DragResizeType.LeftTop:
+                    {
+                        var x = (_CapturedNodeRect.Right - pos.X > MinHeight) ? pos.X : Position.X;
+                        var y = (_CapturedNodeRect.Bottom - pos.Y > MinHeight) ? pos.Y : Position.Y;
+                        Position = new Point(x, y);
+                        Width = Math.Max(MinWidth, _CapturedNodeRect.Right - Position.X);
+                        Height = Math.Max(MinWidth, _CapturedNodeRect.Bottom - Position.Y);
+                    }
+                    Mouse.SetCursor(Cursors.SizeNWSE);
+                    break;
+                case DragResizeType.RightTop:
+                    {
+                        var h = _CapturedNodeRect.Bottom - pos.Y;
+                        if (h > MinHeight)
+                        {
+                            Position = new Point(Position.X, pos.Y);
+                            Height = Math.Max(MinHeight, h);
+                        }
+                    }
+                    Width = Math.Max(MinWidth, pos.X - _CapturedNodeRect.X);
+                    Mouse.SetCursor(Cursors.SizeNESW);
+                    break;
+                case DragResizeType.LeftBottom:
+                    {
+                        var w = _CapturedNodeRect.Right - pos.X;
+                        if (w > MinWidth)
+                        {
+                            Position = new Point(pos.X, Position.Y);
+                            Width = Math.Max(MinWidth, w);
+                        }
+                    }
+                    Height = Math.Max(MinHeight, pos.Y - _CapturedNodeRect.Y);
+                    Mouse.SetCursor(Cursors.SizeNESW);
+                    break;
+                case DragResizeType.RightBottom:
+                    Width = Math.Max(MinWidth, pos.X - _CapturedNodeRect.X);
+                    Height = Math.Max(MinHeight, pos.Y - _CapturedNodeRect.Y);
+                    Mouse.SetCursor(Cursors.SizeNWSE);
+                    break;
+                case DragResizeType.Top:
+                    {
+                        var h = _CapturedNodeRect.Bottom - pos.Y;
+                        if (h > MinHeight)
+                        {
+                            Position = new Point(Position.X, pos.Y);
+                            Height = Math.Max(MinHeight, h);
+                        }
+                    }
+                    Mouse.SetCursor(Cursors.SizeNS);
+                    break;
+                case DragResizeType.Bottom:
+                    Height = Math.Max(MinHeight, pos.Y - _CapturedNodeRect.Y);
+                    Mouse.SetCursor(Cursors.SizeNS);
+                    break;
+                case DragResizeType.Left:
+                    {
+                        var w = _CapturedNodeRect.Right - pos.X;
+                        if (w > MinWidth)
+                        {
+                            Position = new Point(pos.X, Position.Y);
+                            Width = Math.Max(MinWidth, w);
+                        }
+                    }
+                    Mouse.SetCursor(Cursors.SizeWE);
+                    break;
+                case DragResizeType.Right:
+                    Width = Math.Max(MinWidth, pos.X - _CapturedNodeRect.X);
+                    Mouse.SetCursor(Cursors.SizeWE);
+                    break;
+            }
+
             InnerWidth = Width - BorderSize * 2;
             InnerHeight = Height - BorderSize * 2 - _GroupNodeHeader.ActualHeight;
         }
@@ -165,6 +320,95 @@ namespace NodeGraph.Controls
             SizeChanged -= Group_SizeChanged;
         }
 
+        protected override void OnMouseEnter(MouseEventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (IsDraggingToResize == false)
+            {
+                UpdateMouseCursor(e);
+            }
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            if (IsDraggingToResize == false)
+            {
+                UpdateMouseCursor(e);
+            }
+        }
+
+        void UpdateMouseCursor(MouseEventArgs e)
+        {
+            var pos = e.GetPosition(this);
+            if (pos.X < BorderSize)
+            {
+                // left
+
+                // cursor is inside left vertical border.
+                if (pos.Y < BorderSize)
+                {
+                    // top
+                    _IsDraggingToResizeType = DragResizeType.LeftTop;
+                    Mouse.SetCursor(Cursors.SizeNWSE);
+                }
+                else if (pos.Y > ActualHeight - BorderSize)
+                {
+                    // bottom
+                    _IsDraggingToResizeType = DragResizeType.LeftBottom;
+                    Mouse.SetCursor(Cursors.SizeNESW);
+                }
+                else
+                {
+                    // left
+                    _IsDraggingToResizeType = DragResizeType.Left;
+                    Mouse.SetCursor(Cursors.SizeWE);
+                }
+            }
+            else if (pos.X > (ActualWidth - BorderSize))
+            {
+                // right
+
+                // cursor is inside right vertical border.
+                if (pos.Y < BorderSize)
+                {
+                    // top
+                    _IsDraggingToResizeType = DragResizeType.RightTop;
+                    Mouse.SetCursor(Cursors.SizeNESW);
+                }
+                else if (pos.Y > ActualHeight - BorderSize)
+                {
+                    // bottom
+                    _IsDraggingToResizeType = DragResizeType.RightBottom;
+                    Mouse.SetCursor(Cursors.SizeNWSE);
+                }
+                else
+                {
+                    // right
+                    _IsDraggingToResizeType = DragResizeType.Right;
+                    Mouse.SetCursor(Cursors.SizeWE);
+                }
+            }
+            else
+            {
+                // middle
+                if (pos.Y < BorderSize)
+                {
+                    _IsDraggingToResizeType = DragResizeType.Top;
+                    Mouse.SetCursor(Cursors.SizeNS);
+                }
+                else if (pos.Y > (ActualHeight - BorderSize))
+                {
+                    _IsDraggingToResizeType = DragResizeType.Bottom;
+                    Mouse.SetCursor(Cursors.SizeNS);
+                }
+                else
+                {
+                    _IsDraggingToResizeType = DragResizeType.None;
+                }
+            }
+        }
+
         void Group_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             SizeChangedCommand?.Execute(e.NewSize);
@@ -173,7 +417,7 @@ namespace NodeGraph.Controls
         static void InterlockPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var groupNode = d as GroupNode;
-            if(groupNode._InternalPositionUpdating)
+            if (groupNode._InternalPositionUpdating)
             {
                 return;
             }

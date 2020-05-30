@@ -85,6 +85,8 @@
             <!--disconnect position binding if you specify Mode=OneWay, because it will change binding position instance in view control.-->
             <Setter Property="Position" Value="{Binding Position}"/>
             <Setter Property="InterlockPosition" Value="{Binding InterlockPosition}"/>
+            <Setter Property="Comment" Value="{Binding Comment}"/>
+            <Setter Property="CommentSize" Value="24"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
             <Setter Property="SizeChangedCommand" Value="{Binding SizeChangedCommand}"/>
             <Setter Property="HeaderContentTemplate">

@@ -48,6 +48,13 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         Point _InterlockPosition = new Point(0, 0);
 
+        public string Comment
+        {
+            get => _Comment;
+            set => RaisePropertyChangedIfSet(ref _Comment, value);
+        }
+        string _Comment = "コメントです";
+
         public bool IsSelected
         {
             get => _IsSelected;
