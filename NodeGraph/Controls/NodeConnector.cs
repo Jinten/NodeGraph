@@ -102,7 +102,7 @@ namespace NodeGraph.Controls
             set => UpdatePosition(value);
         }
 
-        public Node Node { get; private set; } = null;
+        public DefaultNode Node { get; private set; } = null;
 
         /// <summary>
         /// connecting node links.
@@ -130,12 +130,12 @@ namespace NodeGraph.Controls
         public void Initialize()
         {
             var parent = VisualTreeHelper.GetParent(this);
-            while (parent.GetType() != typeof(Node))
+            while (parent.GetType() != typeof(DefaultNode))
             {
                 parent = VisualTreeHelper.GetParent(parent);
             }
 
-            Node = parent as Node;
+            Node = parent as DefaultNode;
         }
 
         public void Dispose()

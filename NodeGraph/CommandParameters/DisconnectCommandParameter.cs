@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NodeGraph.CommandParameters
 {
-    public class DisconnectCommandParameter
+    public class DisconnectedCommandParameter
     {
         public Guid NodeLinkGuid { get; } = Guid.Empty;
         public Guid InputNodeGuid { get; } = Guid.Empty;
@@ -14,7 +14,7 @@ namespace NodeGraph.CommandParameters
         public Guid OutputNodeGuid { get; } = Guid.Empty;
         public Guid OutputConnectorGuid { get; } = Guid.Empty;
 
-        public DisconnectCommandParameter(
+        public DisconnectedCommandParameter(
             Guid nodeLinkGuid,
             Guid inputNodeGuid,
             Guid inputConnectorGuid,

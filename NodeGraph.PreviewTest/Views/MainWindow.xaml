@@ -40,7 +40,7 @@
             <Setter Property="IsEnabled" Value="{Binding IsEnable, Mode=OneWay}"/>
         </Style>
 
-        <Style x:Key="NodeStyle" TargetType="{x:Type ctrl:Node}" BasedOn="{StaticResource {x:Type ctrl:Node}}">
+        <Style x:Key="DefaultNodeStyle" TargetType="{x:Type ctrl:DefaultNode}" BasedOn="{StaticResource {x:Type ctrl:DefaultNode}}">
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <!--disconnect position binding if you specify Mode=OneWay, because it will change binding position instance in view control.-->
             <Setter Property="Position" Value="{Binding Position}"/>
@@ -57,7 +57,7 @@
             <Setter Property="HeaderContentTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <StackPanel Background="#FF666666" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:Node}}}">
+                        <StackPanel Background="#FF666666" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:DefaultNode}}}">
                             <StackPanel HorizontalAlignment="Center">
                                 <Label Content="{Binding Name}"/>
                             </StackPanel>
@@ -68,7 +68,7 @@
             <Setter Property="ContentTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <StackPanel DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:Node}}}">
+                        <StackPanel DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:DefaultNode}}}">
                             <TextBox Text="{Binding Body}"/>
                             <DockPanel TextBlock.Foreground="WhiteSmoke">
                                 <TextBlock Margin="0,0,0,4" Text="{Binding Width, StringFormat=Width:{0}}"/>
@@ -116,14 +116,14 @@
                         x:Name="NodeGraph"
                         MoveWithMouse="Right"
                         ItemsSource="{Binding NodeViewModels}"
-                        ItemContainerStyle="{StaticResource NodeStyle}"
+                        ItemContainerStyle="{StaticResource DefaultNodeStyle}"
                         NodeLinks="{Binding NodeLinkViewModels}"
                         NodeLinkStyle="{StaticResource NodeLinkStyle}"                        
                         GroupNodes="{Binding GroupNodeViewModels}"
                         GroupNodeStyle="{StaticResource GroupNodeStyle}"
                         PreviewConnectCommand="{Binding PreviewConnectCommand}"
-                        ConnectCommand="{Binding ConnectCommand}"
-                        DisconnectCommand="{Binding DisconnectCommand}"
+                        ConnectedCommand="{Binding ConnectedCommand}"
+                        DisconnectedCommand="{Binding DisconnectedCommand}"
                         AllowToOverrideConnection="True"
                         ContextMenu="{StaticResource NodeGraphContextMenu}">
             <i:Interaction.Triggers>

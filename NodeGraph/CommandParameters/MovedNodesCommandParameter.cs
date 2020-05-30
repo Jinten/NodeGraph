@@ -7,11 +7,21 @@ using System.Windows;
 
 namespace NodeGraph.CommandParameters
 {
-    public class MovedNodesCommandParameter
+    public class NodesMovedCommandParameter
     {
         public Guid[] NodeGuids { get; } = null;
 
-        public MovedNodesCommandParameter(Guid[] nodeGuids)
+        public NodesMovedCommandParameter(Guid[] nodeGuids)
+        {
+            NodeGuids = nodeGuids;
+        }
+    }
+
+    public class StartMoveNodesCommandParameter
+    {
+        public Guid[] NodeGuids { get; } = null;
+
+        public StartMoveNodesCommandParameter(Guid[] nodeGuids)
         {
             NodeGuids = nodeGuids;
         }

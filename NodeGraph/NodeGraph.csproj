@@ -90,7 +90,7 @@
     <Compile Include="CommandParameters\PreviewConnectCommandParameter.cs" />
     <Compile Include="Controls\GridCanvas.cs" />
     <Compile Include="Controls\ICanvasObject.cs" />
-    <Compile Include="Controls\Node.cs" />
+    <Compile Include="Controls\DefaultNode.cs" />
     <Compile Include="Controls\RangeSelector.cs" />
     <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
@@ -98,7 +98,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\Node.xaml">
+    <Page Include="Controls\DefaultNode.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

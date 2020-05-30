@@ -65,6 +65,11 @@ namespace NodeGraph.Controls
             RenderTransform = transformGroup;
         }
 
+        public Rect GetBoundingBox()
+        {
+            return new Rect(Position.X, Position.Y, ActualWidth, ActualHeight);
+        }
+
         public void CaptureDragStartPosition()
         {
             DragStartPosition = Position;

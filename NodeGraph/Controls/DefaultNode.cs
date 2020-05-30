@@ -19,7 +19,7 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
-    public class Node : NodeBase
+    public class DefaultNode : NodeBase
     {
         public DataTemplate HeaderContentTemplate
         {
@@ -29,7 +29,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty HeaderContentTemplateProperty = DependencyProperty.Register(
             nameof(HeaderContentTemplate),
             typeof(DataTemplate),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(null));
 
         public VerticalAlignment InputLayout
@@ -40,7 +40,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty InputLayoutProperty = DependencyProperty.Register(
             nameof(InputLayout),
             typeof(VerticalAlignment),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(VerticalAlignment.Top));
 
         public Thickness InputMargin
@@ -51,7 +51,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty InputMarginProperty = DependencyProperty.Register(
             nameof(InputMargin),
             typeof(Thickness),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(new Thickness(2.0)));
 
         public IEnumerable Inputs
@@ -62,7 +62,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty InputsProperty = DependencyProperty.Register(
             nameof(Inputs),
             typeof(IEnumerable),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsArrange, InputsPropertyChanged));
 
         public Style InputStyle
@@ -73,7 +73,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty InputStyleProperty = DependencyProperty.Register(
             nameof(InputStyle),
             typeof(Style),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         public VerticalAlignment OutputLayout
@@ -84,7 +84,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty OutputLayoutProperty = DependencyProperty.Register(
             nameof(OutputLayout),
             typeof(VerticalAlignment),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(VerticalAlignment.Top));
 
         public Thickness OutputMargin
@@ -95,7 +95,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty OutputMarginProperty = DependencyProperty.Register(
             nameof(OutputMargin),
             typeof(Thickness),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(new Thickness(2.0)));
 
         public IEnumerable Outputs
@@ -106,7 +106,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty OutputsProperty = DependencyProperty.Register(
             nameof(Outputs),
             typeof(IEnumerable),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsArrange, OutputsPropertyChanged));
 
         public Style OutputStyle
@@ -117,7 +117,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty OutputStyleProperty = DependencyProperty.Register(
             nameof(OutputStyle),
             typeof(Style),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         public ICommand SizeChangedCommand
@@ -128,7 +128,7 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty SizeChangedCommandProperty = DependencyProperty.Register(
             nameof(SizeChangedCommand),
             typeof(ICommand),
-            typeof(Node),
+            typeof(DefaultNode),
             new FrameworkPropertyMetadata(null));
 
         NodeInput _NodeInput = null;
@@ -136,7 +136,7 @@ namespace NodeGraph.Controls
 
         static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {            
-            var node = d as Node;
+            var node = d as DefaultNode;
 
             if (e.OldValue is INotifyCollectionChanged oldCollection)
             {
@@ -150,7 +150,7 @@ namespace NodeGraph.Controls
 
         static void InputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var node = d as Node;
+            var node = d as DefaultNode;
 
             if (e.OldValue != null && e.OldValue is INotifyCollectionChanged oldCollection)
             {
@@ -162,12 +162,12 @@ namespace NodeGraph.Controls
             }
         }
 
-        static Node()
+        static DefaultNode()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(Node), new FrameworkPropertyMetadata(typeof(Node)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(DefaultNode), new FrameworkPropertyMetadata(typeof(DefaultNode)));
         }
 
-        public Node(Canvas canvas, Point offset, double scale) : base(canvas, offset)
+        public DefaultNode(Canvas canvas, Point offset, double scale) : base(canvas, offset)
         {
             SizeChanged += Node_SizeChanged;
         }

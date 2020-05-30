@@ -9,7 +9,7 @@
         <ResourceDictionary Source="/NodeGraph;component/Controls/NodeOutput.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <Style TargetType="{x:Type local:Node}">
+    <Style TargetType="{x:Type local:DefaultNode}">
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="#FF888888"/>
         <Setter Property="InputMargin" Value="2"/>
@@ -21,7 +21,7 @@
         </Style.Triggers>
     </Style>
 
-    <ControlTemplate x:Key="__NodeTemplate__" TargetType="{x:Type local:Node}">
+    <ControlTemplate x:Key="__NodeTemplate__" TargetType="{x:Type local:DefaultNode}">
         <Border Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}">
@@ -30,7 +30,7 @@
                     <ContentPresenter x:Name="__NodeHeaderContentTemplate__"
                                       VerticalAlignment="Stretch"
                                       HorizontalAlignment="Stretch"
-                                      ContentTemplate="{Binding HeaderContentTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:Node}}}"/>
+                                      ContentTemplate="{Binding HeaderContentTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:DefaultNode}}}"/>
                 </Border>                
 
                 <DockPanel>

@@ -90,29 +90,37 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty PreviewConnectCommandProperty =
             DependencyProperty.Register(nameof(PreviewConnectCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
-        public ICommand ConnectCommand
+        public ICommand ConnectedCommand
         {
-            get => (ICommand)GetValue(ConnectCommandProperty);
-            set => SetValue(ConnectCommandProperty, value);
+            get => (ICommand)GetValue(ConnectedCommandProperty);
+            set => SetValue(ConnectedCommandProperty, value);
         }
-        public static readonly DependencyProperty ConnectCommandProperty =
-            DependencyProperty.Register(nameof(ConnectCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty ConnectedCommandProperty =
+            DependencyProperty.Register(nameof(ConnectedCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
-        public ICommand DisconnectCommand
+        public ICommand DisconnectedCommand
         {
-            get => (ICommand)GetValue(DisconnectCommandProperty);
-            set => SetValue(DisconnectCommandProperty, value);
+            get => (ICommand)GetValue(DisconnectedCommandProperty);
+            set => SetValue(DisconnectedCommandProperty, value);
         }
-        public static readonly DependencyProperty DisconnectCommandProperty =
-            DependencyProperty.Register(nameof(DisconnectCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty DisconnectedCommandProperty =
+            DependencyProperty.Register(nameof(DisconnectedCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
-        public ICommand MovedNodesCommand
+        public ICommand StartMoveNodesCommand
         {
-            get => (ICommand)GetValue(MovedNodesCommandProperty);
-            set => SetValue(MovedNodesCommandProperty, value);
+            get => (ICommand)GetValue(StartMoveNodesCommandProperty);
+            set => SetValue(StartMoveNodesCommandProperty, value);
         }
-        public static readonly DependencyProperty MovedNodesCommandProperty =
-            DependencyProperty.Register(nameof(MovedNodesCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty StartMoveNodesCommandProperty =
+            DependencyProperty.Register(nameof(StartMoveNodesCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+
+        public ICommand NodesMovedCommand
+        {
+            get => (ICommand)GetValue(NodesMovedCommandProperty);
+            set => SetValue(NodesMovedCommandProperty, value);
+        }
+        public static readonly DependencyProperty NodesMovedCommandProperty =
+            DependencyProperty.Register(nameof(NodesMovedCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
         public Style NodeLinkStyle
         {
@@ -203,7 +211,7 @@ namespace NodeGraph.Controls
             var nodeGraph = d as NodeGraph;
 
             // need to calculate node position before calculate link absolute position.
-            foreach (var obj in nodeGraph.Canvas.Children.OfType<Node>())
+            foreach (var obj in nodeGraph.Canvas.Children.OfType<DefaultNode>())
             {
                 obj.UpdateOffset(nodeGraph.Offset);
             }
@@ -356,7 +364,7 @@ namespace NodeGraph.Controls
         {
             base.OnItemsSourceChanged(oldValue, newValue);
 
-            CollectionPropertyChanged<Node>(
+            CollectionPropertyChanged<DefaultNode>(
                 this,
                 oldValue,
                 newValue,
@@ -404,20 +412,26 @@ namespace NodeGraph.Controls
                 {
                     if (_DraggingNodes[0].IsSelected)
                     {
-                        foreach (var node in Canvas.Children.OfType<Node>().Where(arg => arg != _DraggingNodes[0] && arg.IsSelected))
+                        // If dragging node is already selected, selected nodes move with dragging.
+                        // In this case, these were selected by Ctrl+Click each nodes.
+                        foreach (var node in Canvas.Children.OfType<NodeBase>().Where(arg => arg != _DraggingNodes[0] && arg.IsSelected))
                         {
                             node.CaptureDragStartPosition();
                             _DraggingNodes.Add(node);
                         }
+
+                        var param = new StartMoveNodesCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+                        StartMoveNodesCommand?.Execute(param);
                     }
                     else
                     {
+                        // If it is not selected dragging node, need to select first node and unselect already selected the nodes.
                         BeginUpdateSelectedItems();
 
                         _DraggingNodes[0].IsSelected = true; // select first drag node.
                         UpdateSelectedItems(_DraggingNodes[0]);
 
-                        foreach (var node in Canvas.Children.OfType<Node>())
+                        foreach (var node in Canvas.Children.OfType<NodeBase>())
                         {
                             if (node != _DraggingNodes[0])
                             {
@@ -426,6 +440,58 @@ namespace NodeGraph.Controls
                             }
                         }
                         EndUpdateSelectedItems();
+                    }
+
+                    void AddDraggingNodeRecursively(GroupNode draggingGroupNode, NodeBase[] nodes)
+                    {
+                        var boundingBox = draggingGroupNode.GetBoundingBox();
+                        foreach (var target in nodes)
+                        {
+                            if (draggingGroupNode == target)
+                            {
+                                continue;
+                            }
+                            if (boundingBox.IntersectsWith(target.GetBoundingBox()))
+                            {
+                                target.CaptureDragStartPosition();
+                                _DraggingNodes.Add(target);
+
+                                if (target is GroupNode targetGroupNode)
+                                {
+                                    AddDraggingNodeRecursively(targetGroupNode, nodes.Where(arg => arg != targetGroupNode).ToArray());
+                                }
+                            }
+                        }
+                    }
+
+                    var draggingGroupNodes = _DraggingNodes.OfType<GroupNode>().ToArray();
+                    var movingNodeTargets = Canvas.Children.OfType<NodeBase>().Where(arg => draggingGroupNodes.Contains(arg) == false).ToArray();
+                    foreach (var target in movingNodeTargets)
+                    {
+                        var target_bb = target.GetBoundingBox();
+                        foreach(var groupNodeTarget in draggingGroupNodes)
+                        {
+                            if (groupNodeTarget.IsInsideCompletely(target_bb))
+                            {
+                                if (target is GroupNode groupNode)
+                                {
+                                    // with group node be able to move only when completely inside parent group.
+                                    if (groupNodeTarget.IsInsideCompletely(groupNode.GetBoundingBox()))
+                                    {
+                                        target.CaptureDragStartPosition();
+                                        _DraggingNodes.Add(target);
+
+                                        AddDraggingNodeRecursively(groupNode, movingNodeTargets.Where(arg => arg != groupNode).ToArray());
+                                    }
+                                }
+                                else
+                                {
+                                    // Default node inside.
+                                    target.CaptureDragStartPosition();
+                                    _DraggingNodes.Add(target);
+                                }
+                            }
+                        }
                     }
 
                     _IsStartDragging = true;
@@ -439,6 +505,23 @@ namespace NodeGraph.Controls
                     double x = node.DragStartPosition.X + diff.X;
                     double y = node.DragStartPosition.Y + diff.Y;
                     node.UpdatePosition(x, y);
+                }
+
+                {   // change group node innter color if node inside.
+                    var groupNodes = Canvas.Children.OfType<GroupNode>().ToArray();
+                    var draggingGroupNodes = _DraggingNodes.OfType<GroupNode>().ToArray();
+                    var boundingBoxes = _DraggingNodes.Select(arg => arg.GetBoundingBox()).ToArray();
+                    foreach (var groupNode in groupNodes)
+                    {
+                        if (draggingGroupNodes.Contains(groupNode))
+                        {
+                            // no detect if it is same dragging group node to the other group node.
+                            continue;
+                        }
+                        var groupBoundingBox = groupNode.GetBoundingBox();
+                        var isInsideNode = boundingBoxes.Any(arg => groupBoundingBox.IntersectsWith(arg));
+                        groupNode.ChangeInnerColor(isInsideNode);
+                    }
                 }
             }
             else if (_PressMouseToMove && (MoveWithKey == Key.None || _PressKeyToMove))
@@ -468,11 +551,9 @@ namespace NodeGraph.Controls
                 BeginUpdateSelectedItems();
 
                 bool anyIntersects = false;
-                foreach (var node in Canvas.Children.OfType<Node>())
+                foreach (var node in Canvas.Children.OfType<DefaultNode>())
                 {
-                    var nodeRect = new Rect(new Size(node.ActualWidth, node.ActualHeight));
-                    var boundingBox = node.RenderTransform.TransformBounds(nodeRect);
-                    node.IsSelected = _RangeSelector.RangeRect.IntersectsWith(boundingBox);
+                    node.IsSelected = _RangeSelector.RangeRect.IntersectsWith(node.GetBoundingBox());
 
                     anyIntersects |= node.IsSelected;
 
@@ -541,7 +622,7 @@ namespace NodeGraph.Controls
             {
                 // click empty area to unselect nodes.
                 BeginUpdateSelectedItems();
-                foreach (var node in Canvas.Children.OfType<Node>())
+                foreach (var node in Canvas.Children.OfType<NodeBase>())
                 {
                     node.IsSelected = false;
                     UpdateSelectedItems(node);
@@ -551,10 +632,32 @@ namespace NodeGraph.Controls
             _IsNodeSelected = false;
             if (_DraggingNodes.Count > 0)
             {
-                var param = new MovedNodesCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
-                MovedNodesCommand?.Execute(param);
+                var param = new NodesMovedCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+                NodesMovedCommand?.Execute(param);
+
+                // expand the group node area size if node within group.
+                var groupNodes = Canvas.Children.OfType<GroupNode>().Where(arg => _DraggingNodes.Contains(arg) == false).ToArray();
+                if (_DraggingNodes.Any(arg => groupNodes.Any(group => group.GetBoundingBox().IntersectsWith(arg.GetBoundingBox()))))
+                {
+                    var min_x = _DraggingNodes.Min(arg => arg.Position.X);
+                    var min_y = _DraggingNodes.Min(arg => arg.Position.Y);
+                    var max_x = _DraggingNodes.Max(arg => arg.ActualWidth + arg.Position.X);
+                    var max_y = _DraggingNodes.Max(arg => arg.ActualHeight + arg.Position.Y);
+                    var rect = new Rect(min_x, min_y, max_x - min_x, max_y - min_y);
+
+                    // collect target of expand groups.
+                    var targetGroupNodes = groupNodes.Where(arg => rect.IntersectsWith(arg.GetBoundingBox())).ToArray();
+                    foreach (var targetGroupNode in targetGroupNodes)
+                    {
+                        targetGroupNode.Expand(rect);
+                    }
+                }
             }
             _DraggingNodes.Clear();
+            foreach (var groupNode in Canvas.Children.OfType<GroupNode>())
+            {
+                groupNode.ChangeInnerColor(false);
+            }
 
             var element = e.OriginalSource as FrameworkElement;
 
@@ -621,8 +724,8 @@ namespace NodeGraph.Controls
                             _DraggingNodeLinkParam.NodeLink.Dispose();
                         }
 
-                        var param = new ConnectCommandParameter(input.Node.Guid, input.Guid, output.Node.Guid, output.Guid);
-                        ConnectCommand?.Execute(param);
+                        var param = new ConnectedCommandParameter(input.Node.Guid, input.Guid, output.Node.Guid, output.Guid);
+                        ConnectedCommand?.Execute(param);
 
                         connected = true;
                     }
@@ -722,8 +825,8 @@ namespace NodeGraph.Controls
             {
                 var inputNode = nodeLink.Input.Node;
                 var outputNode = nodeLink.Output.Node;
-                var param = new DisconnectCommandParameter(nodeLink.Guid, inputNode.Guid, nodeLink.InputGuid, outputNode.Guid, nodeLink.OutputGuid);
-                DisconnectCommand?.Execute(param);
+                var param = new DisconnectedCommandParameter(nodeLink.Guid, inputNode.Guid, nodeLink.InputGuid, outputNode.Guid, nodeLink.OutputGuid);
+                DisconnectedCommand?.Execute(param);
             }
 
             Canvas.Children.Remove(nodeLink);
@@ -768,7 +871,7 @@ namespace NodeGraph.Controls
 
         void NodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            CollectionChanged<Node>(e.Action, e.OldItems, e.NewItems, RemoveNodesFromCanvas, RemoveNodesFromCanvas, AddNodesToCanvas);
+            CollectionChanged<DefaultNode>(e.Action, e.OldItems, e.NewItems, RemoveNodesFromCanvas, RemoveNodesFromCanvas, AddNodesToCanvas);
         }
 
         void GroupNodeCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -845,7 +948,7 @@ namespace NodeGraph.Controls
                     throw new InvalidOperationException($"Already exists adding node link. Guid = {nodeLink.Guid}");
                 }
 
-                var nodes = Canvas.Children.OfType<Node>().ToArray();
+                var nodes = Canvas.Children.OfType<DefaultNode>().ToArray();
                 var nodeInput = FindConnectorContentInNodes<NodeInputContent>(nodes, nodeLink.InputGuid);
                 var nodeOutput = FindConnectorContentInNodes<NodeOutputContent>(nodes, nodeLink.OutputGuid);
 
@@ -861,8 +964,8 @@ namespace NodeGraph.Controls
 
         void RemoveNodesFromCanvas(object[] removeVMs)
         {
-            var removeNodes = new List<Node>();
-            var children = Canvas.Children.OfType<Node>().ToArray();
+            var removeNodes = new List<DefaultNode>();
+            var children = Canvas.Children.OfType<DefaultNode>().ToArray();
 
             foreach (var removeVM in removeVMs)
             {
@@ -873,7 +976,7 @@ namespace NodeGraph.Controls
             RemoveNodesFromCanvas(removeNodes.ToArray());
         }
 
-        void RemoveNodesFromCanvas(Node[] removeNodes)
+        void RemoveNodesFromCanvas(DefaultNode[] removeNodes)
         {
             foreach (var removeNode in removeNodes)
             {
@@ -896,7 +999,7 @@ namespace NodeGraph.Controls
         {
             foreach (var vm in addVMs)
             {
-                var node = new Node(Canvas, Offset, Scale);
+                var node = new DefaultNode(Canvas, Offset, Scale);
                 node.DataContext = vm;
                 node.Template = NodeTemplate;
                 node.ApplyTemplate();
@@ -931,16 +1034,8 @@ namespace NodeGraph.Controls
             {
                 Canvas.Children.Remove(removeGroupNode);
 
-                removeGroupNode.MouseUp -= Node_MouseDown;
+                removeGroupNode.MouseUp -= Node_MouseUp;
                 removeGroupNode.MouseDown -= GroupNode_MouseDown;
-
-                /*
-                var nodeLinks = removeGroupNode.EnumrateConnectedNodeLinks();
-                foreach (var nodeLink in nodeLinks)
-                {
-                    Canvas.Children.Remove(nodeLink);
-                }
-                */
 
                 removeGroupNode.Dispose();
             }
@@ -959,13 +1054,13 @@ namespace NodeGraph.Controls
                 groupNode.Initialize();
 
                 groupNode.MouseDown += GroupNode_MouseDown;
-                groupNode.MouseUp += Node_MouseDown;
+                groupNode.MouseUp += Node_MouseUp;
 
                 Canvas.Children.Add(groupNode);
             }
         }
 
-        T FindConnectorContentInNodes<T>(Node[] nodes, Guid guid) where T : NodeConnectorContent
+        T FindConnectorContentInNodes<T>(DefaultNode[] nodes, Guid guid) where T : NodeConnectorContent
         {
             foreach (var node in nodes)
             {
@@ -1080,7 +1175,7 @@ namespace NodeGraph.Controls
             }
             else
             {
-                foreach (var node in Canvas.Children.OfType<Node>())
+                foreach (var node in Canvas.Children.OfType<NodeBase>())
                 {
                     node.IsSelected = node == targetNode;
                     UpdateSelectedItems(node);
@@ -1094,6 +1189,9 @@ namespace NodeGraph.Controls
             node.CaptureDragStartPosition();
 
             _DraggingNodes.Add(node);
+
+            var param = new StartMoveNodesCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+            StartMoveNodesCommand?.Execute(param);
 
             _DragStartPointToMoveNode = pos;
 

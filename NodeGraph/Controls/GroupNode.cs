@@ -23,6 +23,17 @@ namespace NodeGraph.Controls
             typeof(GroupNode),
             new FrameworkPropertyMetadata(null));
 
+        public double BorderSize
+        {
+            get => (double)GetValue(BorderSizeProperty);
+            set => SetValue(BorderSizeProperty, value);
+        }
+        public static readonly DependencyProperty BorderSizeProperty = DependencyProperty.Register(
+            nameof(BorderSize),
+            typeof(double),
+            typeof(GroupNode),
+            new FrameworkPropertyMetadata(4.0));
+
         public double InnerWidth
         {
             get => (double)GetValue(InnerWidthProperty);
@@ -45,6 +56,17 @@ namespace NodeGraph.Controls
             typeof(GroupNode),
             new FrameworkPropertyMetadata(100.0));
 
+        public SolidColorBrush InnerColor
+        {
+            get => (SolidColorBrush)GetValue(InnerColorProperty);
+            set => SetValue(InnerColorProperty, value);
+        }
+        public static readonly DependencyProperty InnerColorProperty = DependencyProperty.Register(
+            nameof(InnerColor),
+            typeof(SolidColorBrush),
+            typeof(GroupNode),
+            new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromArgb(0,0,0,0))));
+
         public ICommand SizeChangedCommand
         {
             get => GetValue(SizeChangedCommandProperty) as ICommand;
@@ -55,6 +77,9 @@ namespace NodeGraph.Controls
             typeof(ICommand),
             typeof(GroupNode),
             new FrameworkPropertyMetadata(null));
+
+        bool _IsInside = false;
+        Border _GroupNodeHeader = null;
 
         static GroupNode()
         {
@@ -69,6 +94,45 @@ namespace NodeGraph.Controls
         public void Initialize()
         {
 
+        }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            _GroupNodeHeader = GetTemplateChild("__GroupNodeHeader__") as Border;
+        }
+
+        public void Expand(Rect rect)
+        {
+            var oldPosition = Position;
+            var maxX = Math.Max(oldPosition.X + Width, rect.Right + BorderSize);
+            var maxY = Math.Max(oldPosition.Y + Height, rect.Bottom + BorderSize);
+
+            var x = rect.X - BorderSize;
+            var y = rect.Y - _GroupNodeHeader.ActualHeight - BorderSize;
+            UpdatePosition(Math.Min(x, Position.X), Math.Min(y, Position.Y));
+
+            var w = rect.Width + BorderSize * 2;
+            var h = rect.Height + BorderSize * 2 + _GroupNodeHeader.ActualHeight;
+            Width = Math.Max(w, maxX - Position.X);
+            Height = Math.Max(h, maxY - Position.Y);
+            InnerWidth = Width - BorderSize * 2;
+            InnerHeight = Height - BorderSize * 2 - _GroupNodeHeader.ActualHeight;
+        }
+
+        public void ChangeInnerColor(bool inside)
+        {
+            if (_IsInside != inside)
+            {
+                _IsInside = inside;
+                InnerColor = inside ? new SolidColorBrush(Color.FromArgb(128, 0, 255, 0)) : Brushes.Transparent;
+            }
+        }
+
+        public bool IsInsideCompletely(Rect rect)
+        {
+            return Position.X < rect.X && rect.Right < (Position.X + ActualWidth) && Position.Y < rect.Y && rect.Bottom < (Position.Y + ActualHeight);
         }
 
         protected override void OnUpdateTranslation()

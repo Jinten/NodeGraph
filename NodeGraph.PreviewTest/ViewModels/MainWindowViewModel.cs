@@ -28,14 +28,14 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ListenerCommand<PreviewConnectCommandParameter> PreviewConnectCommand => _PreviewConnectCommand.Get(PreviewConnect);
         ViewModelCommandHandler<PreviewConnectCommandParameter> _PreviewConnectCommand = new ViewModelCommandHandler<PreviewConnectCommandParameter>();
 
-        public ListenerCommand<ConnectCommandParameter> ConnectCommand => _ConnectCommand.Get(Connect);
-        ViewModelCommandHandler<ConnectCommandParameter> _ConnectCommand = new ViewModelCommandHandler<ConnectCommandParameter>();
+        public ListenerCommand<ConnectedCommandParameter> ConnectedCommand => _ConnectedCommand.Get(Connected);
+        ViewModelCommandHandler<ConnectedCommandParameter> _ConnectedCommand = new ViewModelCommandHandler<ConnectedCommandParameter>();
 
-        public ListenerCommand<DisconnectCommandParameter> DisconnectCommand => _DisconnectCommand.Get(Disconnect);
-        ViewModelCommandHandler<DisconnectCommandParameter> _DisconnectCommand = new ViewModelCommandHandler<DisconnectCommandParameter>();
+        public ListenerCommand<DisconnectedCommandParameter> DisconnectedCommand => _DisconnectedCommand.Get(Disconnected);
+        ViewModelCommandHandler<DisconnectedCommandParameter> _DisconnectedCommand = new ViewModelCommandHandler<DisconnectedCommandParameter>();
 
-        public ListenerCommand<MovedNodesCommandParameter> MovedNodesCommand => _MovedNodesCommand.Get(MovedNodes);
-        ViewModelCommandHandler<MovedNodesCommandParameter> _MovedNodesCommand = new ViewModelCommandHandler<MovedNodesCommandParameter>();
+        public ListenerCommand<NodesMovedCommandParameter> NodesMovedCommand => _NodesMovedCommand.Get(NodesMoved);
+        ViewModelCommandHandler<NodesMovedCommandParameter> _NodesMovedCommand = new ViewModelCommandHandler<NodesMovedCommandParameter>();
 
         public ListenerCommand<IList> SelectionChangedCommand => _SelectionChangedCommand.Get(SelectionChanged);
         ViewModelCommandHandler<IList> _SelectionChangedCommand = new ViewModelCommandHandler<IList>();
@@ -142,7 +142,7 @@ namespace NodeGraph.PreviewTest.ViewModels
             param.CanConnect = inputConnector.Label == "Limited Input" == false;
         }
 
-        void Connect(ConnectCommandParameter param)
+        void Connected(ConnectedCommandParameter param)
         {
             var nodeLink = new NodeLinkViewModel()
             {
@@ -154,13 +154,13 @@ namespace NodeGraph.PreviewTest.ViewModels
             _NodeLinkViewModels.Add(nodeLink);
         }
 
-        void Disconnect(DisconnectCommandParameter param)
+        void Disconnected(DisconnectedCommandParameter param)
         {
             var nodeLink = _NodeLinkViewModels.First(arg => arg.Guid == param.NodeLinkGuid);
             _NodeLinkViewModels.Remove(nodeLink);
         }
 
-        void MovedNodes(MovedNodesCommandParameter param)
+        void NodesMoved(NodesMovedCommandParameter param)
         {
 
         }
