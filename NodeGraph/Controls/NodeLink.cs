@@ -334,8 +334,25 @@ namespace NodeGraph.Controls
         {
             var start = new Point(StartPointX, StartPointY);
             var end = new Point(EndPointX, EndPointY);
-            var c0 = new Point((end.X - start.X) * 0.5 + start.X, start.Y);
-            var c1 = new Point((start.X - end.X) * 0.5 + end.X, end.Y);
+
+            Point c0 = new Point();
+            Point c1 = new Point();
+            double power = 150;
+
+            if (start.X <= end.X)
+            {
+                var x0 = (end.X - start.X) * 0.5;
+                var x1 = (start.X - end.X) * 0.5;
+                c0 = new Point(Math.Max(x0, +power) + start.X, start.Y);
+                c1 = new Point(Math.Min(x1, -power) + end.X, end.Y);
+            }
+            else
+            {
+                var x0 = (start.X - end.X) * 0.5;
+                var x1 = (end.X - start.X) * 0.5;
+                c0 = new Point(Math.Max(x0, +power) + start.X, start.Y);
+                c1 = new Point(Math.Min(x1, -power) + end.X, end.Y);
+            }
 
             var stream = new StreamGeometry();
 
