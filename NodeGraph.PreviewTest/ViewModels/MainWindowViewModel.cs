@@ -52,6 +52,12 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand MoveGroupNodeCommand => _MoveGroupNodeCommand.Get(MoveGroupNode);
         ViewModelCommandHandler _MoveGroupNodeCommand = new ViewModelCommandHandler();
 
+        public ViewModelCommand ChangeGroupInnerSizeCommand => _ChangeGroupInnerSizeCommand.Get(ChangeGroupInnerSize);
+        ViewModelCommandHandler _ChangeGroupInnerSizeCommand = new ViewModelCommandHandler();
+
+        public ViewModelCommand ChangeGroupInnerPositionCommand => _ChangeGroupInnerPositionCommand.Get(ChangeGroupInnerPosition);
+        ViewModelCommandHandler _ChangeGroupInnerPositionCommand = new ViewModelCommandHandler();
+
         public IEnumerable<NodeBaseViewModel> NodeViewModels => _NodeViewModels;
         ObservableCollection<NodeBaseViewModel> _NodeViewModels = new ObservableCollection<NodeBaseViewModel>();
 
@@ -111,6 +117,17 @@ namespace NodeGraph.PreviewTest.ViewModels
         void MoveGroupNode()
         {
             _GroupNodeViewModels[0].InterlockPosition = new Point(0, 0);
+        }
+
+        void ChangeGroupInnerSize()
+        {
+            _GroupNodeViewModels[0].InnerWidth = 300;
+            _GroupNodeViewModels[0].InnerHeight = 300;
+        }
+
+        void ChangeGroupInnerPosition()
+        {
+            _GroupNodeViewModels[0].InnerPosition = new Point(0, 0);
         }
 
         void UpdateIsEnableAllNodeLinksProperty(bool value)

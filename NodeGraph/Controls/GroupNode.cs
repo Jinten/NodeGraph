@@ -62,6 +62,17 @@ namespace NodeGraph.Controls
             typeof(GroupNode),
             new FrameworkPropertyMetadata(4.0));
 
+        public Point InnerPosition
+        {
+            get => (Point)GetValue(InnerPositionProperty);
+            set => SetValue(InnerPositionProperty, value);
+        }
+        public static readonly DependencyProperty InnerPositionProperty = DependencyProperty.Register(
+            nameof(InnerPosition),
+            typeof(Point),
+            typeof(GroupNode),
+            new FrameworkPropertyMetadata(new Point(0, 0), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, InnerPositionPropertyChanged));
+
         public double InnerWidth
         {
             get => (double)GetValue(InnerWidthProperty);
@@ -71,7 +82,7 @@ namespace NodeGraph.Controls
             nameof(InnerWidth),
             typeof(double),
             typeof(GroupNode),
-            new FrameworkPropertyMetadata(100.0));
+            new FrameworkPropertyMetadata(100.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, InnerWidthPropertyChanged));
 
         public double InnerHeight
         {
@@ -82,7 +93,7 @@ namespace NodeGraph.Controls
             nameof(InnerHeight),
             typeof(double),
             typeof(GroupNode),
-            new FrameworkPropertyMetadata(100.0));
+            new FrameworkPropertyMetadata(100.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, InnerHeightPropertyChanged));
 
         public SolidColorBrush InnerColor
         {
@@ -195,8 +206,9 @@ namespace NodeGraph.Controls
             var h = rect.Height + BorderSize * 2 + _GroupNodeHeader.ActualHeight;
             Width = Math.Max(w, maxX - Position.X);
             Height = Math.Max(h, maxY - Position.Y);
-            InnerWidth = Width - BorderSize * 2;
-            InnerHeight = Height - BorderSize * 2 - _GroupNodeHeader.ActualHeight;
+
+            UpdateInnerSize();
+            UpdateInnerPosition();
         }
 
         public void CaptureToResizeDragging()
@@ -288,8 +300,7 @@ namespace NodeGraph.Controls
                     break;
             }
 
-            InnerWidth = Width - BorderSize * 2;
-            InnerHeight = Height - BorderSize * 2 - _GroupNodeHeader.ActualHeight;
+            UpdateInnerPosition();
         }
 
         public void ChangeInnerColor(bool inside)
@@ -311,6 +322,7 @@ namespace NodeGraph.Controls
             _InternalPositionUpdating = true;
 
             InterlockPosition = Position;
+            UpdateInnerPosition();
 
             _InternalPositionUpdating = false;
         }
@@ -411,7 +423,21 @@ namespace NodeGraph.Controls
 
         void Group_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            UpdateInnerSize();
             SizeChangedCommand?.Execute(e.NewSize);
+        }
+
+        void UpdateInnerSize()
+        {
+            InnerWidth = Width - BorderSize * 2;
+            InnerHeight = Height - BorderSize * 2 - _GroupNodeHeader.ActualHeight;
+        }
+
+        void UpdateInnerPosition()
+        {
+            var diff_x = BorderSize;
+            var diff_y = _GroupNodeHeader.ActualHeight + BorderSize;
+            InnerPosition = new Point(Position.X + diff_x, Position.Y + diff_y);
         }
 
         static void InterlockPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -434,6 +460,33 @@ namespace NodeGraph.Controls
             }
 
             groupNode.Position = groupNode.InterlockPosition;
+        }
+
+        static void InnerPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var groupNode = d as GroupNode;
+            if (groupNode._InternalPositionUpdating)
+            {
+                return;
+            }
+
+            var x = groupNode.InnerPosition.X - groupNode.BorderSize;
+            var y = groupNode.InnerPosition.Y - (groupNode._GroupNodeHeader.ActualHeight + groupNode.BorderSize);
+            groupNode.UpdatePosition(x, y);
+        }
+
+        static void InnerWidthPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var groupNode = d as GroupNode;
+
+            groupNode.Width = groupNode.InnerWidth + groupNode.BorderSize * 2;
+        }
+
+        static void InnerHeightPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var groupNode = d as GroupNode;
+
+            groupNode.Height = groupNode.InnerHeight + groupNode._GroupNodeHeader.ActualHeight + groupNode.BorderSize * 2;
         }
     }
 }

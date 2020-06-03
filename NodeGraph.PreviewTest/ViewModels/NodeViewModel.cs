@@ -48,6 +48,27 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         Point _InterlockPosition = new Point(0, 0);
 
+        public Point InnerPosition
+        {
+            get => _InnerPosition;
+            set => RaisePropertyChangedIfSet(ref _InnerPosition, value);
+        }
+        Point _InnerPosition = new Point(0, 0);
+
+        public double InnerWidth
+        {
+            get => _InnerWidth;
+            set => RaisePropertyChangedIfSet(ref _InnerWidth, value);
+        }
+        double _InnerWidth = 100;
+
+        public double InnerHeight
+        {
+            get => _InnerHeight;
+            set => RaisePropertyChangedIfSet(ref _InnerHeight, value);
+        }
+        double _InnerHeight = 100;
+
         public string Comment
         {
             get => _Comment;

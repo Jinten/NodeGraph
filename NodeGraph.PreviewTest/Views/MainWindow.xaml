@@ -8,7 +8,7 @@
         xmlns:ctrl="clr-namespace:NodeGraph.Controls;assembly=NodeGraph"
         xmlns:local="clr-namespace:NodeGraph.PreviewTest"
         mc:Ignorable="d"
-        Title="NodeGraph - prototype" Height="450" Width="800">
+        Title="NodeGraph - prototype" Height="800" Width="1200">
 
     <Window.DataContext>
         <vm:MainWindowViewModel/>
@@ -84,7 +84,10 @@
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <!--disconnect position binding if you specify Mode=OneWay, because it will change binding position instance in view control.-->
             <Setter Property="Position" Value="{Binding Position}"/>
+            <Setter Property="InnerPosition" Value="{Binding InnerPosition}"/>
             <Setter Property="InterlockPosition" Value="{Binding InterlockPosition}"/>
+            <Setter Property="InnerWidth" Value="{Binding InnerWidth}"/>
+            <Setter Property="InnerHeight" Value="{Binding InnerHeight}"/>
             <Setter Property="Comment" Value="{Binding Comment}"/>
             <Setter Property="CommentSize" Value="24"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
@@ -113,6 +116,8 @@
             <Button Margin="4" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
             <Button Margin="4" Height="24" Content="ClearTestNode" Command="{Binding ClearTestNodesCommand}"/>
             <Button Margin="4" Height="24" Content="MoveGroupNode" Command="{Binding MoveGroupNodeCommand}"/>
+            <Button Margin="4" Height="24" Content="ChangeGroupInnerSize" Command="{Binding ChangeGroupInnerSizeCommand}"/>
+            <Button Margin="4" Height="24" Content="ChangeGroupInnerPosition" Command="{Binding ChangeGroupInnerPositionCommand}"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeLinks" IsChecked="{Binding IsEnableAllNodeLinks}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
         </DockPanel>
