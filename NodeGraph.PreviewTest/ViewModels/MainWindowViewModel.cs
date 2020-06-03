@@ -14,6 +14,12 @@ using System.Windows;
 
 namespace NodeGraph.PreviewTest.ViewModels
 {
+    public enum GroupIntersectType
+    {
+        CursorPoint,
+        BoundingBox,
+    }
+
     public class MainWindowViewModel : ViewModel
     {
         public ViewModelCommand AddNodeCommand => _AddNodeCommand.Get(AddNode);
@@ -66,6 +72,15 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         public IEnumerable<GroupNodeViewModel> GroupNodeViewModels => _GroupNodeViewModels;
         ObservableCollection<GroupNodeViewModel> _GroupNodeViewModels = new ObservableCollection<GroupNodeViewModel>();
+
+        public GroupIntersectType[] GroupIntersectTypes => Enum.GetValues(typeof(GroupIntersectType)).OfType<GroupIntersectType>().ToArray();
+
+        public GroupIntersectType SelectedGroupIntersectType
+        {
+            get => _SelectedGroupIntersectType;
+            set => RaisePropertyChangedIfSet(ref _SelectedGroupIntersectType, value);
+        }
+        GroupIntersectType _SelectedGroupIntersectType;
 
         public bool IsEnableAllNodeLinks
         {

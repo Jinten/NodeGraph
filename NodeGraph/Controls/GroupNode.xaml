@@ -8,8 +8,8 @@
         <Setter Property="BorderBrush" Value="#FF888888"/>
         <Setter Property="Width" Value="100"/>
         <Setter Property="Height" Value="100"/>
-        <Setter Property="MinWidth" Value="100"/>
-        <Setter Property="MinHeight" Value="100"/>
+        <Setter Property="MinWidth" Value="50"/>
+        <Setter Property="MinHeight" Value="50"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True">
                 <Setter Property="BorderBrush" Value="Aqua"/>

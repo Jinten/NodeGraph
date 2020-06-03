@@ -23,6 +23,12 @@ using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
+    public enum GroupIntersectType
+    {
+        CursorPoint,
+        BoundingBox,
+    }
+
     public class NodeGraph : MultiSelector
     {
         public Canvas Canvas { get; private set; } = null;
@@ -155,6 +161,14 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty GroupNodesProperty =
             DependencyProperty.Register(nameof(GroupNodes), typeof(IEnumerable), typeof(NodeGraph), new FrameworkPropertyMetadata(null, GroupNodesPropertyChanged));
 
+        public GroupIntersectType GroupIntersectType
+        {
+            get => (GroupIntersectType)GetValue(GroupIntersectTypeProperty);
+            set => SetValue(GroupIntersectTypeProperty, value);
+        }
+        public static readonly DependencyProperty GroupIntersectTypeProperty =
+            DependencyProperty.Register(nameof(GroupIntersectType), typeof(GroupIntersectType), typeof(NodeGraph), new FrameworkPropertyMetadata(GroupIntersectType.BoundingBox));
+
         public bool AllowToOverrideConnection
         {
             get => (bool)GetValue(AllowToOverrideConnectionProperty);
@@ -205,9 +219,9 @@ namespace NodeGraph.Controls
 
         HashSet<NodeConnectorContent> _PreviewedConnectors = new HashSet<NodeConnectorContent>();
 
-        List<object> _DelayToBindNodeVMs = new List<object>();
-        List<object> _DelayToBindNodeLinkVMs = new List<object>();
-        List<object> _DelayToBindGroupNodeVMs = new List<object>();
+        List<object> DelayToBindNodeVMs { get; } = new List<object>();
+        List<object> DelayToBindNodeLinkVMs { get; } = new List<object>();
+        List<object> DelayToBindGroupNodeVMs { get; } = new List<object>();
 
         static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -262,7 +276,7 @@ namespace NodeGraph.Controls
                 oldValue,
                 newValue,
                 nodeGraph.NodeLinkCollectionChanged,
-                nodeGraph._DelayToBindNodeLinkVMs,
+                nodeGraph.DelayToBindNodeLinkVMs,
                 nodeGraph.AddNodeLinksToCanvas);
         }
 
@@ -277,7 +291,7 @@ namespace NodeGraph.Controls
                 oldValue,
                 newValue,
                 nodeGraph.GroupNodeCollectionChanged,
-                nodeGraph._DelayToBindGroupNodeVMs,
+                nodeGraph.DelayToBindGroupNodeVMs,
                 nodeGraph.AddGroupNodesToCanvas);
         }
 
@@ -344,22 +358,22 @@ namespace NodeGraph.Controls
 
             Canvas = GetTemplateChild("__NodeGraphCanvas__") as Canvas;
 
-            if (_DelayToBindNodeVMs.Count > 0)
+            if (DelayToBindNodeVMs.Count > 0)
             {
-                AddNodesToCanvas(_DelayToBindNodeVMs.OfType<object>().ToArray());
-                _DelayToBindNodeVMs.Clear();
+                AddNodesToCanvas(DelayToBindNodeVMs.OfType<object>().ToArray());
+                DelayToBindNodeVMs.Clear();
             }
 
-            if (_DelayToBindNodeLinkVMs.Count > 0)
+            if (DelayToBindNodeLinkVMs.Count > 0)
             {
-                AddNodeLinksToCanvas(_DelayToBindNodeLinkVMs.OfType<object>().ToArray());
-                _DelayToBindNodeLinkVMs.Clear();
+                AddNodeLinksToCanvas(DelayToBindNodeLinkVMs.OfType<object>().ToArray());
+                DelayToBindNodeLinkVMs.Clear();
             }
 
-            if (_DelayToBindGroupNodeVMs.Count > 0)
+            if (DelayToBindGroupNodeVMs.Count > 0)
             {
-                AddGroupNodesToCanvas(_DelayToBindGroupNodeVMs.OfType<object>().ToArray());
-                _DelayToBindGroupNodeVMs.Clear();
+                AddGroupNodesToCanvas(DelayToBindGroupNodeVMs.OfType<object>().ToArray());
+                DelayToBindGroupNodeVMs.Clear();
             }
         }
 
@@ -372,7 +386,7 @@ namespace NodeGraph.Controls
                 oldValue,
                 newValue,
                 NodeCollectionChanged,
-                _DelayToBindNodeVMs,
+                DelayToBindNodeVMs,
                 AddNodesToCanvas);
         }
 
@@ -484,8 +498,24 @@ namespace NodeGraph.Controls
                             // no detect if it is same dragging group node to the other group node.
                             continue;
                         }
-                        var groupBoundingBox = groupNode.GetBoundingBox();
-                        var isInsideNode = boundingBoxes.Any(arg => groupBoundingBox.IntersectsWith(arg));
+
+                        bool isInsideNode = false;
+                        switch(GroupIntersectType)
+                        {
+                            case GroupIntersectType.CursorPoint:
+                                {
+                                    isInsideNode = groupNode.IsInsideCompletely(current.Sub(Offset));
+                                }
+                                break;
+                            case GroupIntersectType.BoundingBox:
+                                {
+                                    var groupBoundingBox = groupNode.GetInnerBoundingBox();
+                                    isInsideNode = boundingBoxes.Any(arg => groupBoundingBox.IntersectsWith(arg));
+                                }
+                                break;
+                            default:
+                                throw new InvalidProgramException();
+                        }
                         groupNode.ChangeInnerColor(isInsideNode);
                     }
                 }
@@ -611,7 +641,25 @@ namespace NodeGraph.Controls
 
                 // expand the group node area size if node within group.
                 var groupNodes = Canvas.Children.OfType<GroupNode>().Where(arg => _DraggingNodes.Contains(arg) == false).ToArray();
-                if (_DraggingNodes.Any(arg => groupNodes.Any(group => group.GetBoundingBox().IntersectsWith(arg.GetBoundingBox()))))
+
+                var isInsideAtLeastOneNode = false;
+                switch(GroupIntersectType)
+                {
+                    case GroupIntersectType.CursorPoint:
+                        {
+                            var cursor_bb = new Rect(e.GetPosition(Canvas).Sub(Offset), Size.Empty);
+                            isInsideAtLeastOneNode = _DraggingNodes.Any(arg => cursor_bb.IntersectsWith(arg.GetBoundingBox()));
+                        }
+                        break;
+                    case GroupIntersectType.BoundingBox:
+                        {
+                            var groupBoundingBoxes = groupNodes.Select(arg => arg.GetInnerBoundingBox()).ToArray();
+                            isInsideAtLeastOneNode = _DraggingNodes.Any(arg => groupBoundingBoxes.Any(bb => bb.IntersectsWith(arg.GetBoundingBox())));
+                        }
+                        break;
+                }
+
+                if (isInsideAtLeastOneNode)
                 {
                     var min_x = _DraggingNodes.Min(arg => arg.Position.X);
                     var min_y = _DraggingNodes.Min(arg => arg.Position.Y);
@@ -620,7 +668,7 @@ namespace NodeGraph.Controls
                     var rect = new Rect(min_x, min_y, max_x - min_x, max_y - min_y);
 
                     // collect target of expand groups.
-                    var targetGroupNodes = groupNodes.Where(arg => rect.IntersectsWith(arg.GetBoundingBox())).ToArray();
+                    var targetGroupNodes = groupNodes.Where(arg => rect.IntersectsWith(arg.GetInnerBoundingBox())).ToArray();
                     foreach (var targetGroupNode in targetGroupNodes)
                     {
                         targetGroupNode.ExpandSize(rect);

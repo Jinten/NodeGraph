@@ -118,6 +118,7 @@
             <Button Margin="4" Height="24" Content="MoveGroupNode" Command="{Binding MoveGroupNodeCommand}"/>
             <Button Margin="4" Height="24" Content="ChangeGroupInnerSize" Command="{Binding ChangeGroupInnerSizeCommand}"/>
             <Button Margin="4" Height="24" Content="ChangeGroupInnerPosition" Command="{Binding ChangeGroupInnerPositionCommand}"/>
+            <ComboBox Margin="4" Height="24" ItemsSource="{Binding GroupIntersectTypes, Mode=OneTime}" SelectedItem="{Binding SelectedGroupIntersectType}"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeLinks" IsChecked="{Binding IsEnableAllNodeLinks}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
         </DockPanel>
@@ -135,6 +136,20 @@
                         DisconnectedCommand="{Binding DisconnectedCommand}"
                         AllowToOverrideConnection="True"
                         ContextMenu="{StaticResource NodeGraphContextMenu}">
+
+            <ctrl:NodeGraph.Style>
+                <Style TargetType="{x:Type ctrl:NodeGraph}" BasedOn="{StaticResource {x:Type ctrl:NodeGraph}}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedGroupIntersectType}" Value="{x:Static vm:GroupIntersectType.CursorPoint}">
+                            <Setter Property="GroupIntersectType" Value="{x:Static ctrl:GroupIntersectType.CursorPoint}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding SelectedGroupIntersectType}" Value="{x:Static vm:GroupIntersectType.BoundingBox}">
+                            <Setter Property="GroupIntersectType" Value="{x:Static ctrl:GroupIntersectType.BoundingBox}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ctrl:NodeGraph.Style>
+            
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
                     <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}" CommandParameter="{Binding SelectedItems, ElementName=NodeGraph}"/>

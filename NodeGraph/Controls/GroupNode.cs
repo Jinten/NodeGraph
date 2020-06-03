@@ -190,6 +190,7 @@ namespace NodeGraph.Controls
             base.OnApplyTemplate();
 
             _GroupNodeHeader = GetTemplateChild("__GroupNodeHeader__") as Border;
+            _GroupNodeHeader.SizeChanged += GroupNodeHeader_SizeChanged;
         }
 
         public void ExpandSize(Rect rect)
@@ -314,7 +315,19 @@ namespace NodeGraph.Controls
 
         public bool IsInsideCompletely(Rect rect)
         {
-            return Position.X < rect.X && rect.Right < (Position.X + ActualWidth) && Position.Y < rect.Y && rect.Bottom < (Position.Y + ActualHeight);
+            return InnerPosition.X <= rect.X && rect.Right <= (InnerPosition.X + InnerWidth)
+                && InnerPosition.Y <= rect.Y && rect.Bottom <= (InnerPosition.Y + InnerHeight);
+        }
+
+        public bool IsInsideCompletely(Point pos)
+        {
+            return InnerPosition.X <= pos.X && pos.X <= (InnerPosition.X + InnerWidth)
+                && InnerPosition.Y <= pos.Y && pos.Y <= (InnerPosition.Y + InnerHeight);
+        }
+
+        public Rect GetInnerBoundingBox()
+        {
+            return new Rect(InnerPosition, new Size(InnerWidth, InnerHeight));
         }
 
         protected override void OnUpdateTranslation()
@@ -330,6 +343,7 @@ namespace NodeGraph.Controls
         protected override void OnDisposing()
         {
             SizeChanged -= Group_SizeChanged;
+            _GroupNodeHeader.SizeChanged -= GroupNodeHeader_SizeChanged;
         }
 
         protected override void OnMouseEnter(MouseEventArgs e)
@@ -427,10 +441,22 @@ namespace NodeGraph.Controls
             SizeChangedCommand?.Execute(e.NewSize);
         }
 
+        void GroupNodeHeader_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateInnerSize();
+            UpdateSizeFromInnerSize();
+        }
+
         void UpdateInnerSize()
         {
             InnerWidth = Width - BorderSize * 2;
             InnerHeight = Height - BorderSize * 2 - _GroupNodeHeader.ActualHeight;
+        }
+
+        void UpdateSizeFromInnerSize()
+        {
+            Width = InnerWidth + BorderSize * 2;
+            Height = InnerHeight + _GroupNodeHeader.ActualHeight + BorderSize * 2;
         }
 
         void UpdateInnerPosition()
@@ -479,14 +505,14 @@ namespace NodeGraph.Controls
         {
             var groupNode = d as GroupNode;
 
-            groupNode.Width = groupNode.InnerWidth + groupNode.BorderSize * 2;
+            groupNode.UpdateSizeFromInnerSize();
         }
 
         static void InnerHeightPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var groupNode = d as GroupNode;
 
-            groupNode.Height = groupNode.InnerHeight + groupNode._GroupNodeHeader.ActualHeight + groupNode.BorderSize * 2;
+            groupNode.UpdateSizeFromInnerSize();
         }
     }
 }
