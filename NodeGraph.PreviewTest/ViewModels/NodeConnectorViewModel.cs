@@ -37,9 +37,17 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         bool _IsEnable = true;
 
-        public NodeInputViewModel(string label)
+        public bool AllowToConnectMultiple
+        {
+            get => _AllowToConnectMultiple;
+            set => RaisePropertyChangedIfSet(ref _AllowToConnectMultiple, value);
+        }
+        bool _AllowToConnectMultiple = false;
+
+        public NodeInputViewModel(string label, bool allowToConnectMultiple)
         {
             Label = label;
+            AllowToConnectMultiple = allowToConnectMultiple;
         }
     }
 

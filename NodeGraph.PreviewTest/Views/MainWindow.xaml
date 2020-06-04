@@ -25,6 +25,7 @@
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="Content" Value="{Binding Label}"/>
             <Setter Property="IsEnabled" Value="{Binding IsEnable}"/>
+            <Setter Property="AllowToConnectMultiple" Value="{Binding AllowToConnectMultiple}"/>
         </Style>
 
         <Style x:Key="NodeOutputStyle" TargetType="{x:Type ctrl:NodeOutputContent}" BasedOn="{StaticResource {x:Type ctrl:NodeOutputContent}}">
@@ -134,7 +135,7 @@
                         PreviewConnectCommand="{Binding PreviewConnectCommand}"
                         ConnectedCommand="{Binding ConnectedCommand}"
                         DisconnectedCommand="{Binding DisconnectedCommand}"
-                        AllowToOverrideConnection="True"
+                        AllowToOverrideConnection="False"
                         ContextMenu="{StaticResource NodeGraphContextMenu}">
 
             <ctrl:NodeGraph.Style>

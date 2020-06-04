@@ -16,6 +16,17 @@ namespace NodeGraph.Controls
 {
     public class NodeInputContent : NodeConnectorContent
     {
+        public bool AllowToConnectMultiple
+        {
+            get => (bool)GetValue(AllowToConnectMultipleProperty);
+            set => SetValue(AllowToConnectMultipleProperty, value);
+        }
+        public static readonly DependencyProperty AllowToConnectMultipleProperty = DependencyProperty.Register(
+            nameof(AllowToConnectMultiple),
+            typeof(bool),
+            typeof(NodeInputContent),
+            new PropertyMetadata(false));
+
         public static bool AllowToOverrideConnection { get; set; } = false;
 
         protected override FrameworkElement ConnectorControl => _ConnectorControl;
@@ -47,7 +58,7 @@ namespace NodeGraph.Controls
 
         public override bool CanConnectTo(NodeConnectorContent connector)
         {
-            if(AllowToOverrideConnection == false && ConnectedCount > 0)
+            if(AllowToOverrideConnection == false && (ConnectedCount > 0 && AllowToConnectMultiple == false))
             {
                 // already connected to other node link.
                 return false;

@@ -168,15 +168,20 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         public NodeViewModel1()
         {
-            for (int i = 0; i < 3; ++i)
+            for (int i = 0; i < 4; ++i)
             {
                 if (i % 2 == 0)
                 {
-                    _Inputs.Add(new NodeInputViewModel($"Input{i}"));
+                    var label = $"Input{i}";
+                    if(i > 1)
+                    {
+                        label += " Allow to connect multiple";
+                    }
+                    _Inputs.Add(new NodeInputViewModel(label, i > 1));
                 }
                 else
                 {
-                    _Inputs.Add(new NodeInputViewModel($"Limited Input"));
+                    _Inputs.Add(new NodeInputViewModel($"Limited Input", false));
                 }
             }
 
@@ -225,7 +230,12 @@ namespace NodeGraph.PreviewTest.ViewModels
         {
             for (int i = 0; i < 5; ++i)
             {
-                _Inputs.Add(new NodeInputViewModel($"Input{i}"));
+                var label = $"Input{i}";
+                if (i > 2)
+                {
+                    label += " Allow to connect multiple";
+                }
+                _Inputs.Add(new NodeInputViewModel(label, i > 2));
             }
 
             for (int i = 0; i < 2; ++i)

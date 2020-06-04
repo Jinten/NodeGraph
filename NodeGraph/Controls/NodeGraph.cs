@@ -734,14 +734,15 @@ namespace NodeGraph.Controls
                                 throw new InvalidCastException();
                         }
 
+                        // reconnect or not.
                         if (_DraggingNodeLinkParam.NodeLink.IsConnecting)
                         {
-                            // node link was already connected, so need to dispatch disconnect command.
+                            // reconnecting node link was already connected, so need to dispatch disconnect command.
                             DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
                         }
                         else
                         {
-                            // preview node link.
+                            // preview node link. (new connecting)
                             Canvas.Children.Remove(_DraggingNodeLinkParam.NodeLink);
                             _DraggingNodeLinkParam.NodeLink.Dispose();
                         }

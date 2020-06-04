@@ -18,5 +18,10 @@ namespace NodeGraph.Extensions
         {
             return new Point(a.X - b.X, a.Y - b.Y);
         }
+
+        public static Vector ToVector(this Point me)
+        {
+            return new Vector(me.X, me.Y);
+        }
     }
 }
