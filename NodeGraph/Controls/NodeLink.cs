@@ -338,14 +338,14 @@ namespace NodeGraph.Controls
 
             Point c0 = new Point();
             Point c1 = new Point();
-            double power = 200;
+            double power = 100;
 
             var pen = new Pen(Brushes.Green, 2);
 
             var axis = new Vector(1, 0);
             var startToEnd = (end.ToVector() - start.ToVector()).NormalizeTo();
 
-            var k = 1 - Math.Max(0, axis.DotProduct(startToEnd));
+            var k = 1 - Math.Pow(Math.Max(0, axis.DotProduct(startToEnd)), 1.5);
             var bias = start.X > end.X ? Math.Abs(start.X - end.X) * 0.25 : 0;
 
             c0 = new Point(+(power + bias) * k + start.X, start.Y);
