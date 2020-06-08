@@ -1034,6 +1034,9 @@ namespace NodeGraph.Controls
                 node.MouseUp += Node_MouseUp;
 
                 Canvas.Children.Add(node);
+
+                // recalculate header size, position.
+                node.UpdateLayout();
             }
         }
 
@@ -1080,6 +1083,9 @@ namespace NodeGraph.Controls
                 groupNode.MouseUp += Node_MouseUp;
 
                 Canvas.Children.Add(groupNode);
+
+                // recalculate header size, position, inner size and inner position.
+                groupNode.UpdateLayout();
             }
         }
 
