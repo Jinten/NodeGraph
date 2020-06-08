@@ -37,7 +37,7 @@ namespace NodeGraph.PreviewTest.ViewModels
         public Point Position
         {
             get => _Position;
-            set => RaisePropertyChangedIfSet(ref _Position, value);
+            set => RaisePropertyChangedIfSet(ref _Position, value, nameof(Comment));
         }
         Point _Position = new Point(0, 0);
 
@@ -51,30 +51,28 @@ namespace NodeGraph.PreviewTest.ViewModels
         public Point InnerPosition
         {
             get => _InnerPosition;
-            set => RaisePropertyChangedIfSet(ref _InnerPosition, value);
+            set => RaisePropertyChangedIfSet(ref _InnerPosition, value, nameof(Comment));
         }
         Point _InnerPosition = new Point(0, 0);
 
         public double InnerWidth
         {
             get => _InnerWidth;
-            set => RaisePropertyChangedIfSet(ref _InnerWidth, value);
+            set => RaisePropertyChangedIfSet(ref _InnerWidth, value, nameof(Comment));
         }
         double _InnerWidth = 100;
 
         public double InnerHeight
         {
             get => _InnerHeight;
-            set => RaisePropertyChangedIfSet(ref _InnerHeight, value);
+            set => RaisePropertyChangedIfSet(ref _InnerHeight, value, nameof(Comment));
         }
         double _InnerHeight = 100;
 
         public string Comment
         {
-            get => _Comment;
-            set => RaisePropertyChangedIfSet(ref _Comment, value);
+            get => $"InnerWidth = {InnerWidth}, InnerHeight = {InnerHeight},\n Position = {Position}, InnerPosition = {InnerPosition}";
         }
-        string _Comment = "コメントです";
 
         public bool IsSelected
         {

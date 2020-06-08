@@ -6,10 +6,10 @@
     <Style TargetType="{x:Type local:GroupNode}">
         <Setter Property="BorderThickness" Value="{Binding BorderSize, RelativeSource={RelativeSource Self}}"/>
         <Setter Property="BorderBrush" Value="#FF888888"/>
-        <Setter Property="Width" Value="100"/>
-        <Setter Property="Height" Value="100"/>
-        <Setter Property="MinWidth" Value="50"/>
-        <Setter Property="MinHeight" Value="50"/>
+        <Setter Property="Width" Value="{x:Static local:GroupNodeDefault.Width}"/>
+        <Setter Property="Height" Value="{x:Static local:GroupNodeDefault.Height}"/>
+        <Setter Property="MinWidth" Value="{x:Static local:GroupNodeDefault.MinWidth}"/>
+        <Setter Property="MinHeight" Value="{x:Static local:GroupNodeDefault.MinHeight}"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True">
                 <Setter Property="BorderBrush" Value="Aqua"/>

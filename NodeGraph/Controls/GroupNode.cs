@@ -438,12 +438,14 @@ namespace NodeGraph.Controls
         void Group_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateInnerSize();
+            UpdateInnerPosition();
             SizeChangedCommand?.Execute(e.NewSize);
         }
 
         void GroupNodeHeader_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateInnerSize();
+            UpdateInnerPosition();
             UpdateSizeFromInnerSize();
         }
 

@@ -259,6 +259,7 @@ namespace NodeGraph.Controls
             InvalidateVisual();
         }
 
+
         void UpdateConnectPosition()
         {
             _EndPoint = Input.GetContentPosition(Canvas, 0, 0.5);
