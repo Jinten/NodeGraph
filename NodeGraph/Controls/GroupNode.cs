@@ -453,12 +453,18 @@ namespace NodeGraph.Controls
         {
             InnerWidth = Width - BorderSize * 2;
             InnerHeight = Height - BorderSize * 2 - _GroupNodeHeader.ActualHeight;
+
+            // for notifying Width/Height immediately.
+            UpdateLayout();
         }
 
         void UpdateSizeFromInnerSize()
         {
             Width = InnerWidth + BorderSize * 2;
             Height = InnerHeight + _GroupNodeHeader.ActualHeight + BorderSize * 2;
+
+            // for notifying InnerWidth/InnerHeight immediately.
+            UpdateLayout();
         }
 
         void UpdateInnerPosition()
@@ -466,6 +472,9 @@ namespace NodeGraph.Controls
             var diff_x = BorderSize;
             var diff_y = _GroupNodeHeader.ActualHeight + BorderSize;
             InnerPosition = new Point(Position.X + diff_x, Position.Y + diff_y);
+
+            // for notifying Position immediately.
+            UpdateLayout();
         }
 
         static void InterlockPositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
