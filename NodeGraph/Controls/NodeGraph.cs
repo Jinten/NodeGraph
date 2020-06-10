@@ -186,7 +186,8 @@ namespace NodeGraph.Controls
         Style NodeLinkAnimationStyle => _NodeLinkAnimationStyle.Get("__NodeLinkAnimationStyle__");
         ResourceInstance<Style> _NodeLinkAnimationStyle = new ResourceInstance<Style>();
 
-        bool _IsNodeSelected = false;
+        bool IsNodeSelected => Canvas.Children.OfType<NodeBase>().Any(arg => arg.IsSelected);
+
         bool _IsStartDragging = false;
         bool _PressKeyToMove = false;
         bool _PressMouseToMove = false;
@@ -622,7 +623,7 @@ namespace NodeGraph.Controls
                 Canvas.Children.Remove(_RangeSelector);
                 _IsRangeSelecting = false;
             }
-            else if (_IsNodeSelected == false)
+            else if (IsNodeSelected == false)
             {
                 // click empty area to unselect nodes.
                 BeginUpdateSelectedItems();
@@ -633,7 +634,7 @@ namespace NodeGraph.Controls
                 }
                 EndUpdateSelectedItems();
             }
-            _IsNodeSelected = false;
+
             if (_DraggingNodes.Count > 0)
             {
                 var param = new NodesMovedCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
@@ -647,7 +648,7 @@ namespace NodeGraph.Controls
                 {
                     case GroupIntersectType.CursorPoint:
                         {
-                            var cursor_bb = new Rect(e.GetPosition(Canvas).Sub(Offset), Size.Empty);
+                            var cursor_bb = new Rect(e.GetPosition(Canvas).Sub(Offset), new Size(1,1));
                             isInsideAtLeastOneNode = _DraggingNodes.Any(arg => cursor_bb.IntersectsWith(arg.GetBoundingBox()));
                         }
                         break;
@@ -1146,8 +1147,6 @@ namespace NodeGraph.Controls
 
         void Node_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            _IsNodeSelected = true;
-
             _DraggingToResizeGroupNode?.ReleaseToResizeDragging();
             _DraggingToResizeGroupNode = null;
 
