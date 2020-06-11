@@ -446,7 +446,10 @@ namespace NodeGraph.Controls
         {
             UpdateInnerSize();
             UpdateInnerPosition();
-            UpdateSizeFromInnerSize();
+
+            Width = InnerWidth + BorderSize * 2;
+            Height = InnerHeight + _GroupNodeHeader.ActualHeight + BorderSize * 2;
+            UpdateLayout();
         }
 
         void UpdateInnerSize()
@@ -458,9 +461,16 @@ namespace NodeGraph.Controls
             UpdateLayout();
         }
 
-        void UpdateSizeFromInnerSize()
+        void UpdateWidthFromInnerWidth()
         {
             Width = InnerWidth + BorderSize * 2;
+
+            // for notifying InnerWidth/InnerHeight immediately.
+            UpdateLayout();
+        }
+
+        void UpdateHeightFromInnerHeight()
+        {
             Height = InnerHeight + _GroupNodeHeader.ActualHeight + BorderSize * 2;
 
             // for notifying InnerWidth/InnerHeight immediately.
@@ -516,14 +526,14 @@ namespace NodeGraph.Controls
         {
             var groupNode = d as GroupNode;
 
-            groupNode.UpdateSizeFromInnerSize();
+            groupNode.UpdateWidthFromInnerWidth();
         }
 
         static void InnerHeightPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var groupNode = d as GroupNode;
 
-            groupNode.UpdateSizeFromInnerSize();
+            groupNode.UpdateHeightFromInnerHeight();
         }
     }
 }

@@ -649,7 +649,7 @@ namespace NodeGraph.Controls
                     case GroupIntersectType.CursorPoint:
                         {
                             var cursor_bb = new Rect(e.GetPosition(Canvas).Sub(Offset), new Size(1,1));
-                            isInsideAtLeastOneNode = _DraggingNodes.Any(arg => cursor_bb.IntersectsWith(arg.GetBoundingBox()));
+                            isInsideAtLeastOneNode = groupNodes.Any(arg => cursor_bb.IntersectsWith(arg.GetBoundingBox()));
                         }
                         break;
                     case GroupIntersectType.BoundingBox:
