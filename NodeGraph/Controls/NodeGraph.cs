@@ -561,7 +561,7 @@ namespace NodeGraph.Controls
 
                 EndUpdateSelectedItems();
             }
-            else if (_DraggingToResizeGroupNode != null)
+            else if (_DraggingToResizeGroupNode != null && e.LeftButton == MouseButtonState.Pressed)
             {
                 _DraggingToResizeGroupNode.Resize(posOnCanvas.Sub(Offset));
             }
@@ -610,6 +610,9 @@ namespace NodeGraph.Controls
                 Cursor = Cursors.Arrow;
             }
 
+            _DraggingToResizeGroupNode?.ReleaseToResizeDragging();
+            _DraggingToResizeGroupNode = null;
+
             // not related to select node with left mouse button click.
             if (_PressedMouseToSelect == false || e.LeftButton != MouseButtonState.Released)
             {
@@ -622,9 +625,6 @@ namespace NodeGraph.Controls
 
             _PressedMouseToSelect = false;
             _IsStartDraggingNode = false;
-
-            _DraggingToResizeGroupNode?.ReleaseToResizeDragging();
-            _DraggingToResizeGroupNode = null;
 
             if (IsNodeSelected && _IsRangeSelecting == false)
             {
