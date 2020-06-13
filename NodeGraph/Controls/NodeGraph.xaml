@@ -15,7 +15,8 @@
                 <ControlTemplate TargetType="{x:Type local:NodeGraph}">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            ClipToBounds="{TemplateBinding ClipToBounds}">
                         <Canvas>
                             <local:GridCanvas x:Name="__NodeGraphCanvas__"
                                               DockPanel.Dock="Bottom"
