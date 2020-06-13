@@ -44,11 +44,11 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         Guid _OutputNodeGuid = Guid.NewGuid();
 
-        public bool IsEnable
+        public bool IsLocked
         {
-            get => _IsEnable;
-            set => RaisePropertyChangedIfSet(ref _IsEnable, value);
+            get => _IsLocked;
+            set => RaisePropertyChangedIfSet(ref _IsLocked, value);
         }
-        bool _IsEnable = true;
+        bool _IsLocked = false;
     }
 }

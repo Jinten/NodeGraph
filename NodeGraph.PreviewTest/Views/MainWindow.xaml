@@ -38,7 +38,7 @@
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
             <Setter Property="InputGuid" Value="{Binding InputGuid, Mode=OneWay}"/>
             <Setter Property="OutputGuid" Value="{Binding OutputGuid, Mode=OneWay}"/>
-            <Setter Property="IsEnabled" Value="{Binding IsEnable, Mode=OneWay}"/>
+            <Setter Property="IsLocked" Value="{Binding IsLocked, Mode=OneWay}"/>
         </Style>
 
         <Style x:Key="DefaultNodeStyle" TargetType="{x:Type ctrl:DefaultNode}" BasedOn="{StaticResource {x:Type ctrl:DefaultNode}}">
@@ -120,7 +120,7 @@
             <Button Margin="4" Height="24" Content="ChangeGroupInnerSize" Command="{Binding ChangeGroupInnerSizeCommand}"/>
             <Button Margin="4" Height="24" Content="ChangeGroupInnerPosition" Command="{Binding ChangeGroupInnerPositionCommand}"/>
             <ComboBox Margin="4" Height="24" ItemsSource="{Binding GroupIntersectTypes, Mode=OneTime}" SelectedItem="{Binding SelectedGroupIntersectType}"/>
-            <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeLinks" IsChecked="{Binding IsEnableAllNodeLinks}" VerticalContentAlignment="Center"/>
+            <CheckBox Margin="4" Height="24" Content="IsLockedAllNodeLinks" IsChecked="{Binding IsLockedAllNodeLinks}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
         </DockPanel>
         <ctrl:NodeGraph Grid.Row="3"
@@ -135,7 +135,8 @@
                         PreviewConnectCommand="{Binding PreviewConnectCommand}"
                         ConnectedCommand="{Binding ConnectedCommand}"
                         DisconnectedCommand="{Binding DisconnectedCommand}"
-                        AllowToOverrideConnection="False"
+                        AllowToOverrideConnection="True"
+                        IsRangeSelectPerfectionism="True"
                         ContextMenu="{StaticResource NodeGraphContextMenu}">
 
             <ctrl:NodeGraph.Style>

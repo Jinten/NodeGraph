@@ -78,6 +78,14 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty LinkTypeProperty =
             DependencyProperty.Register(nameof(LinkType), typeof(NodeLinkType), typeof(NodeLink), new FrameworkPropertyMetadata(NodeLinkType.Curve, LinkTypePropertyChanged));
 
+        public bool IsLocked
+        {
+            get => (bool)GetValue(IsLockedProperty);
+            set => SetValue(IsLockedProperty, value);
+        }
+        public static readonly DependencyProperty IsLockedProperty =
+            DependencyProperty.Register(nameof(IsLocked), typeof(bool), typeof(NodeLink), new FrameworkPropertyMetadata(false));
+
         static void DashOffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var nodeLink = d as NodeLink;
@@ -334,8 +342,8 @@ namespace NodeGraph.Controls
 
         void DrawCurve(DrawingContext drawingContext)
         {
-            var start = new Point(StartPointX + ControlSize.ConnectorSize * 0.5, StartPointY);
-            var end = new Point(EndPointX - ControlSize.ConnectorSize * 0.5, EndPointY);
+            var start = new Point(StartPointX, StartPointY);
+            var end = new Point(EndPointX, EndPointY);
 
             Point c0 = new Point();
             Point c1 = new Point();

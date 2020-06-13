@@ -177,6 +177,14 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty AllowToOverrideConnectionProperty =
             DependencyProperty.Register(nameof(AllowToOverrideConnection), typeof(bool), typeof(NodeGraph), new FrameworkPropertyMetadata(false, AllowToOverrideConnectionPropertyChanged));
 
+        public bool IsRangeSelectPerfectionism
+        {
+            get => (bool)GetValue(IsRangeSelectPerfectionismProperty);
+            set => SetValue(IsRangeSelectPerfectionismProperty, value);
+        }
+        public static readonly DependencyProperty IsRangeSelectPerfectionismProperty =
+            DependencyProperty.Register(nameof(IsRangeSelectPerfectionism), typeof(bool), typeof(NodeGraph), new FrameworkPropertyMetadata(false));
+
         ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
         ResourceInstance<ControlTemplate> _NodeTemplate = new ResourceInstance<ControlTemplate>();
 
@@ -551,7 +559,14 @@ namespace NodeGraph.Controls
                 var actualRangeRect = new Rect(_DragStartPointToSelect.Sub(Offset), posOnCanvas.Sub(Offset));
                 foreach (var node in Canvas.Children.OfType<DefaultNode>())
                 {
-                    node.IsSelected = actualRangeRect.IntersectsWith(node.GetBoundingBox());
+                    if (IsRangeSelectPerfectionism)
+                    {
+                        node.IsSelected = actualRangeRect.IsInclude(node.GetBoundingBox());
+                    }
+                    else
+                    {
+                        node.IsSelected = actualRangeRect.IntersectsWith(node.GetBoundingBox());
+                    }
 
                     anyIntersects |= node.IsSelected;
 
@@ -616,7 +631,7 @@ namespace NodeGraph.Controls
             // not related to select node with left mouse button click.
             if (_PressedMouseToSelect == false || e.LeftButton != MouseButtonState.Released)
             {
-                ClearDraggingNodeLink(e.OriginalSource as FrameworkElement);
+                NodeLinkDragged(e.OriginalSource as FrameworkElement);
 
                 // dragged ?
                 e.Handled = Offset != _CaptureOffset;
@@ -1000,6 +1015,10 @@ namespace NodeGraph.Controls
         void NodeLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var nodeLink = sender as NodeLink;
+            if(nodeLink.IsLocked)
+            {
+                return;
+            }
             _DraggingNodeLinkParam = new DraggingNodeLinkParam(nodeLink, nodeLink.StartConnector);
 
             _ReconnectGhostNodeLink = nodeLink.CreateGhost();
@@ -1038,7 +1057,7 @@ namespace NodeGraph.Controls
 
             _DraggingNodes.Clear();
 
-            ClearDraggingNodeLink(e.OriginalSource as FrameworkElement);
+            NodeLinkDragged(e.OriginalSource as FrameworkElement);
 
             UpdateNodeSelection(sender as NodeBase);
 
@@ -1221,7 +1240,7 @@ namespace NodeGraph.Controls
             }
         }
 
-        void ClearDraggingNodeLink(FrameworkElement element)
+        void NodeLinkDragged(FrameworkElement element)
         {
             ClearPreviewedConnect();
 
@@ -1265,6 +1284,13 @@ namespace NodeGraph.Controls
                                     // it has to disconnect previous connected node link.
                                     var nodeLinks = Canvas.Children.OfType<NodeLink>().ToArray();
                                     var disconnectNodeLink = nodeLinks.First(arg => arg.InputGuid == input.Guid);
+                                    // but cannot disconnect if node link is locked.
+                                    if (disconnectNodeLink.IsLocked)
+                                    {
+                                        ClearPreviewingNodeLink();
+                                        ClearConnectingNodeLinkState();
+                                        return;
+                                    }
                                     DisconnectNodeLink(disconnectNodeLink);
                                 }
                             }
@@ -1279,18 +1305,7 @@ namespace NodeGraph.Controls
                             throw new InvalidCastException();
                     }
 
-                    // reconnect or not.
-                    if (_DraggingNodeLinkParam.NodeLink.IsConnecting)
-                    {
-                        // reconnecting node link was already connected, so need to dispatch disconnect command.
-                        DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
-                    }
-                    else
-                    {
-                        // preview node link. (new connecting)
-                        Canvas.Children.Remove(_DraggingNodeLinkParam.NodeLink);
-                        _DraggingNodeLinkParam.NodeLink.Dispose();
-                    }
+                    ClearPreviewingNodeLink();
 
                     var param = new ConnectedCommandParameter(input.Node.Guid, input.Guid, output.Node.Guid, output.Guid);
                     ConnectedCommand?.Execute(param);
@@ -1304,13 +1319,34 @@ namespace NodeGraph.Controls
                 DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
             }
 
-            _DraggingNodeLinkParam = null;
+            ClearConnectingNodeLinkState();
+        }
 
+        void ClearPreviewingNodeLink()
+        {
+            // reconnect or not.
+            if (_DraggingNodeLinkParam.NodeLink.IsConnecting)
+            {
+                // reconnecting node link was already connected, so need to dispatch disconnect command.
+                DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
+            }
+            else
+            {
+                // preview node link. (new connecting)
+                Canvas.Children.Remove(_DraggingNodeLinkParam.NodeLink);
+                _DraggingNodeLinkParam.NodeLink.Dispose();
+            }
+        }
+
+        void ClearConnectingNodeLinkState()
+        {
             if (_ReconnectGhostNodeLink != null)
             {
                 Canvas.Children.Remove(_ReconnectGhostNodeLink);
                 _ReconnectGhostNodeLink = null;
             }
+
+            _DraggingNodeLinkParam = null;
         }
     }
 }

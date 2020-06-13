@@ -82,12 +82,12 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         GroupIntersectType _SelectedGroupIntersectType;
 
-        public bool IsEnableAllNodeLinks
+        public bool IsLockedAllNodeLinks
         {
-            get => _IsEnableAllNodeLinks;
-            set => UpdateIsEnableAllNodeLinksProperty(value);
+            get => _IsLockedAllNodeLinks;
+            set => UpdateIsLockedAllNodeLinksProperty(value);
         }
-        bool _IsEnableAllNodeLinks = true;
+        bool _IsLockedAllNodeLinks = false;
 
         public bool IsEnableAllNodeConnectors
         {
@@ -145,16 +145,16 @@ namespace NodeGraph.PreviewTest.ViewModels
             _GroupNodeViewModels[0].InnerPosition = new Point(0, 0);
         }
 
-        void UpdateIsEnableAllNodeLinksProperty(bool value)
+        void UpdateIsLockedAllNodeLinksProperty(bool value)
         {
-            _IsEnableAllNodeLinks = !_IsEnableAllNodeLinks;
+            _IsLockedAllNodeLinks = !_IsLockedAllNodeLinks;
 
             foreach (var nodeLink in _NodeLinkViewModels)
             {
-                nodeLink.IsEnable = _IsEnableAllNodeLinks;
+                nodeLink.IsLocked = _IsLockedAllNodeLinks;
             }
 
-            RaisePropertyChanged(nameof(IsEnableAllNodeLinks));
+            RaisePropertyChanged(nameof(IsLockedAllNodeLinks));
         }
 
         void UpdateIsEnableAllNodeConnectorsProperty(bool value)
