@@ -122,6 +122,7 @@
             <ComboBox Margin="4" Height="24" ItemsSource="{Binding GroupIntersectTypes, Mode=OneTime}" SelectedItem="{Binding SelectedGroupIntersectType}"/>
             <CheckBox Margin="4" Height="24" Content="IsLockedAllNodeLinks" IsChecked="{Binding IsLockedAllNodeLinks}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
+            <CheckBox Margin="4" Height="24" Content="ClipToBounds" IsChecked="{Binding ClipToBounds}" VerticalContentAlignment="Center"/>
         </DockPanel>
         <ctrl:NodeGraph Grid.Row="3"
                         x:Name="NodeGraph"
@@ -137,6 +138,7 @@
                         DisconnectedCommand="{Binding DisconnectedCommand}"
                         AllowToOverrideConnection="True"
                         IsRangeSelectPerfectionism="True"
+                        ClipToBounds="{Binding ClipToBounds}"
                         ContextMenu="{StaticResource NodeGraphContextMenu}">
 
             <ctrl:NodeGraph.Style>

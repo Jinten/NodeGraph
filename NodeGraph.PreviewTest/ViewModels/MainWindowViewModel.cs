@@ -96,6 +96,12 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         bool _IsEnableAllNodeConnectors = true;
 
+        public bool ClipToBounds
+        {
+            get => _ClipToBounds;
+            set => RaisePropertyChangedIfSet(ref _ClipToBounds, value);
+        }
+        bool _ClipToBounds = true;
 
         public MainWindowViewModel()
         {
