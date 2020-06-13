@@ -191,6 +191,7 @@ namespace NodeGraph.PreviewTest.ViewModels
                 InputNodeGuid = param.InputNodeGuid,
                 OutputGuid = param.OutputConnectorGuid,
                 OutputNodeGuid = param.OutputNodeGuid,
+                IsLocked = IsLockedAllNodeLinks,
             };
             _NodeLinkViewModels.Add(nodeLink);
         }
