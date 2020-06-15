@@ -31,7 +31,7 @@ namespace NodeGraph.Controls
             nameof(IsSelected),
             typeof(bool),
             typeof(NodeBase),
-            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, IsSelectedPropertyChanged));
 
         public Point Position
         {
@@ -53,6 +53,8 @@ namespace NodeGraph.Controls
 
         public NodeBase(Canvas canvas, Point offset)
         {
+            Focusable = true;
+
             Canvas = canvas;
             Offset = offset;
 
@@ -108,6 +110,12 @@ namespace NodeGraph.Controls
             Translate.Y = Position.Y + Offset.Y;
 
             OnUpdateTranslation();
+        }
+
+        static void IsSelectedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var nodeBase = d as NodeBase;
+            nodeBase.Focus();
         }
 
         static void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
