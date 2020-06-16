@@ -557,7 +557,7 @@ namespace NodeGraph.Controls
 
                 bool anyIntersects = false;
                 var actualRangeRect = new Rect(_DragStartPointToSelect.Sub(Offset), posOnCanvas.Sub(Offset));
-                foreach (var node in Canvas.Children.OfType<DefaultNode>())
+                foreach (var node in Canvas.Children.OfType<NodeBase>())
                 {
                     if (IsRangeSelectPerfectionism)
                     {
