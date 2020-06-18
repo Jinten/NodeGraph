@@ -22,6 +22,13 @@ namespace NodeGraph.PreviewTest.ViewModels
 
     public class MainWindowViewModel : ViewModel
     {
+        public double Scale
+        {
+            get => _Scale;
+            set => RaisePropertyChangedIfSet(ref _Scale, value);
+        }
+        double _Scale = 1.0f;
+
         public ViewModelCommand AddNodeCommand => _AddNodeCommand.Get(AddNode);
         ViewModelCommandHandler _AddNodeCommand = new ViewModelCommandHandler();
 
@@ -63,6 +70,9 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         public ViewModelCommand ChangeGroupInnerPositionCommand => _ChangeGroupInnerPositionCommand.Get(ChangeGroupInnerPosition);
         ViewModelCommandHandler _ChangeGroupInnerPositionCommand = new ViewModelCommandHandler();
+
+        public ViewModelCommand ResetScaleCommand => _ResetScaleCommand.Get(ResetScale);
+        ViewModelCommandHandler _ResetScaleCommand = new ViewModelCommandHandler();
 
         public IEnumerable<NodeBaseViewModel> NodeViewModels => _NodeViewModels;
         ObservableCollection<NodeBaseViewModel> _NodeViewModels = new ObservableCollection<NodeBaseViewModel>();
@@ -149,6 +159,11 @@ namespace NodeGraph.PreviewTest.ViewModels
         void ChangeGroupInnerPosition()
         {
             _GroupNodeViewModels[0].InnerPosition = new Point(0, 0);
+        }
+
+        void ResetScale()
+        {
+            Scale = 1.0f;
         }
 
         void UpdateIsLockedAllNodeLinksProperty(bool value)

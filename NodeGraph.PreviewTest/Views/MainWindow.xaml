@@ -8,7 +8,7 @@
         xmlns:ctrl="clr-namespace:NodeGraph.Controls;assembly=NodeGraph"
         xmlns:local="clr-namespace:NodeGraph.PreviewTest"
         mc:Ignorable="d"
-        Title="NodeGraph - prototype" Height="800" Width="1200">
+        Title="NodeGraph - prototype" Height="600" Width="1300">
 
     <Window.DataContext>
         <vm:MainWindowViewModel/>
@@ -119,6 +119,7 @@
             <Button Margin="4" Height="24" Content="MoveGroupNode" Command="{Binding MoveGroupNodeCommand}"/>
             <Button Margin="4" Height="24" Content="ChangeGroupInnerSize" Command="{Binding ChangeGroupInnerSizeCommand}"/>
             <Button Margin="4" Height="24" Content="ChangeGroupInnerPosition" Command="{Binding ChangeGroupInnerPositionCommand}"/>
+            <Button Margin="4" Height="24" Content="ResetScale" Command="{Binding ResetScaleCommand}"/>
             <ComboBox Margin="4" Height="24" ItemsSource="{Binding GroupIntersectTypes, Mode=OneTime}" SelectedItem="{Binding SelectedGroupIntersectType}"/>
             <CheckBox Margin="4" Height="24" Content="IsLockedAllNodeLinks" IsChecked="{Binding IsLockedAllNodeLinks}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
@@ -127,6 +128,7 @@
         <ctrl:NodeGraph Grid.Row="3"
                         x:Name="NodeGraph"
                         MoveWithMouse="Right"
+                        Scale="{Binding Scale}"
                         ItemsSource="{Binding NodeViewModels}"
                         ItemContainerStyle="{StaticResource DefaultNodeStyle}"
                         NodeLinks="{Binding NodeLinkViewModels}"

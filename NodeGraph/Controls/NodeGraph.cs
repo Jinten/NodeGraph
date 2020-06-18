@@ -63,7 +63,7 @@ namespace NodeGraph.Controls
             set => SetValue(ScaleProperty, value);
         }
         public static readonly DependencyProperty ScaleProperty =
-            DependencyProperty.Register(nameof(Scale), typeof(double), typeof(NodeGraph), new FrameworkPropertyMetadata(1.0));
+            DependencyProperty.Register(nameof(Scale), typeof(double), typeof(NodeGraph), new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         public double MinScale
         {
@@ -421,8 +421,8 @@ namespace NodeGraph.Controls
             base.OnMouseWheel(e);
             if (ScaleWithKey == Key.None || (Keyboard.GetKeyStates(ScaleWithKey) & KeyStates.Down) != 0)
             {
-                Scale += e.Delta > 0 ? +ScaleRate : -ScaleRate;
-                Scale = Math.Max(MinScale, Scale);
+                var s = Scale + (e.Delta > 0 ? +ScaleRate : -ScaleRate);
+                Scale = Math.Max(MinScale, s);
             }
         }
 
