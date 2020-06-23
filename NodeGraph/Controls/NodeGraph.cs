@@ -805,6 +805,9 @@ namespace NodeGraph.Controls
                 case NotifyCollectionChangedAction.Reset:
                     removeItemDirectly(Canvas.Children.OfType<T>().ToArray());
                     break;
+                case NotifyCollectionChangedAction.Move:
+                    // ignore.
+                    break;
                 default:
                     if (oldItems?.Count > 0)
                     {
