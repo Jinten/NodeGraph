@@ -137,6 +137,9 @@ namespace NodeGraph.PreviewTest.ViewModels
             foreach (var removeNode in removeNodes)
             {
                 _NodeViewModels.Remove(removeNode);
+
+                var removeNodeLink = NodeLinkViewModels.FirstOrDefault(arg => arg.InputNodeGuid == removeNode.Guid || arg.OutputNodeGuid == removeNode.Guid);
+                _NodeLinkViewModels.Remove(removeNodeLink);
             }
         }
 

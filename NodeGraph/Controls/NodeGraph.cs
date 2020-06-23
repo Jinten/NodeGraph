@@ -200,6 +200,7 @@ namespace NodeGraph.Controls
         bool _PressedKeyToMove = false;
         bool _PressedMouseToMove = false;
         bool _PressedMouseToSelect = false;
+        bool _PressedRightBotton = false;
         bool _IsRangeSelecting = false;
 
         class DraggingNodeLinkParam
@@ -534,6 +535,8 @@ namespace NodeGraph.Controls
                 var x = _CaptureOffset.X + posOnCanvas.X - _DragStartPointToMoveOffset.X;
                 var y = _CaptureOffset.Y + posOnCanvas.Y - _DragStartPointToMoveOffset.Y;
                 Offset = new Point(x, y);
+
+                Cursor = Cursors.ScrollAll;
             }
             else if (_DraggingNodeLinkParam != null)
             {
@@ -586,6 +589,8 @@ namespace NodeGraph.Controls
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
+            _PressedRightBotton = e.RightButton == MouseButtonState.Pressed;
+
             base.OnMouseDown(e);
 
             var posOnCanvas = e.GetPosition(Canvas);
@@ -608,8 +613,7 @@ namespace NodeGraph.Controls
             if (_PressedMouseToMove)
             {
                 _CaptureOffset = Offset;
-                _DragStartPointToMoveOffset = posOnCanvas;
-                Cursor = Cursors.ScrollAll;
+                _DragStartPointToMoveOffset = posOnCanvas;                
             }
 
             e.Handled = true;
@@ -619,11 +623,15 @@ namespace NodeGraph.Controls
         {
             base.OnMouseUp(e);
 
+            _PressedRightBotton = false;
+
+            // dragged to offset node graph?
+            e.Handled = _PressedMouseToMove ? Offset != _CaptureOffset : false;
+
+            // clear _PressedMouseToMove flag at process.
             UpdateMouseMoveState(e);
-            if (_PressedKeyToMove == false)
-            {
-                Cursor = Cursors.Arrow;
-            }
+
+            Cursor = Cursors.Arrow;
 
             _DraggingToResizeGroupNode?.ReleaseToResizeDragging();
             _DraggingToResizeGroupNode = null;
@@ -632,14 +640,10 @@ namespace NodeGraph.Controls
             if (_PressedMouseToSelect == false || e.LeftButton != MouseButtonState.Released)
             {
                 NodeLinkDragged(e.OriginalSource as FrameworkElement);
-
-                // dragged ?
-                e.Handled = Offset != _CaptureOffset;
                 return;
             }
 
             _PressedMouseToSelect = false;
-            _IsStartDraggingNode = false;
 
             if (IsNodeSelected && _IsRangeSelecting == false)
             {
@@ -654,9 +658,6 @@ namespace NodeGraph.Controls
             }
 
             ClearRangeSelecting();
-
-            // dragged ?
-            e.Handled = Offset != _CaptureOffset;
         }
 
         protected override void OnMouseEnter(MouseEventArgs e)
@@ -667,6 +668,7 @@ namespace NodeGraph.Controls
 
             _PressedMouseToSelect = false;
             _PressedMouseToMove = false;
+            _PressedRightBotton = false;
             _IsStartDraggingNode = false;
             _DraggingNodeLinkParam = null;
             _DraggingNodes.Clear();
@@ -680,6 +682,7 @@ namespace NodeGraph.Controls
 
             _PressedMouseToSelect = false;
             _PressedMouseToMove = false;
+            _PressedRightBotton = false;
             _IsStartDraggingNode = false;
             if (_DraggingNodeLinkParam != null)
             {
@@ -1008,9 +1011,18 @@ namespace NodeGraph.Controls
 
         void NodeLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            _PressedRightBotton = e.RightButton == MouseButtonState.Pressed;
+
+            if (e.LeftButton != MouseButtonState.Pressed)
+            {
+                e.Handled = true;
+                return;
+            }
+
             var nodeLink = sender as NodeLink;
             if(nodeLink.IsLocked)
             {
+                e.Handled = true;
                 return;
             }
             _DraggingNodeLinkParam = new DraggingNodeLinkParam(nodeLink, nodeLink.StartConnector);
@@ -1028,6 +1040,16 @@ namespace NodeGraph.Controls
 
         void Node_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            _PressedMouseToSelect = false;
+
+            if(_PressedRightBotton)
+            {
+                _PressedRightBotton = false;
+                return;
+            }
+
+            Cursor = Cursors.Arrow;
+
             _DraggingToResizeGroupNode?.ReleaseToResizeDragging();
             _DraggingToResizeGroupNode = null;
 
@@ -1046,6 +1068,7 @@ namespace NodeGraph.Controls
                     groupNode.ChangeInnerColor(false);
                 }
 
+                e.Handled = true;
                 return;
             }
 
@@ -1055,13 +1078,13 @@ namespace NodeGraph.Controls
 
             UpdateNodeSelection(sender as NodeBase);
 
-            Cursor = Cursors.Arrow;
-
             e.Handled = true;
         }
 
         void Node_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            _PressedRightBotton = e.RightButton == MouseButtonState.Pressed;
+
             var element = e.OriginalSource as FrameworkElement;
 
             if (element != null && element.Tag is NodeConnectorContent connector)
@@ -1091,6 +1114,8 @@ namespace NodeGraph.Controls
 
         void GroupNode_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            _PressedRightBotton = e.RightButton == MouseButtonState.Pressed;
+
             var groupNode = sender as GroupNode;
             groupNode.CaptureToResizeDragging();
 
