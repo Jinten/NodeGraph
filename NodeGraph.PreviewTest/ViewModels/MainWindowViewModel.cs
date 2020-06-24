@@ -59,8 +59,11 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand MoveTestNodesCommand => _MoveTestNodesCommand.Get(MoveTestNodes);
         ViewModelCommandHandler _MoveTestNodesCommand = new ViewModelCommandHandler();
 
-        public ViewModelCommand ClearTestNodesCommand => _ClearTestNodesCommand.Get(ClearTestNodes);
-        ViewModelCommandHandler _ClearTestNodesCommand = new ViewModelCommandHandler();
+        public ViewModelCommand ClearNodesCommand => _ClearNodesCommand.Get(ClearNodes);
+        ViewModelCommandHandler _ClearNodesCommand = new ViewModelCommandHandler();
+
+        public ViewModelCommand ClearNodeLinksCommand => _ClearNodeLinksCommand.Get(ClearNodeLinks);
+        ViewModelCommandHandler _ClearNodeLinksCommand = new ViewModelCommandHandler();
 
         public ViewModelCommand MoveGroupNodeCommand => _MoveGroupNodeCommand.Get(MoveGroupNode);
         ViewModelCommandHandler _MoveGroupNodeCommand = new ViewModelCommandHandler();
@@ -143,9 +146,14 @@ namespace NodeGraph.PreviewTest.ViewModels
             }
         }
 
-        void ClearTestNodes()
+        void ClearNodes()
         {
             _NodeViewModels.Clear();
+        }
+
+        void ClearNodeLinks()
+        {
+            _NodeLinkViewModels.Clear();
         }
 
         void MoveGroupNode()

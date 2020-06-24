@@ -115,7 +115,8 @@
         <DockPanel Grid.Row="0" LastChildFill="False">
             <Button Margin="4" Height="24" Content="AddTestNodeLink" Command="{Binding AddTestNodeLinkCommand}"/>
             <Button Margin="4" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
-            <Button Margin="4" Height="24" Content="ClearTestNode" Command="{Binding ClearTestNodesCommand}"/>
+            <Button Margin="4" Height="24" Content="ClearNodes" Command="{Binding ClearNodesCommand}"/>
+            <Button Margin="4" Height="24" Content="ClearNodeLinks" Command="{Binding ClearNodeLinksCommand}"/>
             <Button Margin="4" Height="24" Content="MoveGroupNode" Command="{Binding MoveGroupNodeCommand}"/>
             <Button Margin="4" Height="24" Content="ChangeGroupInnerSize" Command="{Binding ChangeGroupInnerSizeCommand}"/>
             <Button Margin="4" Height="24" Content="ChangeGroupInnerPosition" Command="{Binding ChangeGroupInnerPositionCommand}"/>

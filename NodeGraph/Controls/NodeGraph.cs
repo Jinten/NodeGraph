@@ -832,11 +832,18 @@ namespace NodeGraph.Controls
                 removeNodeLinks.Add(removeNodeLink);
             }
 
+            RemoveNodeLinksFromCanvas(removeNodeLinks.ToArray());
+        }
+
+        void RemoveNodeLinksFromCanvas(NodeLink[] removeNodeLinks)
+        {
             foreach (var removeNodeLink in removeNodeLinks)
             {
                 // add node link.
-                removeNodeLink.MouseDown -= NodeLink_MouseDown;
                 Canvas.Children.Remove(removeNodeLink);
+
+                removeNodeLink.MouseDown -= NodeLink_MouseDown;
+
                 removeNodeLink.Dispose();
             }
         }
