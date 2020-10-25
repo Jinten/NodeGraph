@@ -796,9 +796,9 @@ namespace NodeGraph.Controls
             NotifyCollectionChangedAction action,
             IList oldItems,
             IList newItems,
-            Action<object[]> removeItem,
+            Action<object[]> removeItemWithDataContext,
             Action<T[]> removeItemDirectly,
-            Action<object[]> addItem) where T : UIElement, ICanvasObject
+            Action<object[]> addItemWithDataContext) where T : UIElement, ICanvasObject
         {
             switch (action)
             {
@@ -814,11 +814,11 @@ namespace NodeGraph.Controls
                 default:
                     if (oldItems?.Count > 0)
                     {
-                        removeItem(oldItems.OfType<object>().ToArray());
+                        removeItemWithDataContext(oldItems.OfType<object>().ToArray());
                     }
                     if (newItems?.Count > 0)
                     {
-                        addItem(newItems.OfType<object>().ToArray());
+                        addItemWithDataContext(newItems.OfType<object>().ToArray());
                     }
                     break;
             }
