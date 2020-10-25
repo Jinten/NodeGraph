@@ -803,7 +803,10 @@ namespace NodeGraph.Controls
             switch (action)
             {
                 case NotifyCollectionChangedAction.Reset:
-                    removeItemDirectly(Canvas.Children.OfType<T>().ToArray());
+                    if (Canvas != null)
+                    {
+                        removeItemDirectly(Canvas.Children.OfType<T>().ToArray());
+                    }
                     break;
                 case NotifyCollectionChangedAction.Move:
                     // ignore.
