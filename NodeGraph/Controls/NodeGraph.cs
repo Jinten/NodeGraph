@@ -853,6 +853,12 @@ namespace NodeGraph.Controls
 
         void AddNodeLinksToCanvas(object[] addVMs)
         {
+            if(Canvas == null)
+            {
+                DelayToBindNodeLinkVMs.AddRange(addVMs);
+                return;
+            }
+
             foreach (var vm in addVMs)
             {
                 var nodeLink = new NodeLink(Canvas, Scale)
@@ -912,6 +918,12 @@ namespace NodeGraph.Controls
 
         void AddNodesToCanvas(object[] addVMs)
         {
+            if (Canvas == null)
+            {
+                DelayToBindNodeVMs.AddRange(addVMs);
+                return;
+            }
+
             foreach (var vm in addVMs)
             {
                 var node = new DefaultNode(Canvas, Offset, Scale);
@@ -961,6 +973,12 @@ namespace NodeGraph.Controls
 
         void AddGroupNodesToCanvas(object[] addVMs)
         {
+            if(Canvas == null)
+            {
+                DelayToBindGroupNodeVMs.AddRange(addVMs);
+                return;
+            }
+
             foreach (var vm in addVMs)
             {
                 var groupNode = new GroupNode(Canvas, Offset, Scale);
