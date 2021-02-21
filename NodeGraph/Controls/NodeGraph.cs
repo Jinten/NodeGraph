@@ -203,6 +203,8 @@ namespace NodeGraph.Controls
         bool _PressedRightBotton = false;
         bool _IsRangeSelecting = false;
 
+        const double DEADLENGTH_FOR_DRAGGING_MOVE = 4.0;
+
         class DraggingNodeLinkParam
         {
             public NodeLink NodeLink { get; } = null;
@@ -532,11 +534,15 @@ namespace NodeGraph.Controls
             }
             else if (_PressedMouseToMove && (MoveWithKey == Key.None || _PressedKeyToMove))
             {
-                var x = _CaptureOffset.X + posOnCanvas.X - _DragStartPointToMoveOffset.X;
-                var y = _CaptureOffset.Y + posOnCanvas.Y - _DragStartPointToMoveOffset.Y;
-                Offset = new Point(x, y);
+                var delta = new Vector(posOnCanvas.X - _DragStartPointToMoveOffset.X, posOnCanvas.Y - _DragStartPointToMoveOffset.Y);
+                if (delta.Length > DEADLENGTH_FOR_DRAGGING_MOVE)
+                {
+                    var x = _CaptureOffset.X + delta.X;
+                    var y = _CaptureOffset.Y + delta.Y;
+                    Offset = new Point(x, y);
 
-                Cursor = Cursors.ScrollAll;
+                    Cursor = Cursors.ScrollAll;
+                }
             }
             else if (_DraggingNodeLinkParam != null)
             {
@@ -918,7 +924,7 @@ namespace NodeGraph.Controls
 
         void AddNodesToCanvas(object[] addVMs)
         {
-            if (Canvas == null)
+            if(Canvas == null)
             {
                 DelayToBindNodeVMs.AddRange(addVMs);
                 return;
