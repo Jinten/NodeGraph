@@ -58,7 +58,7 @@
             <Setter Property="HeaderContentTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <StackPanel Background="#FF666666" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:DefaultNode}}}">
+                        <StackPanel Background="#FF666666">
                             <StackPanel HorizontalAlignment="Center">
                                 <Label Content="{Binding Name}"/>
                             </StackPanel>
@@ -69,7 +69,7 @@
             <Setter Property="ContentTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <StackPanel DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:DefaultNode}}}">
+                        <StackPanel>
                             <TextBox Text="{Binding Body}"/>
                             <DockPanel TextBlock.Foreground="WhiteSmoke">
                                 <TextBlock Margin="0,0,0,4" Text="{Binding Width, StringFormat=Width:{0}}"/>
@@ -96,7 +96,7 @@
             <Setter Property="HeaderContentTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <StackPanel Background="#FF666666" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ctrl:GroupNode}}}">
+                        <StackPanel Background="#FF666666">
                             <StackPanel HorizontalAlignment="Center">
                                 <Label Content="{Binding Name}"/>
                             </StackPanel>

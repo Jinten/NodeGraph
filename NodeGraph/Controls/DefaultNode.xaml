@@ -15,7 +15,7 @@
         <Setter Property="InputMargin" Value="2"/>
         <Setter Property="Background" Value="#CC000000"/>
         <Style.Triggers>
-            <DataTrigger Binding="{Binding IsSelected,RelativeSource={RelativeSource Self}}" Value="True">
+            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True">
                 <Setter Property="BorderBrush" Value="Aqua"/>
             </DataTrigger>
         </Style.Triggers>
@@ -30,6 +30,7 @@
                     <ContentPresenter x:Name="__NodeHeaderContentTemplate__"
                                       VerticalAlignment="Stretch"
                                       HorizontalAlignment="Stretch"
+                                      Content="{TemplateBinding DataContext}"
                                       ContentTemplate="{Binding HeaderContentTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:DefaultNode}}}"/>
                 </Border>
 
