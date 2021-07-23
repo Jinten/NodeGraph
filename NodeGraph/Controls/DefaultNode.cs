@@ -32,6 +32,17 @@ namespace NodeGraph.Controls
             typeof(DefaultNode),
             new FrameworkPropertyMetadata(null));
 
+        public Thickness ContentMargin
+        {
+            get => (Thickness)GetValue(ContentMarginProperty);
+            set => SetValue(ContentMarginProperty, value);
+        }
+        public static readonly DependencyProperty ContentMarginProperty = DependencyProperty.Register(
+            nameof(ContentMargin),
+            typeof(Thickness),
+            typeof(DefaultNode),
+            new FrameworkPropertyMetadata(new Thickness(4, 0, 4, 0), FrameworkPropertyMetadataOptions.AffectsArrange));
+
         public VerticalAlignment InputLayout
         {
             get => (VerticalAlignment)GetValue(InputLayoutProperty);
