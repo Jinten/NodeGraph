@@ -131,8 +131,8 @@ namespace NodeGraph.Controls
             base.OnRender(dc);
 
             int subGridCount = SubDivisionCount + 1;
-            double space = Spacing / subGridCount;
-            double offset = space * subGridCount;
+            double subGridSpace = Spacing / subGridCount;
+            double subGridOffset = subGridSpace * subGridCount;
 
             double MinHorizonOnCanvas = -ActualWidth * Math.Max(0.0, 1.0 - Scale) * 1.0 / Scale * 0.5;
             double MaxHorizonOnCanvas = +ActualWidth * (1 + Math.Max(0.0, 1.0 - Scale) * 1.0 / Scale * 0.5);
@@ -143,17 +143,17 @@ namespace NodeGraph.Controls
             double invScale = 1.0 / Scale;
 
             int hCount = (int)(ActualHeight * invScale / Spacing + Math.Ceiling(Scale));
-            int initHIndex = (int)(Math.Max(0, ActualHeight * invScale - ActualHeight) / Spacing) + 1;
+            int initHIndex = (int)(Math.Max(0, ActualHeight * invScale - ActualHeight) / Spacing);
 
-            int vCount = (int)(ActualWidth * invScale / Spacing + Math.Ceiling(Scale));
-            int initVIndex = (int)(Math.Max(0, ActualWidth * invScale - ActualWidth) / Spacing) + 1;
+            int vCount = (int)(ActualWidth * invScale / Spacing + Math.Ceiling(Scale)) + 2;
+            int initVIndex = (int)(Math.Max(0, ActualWidth * invScale - ActualWidth) / Spacing);
 
             // sub horizon
             for (int i = -initHIndex; i < hCount; ++i)
             {
                 for (int sub = 0; sub < subGridCount; ++sub)
                 {
-                    double hSub = sub * space + i * offset + (Offset.Y % space);
+                    double hSub = sub * subGridSpace + i * subGridOffset + (Offset.Y % subGridSpace);
                     dc.DrawLine(_GridSubPen, new Point(MinHorizonOnCanvas, hSub), new Point(MaxHorizonOnCanvas, hSub));
                 }
             }
@@ -163,7 +163,7 @@ namespace NodeGraph.Controls
             {
                 for (uint sub = 0; sub < subGridCount; ++sub)
                 {
-                    double vSub = sub * space + i * offset + (Offset.X % Spacing);
+                    double vSub = sub * subGridSpace + i * subGridOffset + (Offset.X % subGridSpace);
                     dc.DrawLine(_GridSubPen, new Point(vSub, MinVerticalOnCanvas), new Point(vSub, MaxVerticalOnCanvas));
                 }
             }
