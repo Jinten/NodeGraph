@@ -46,6 +46,9 @@ namespace NodeGraph.Controls
 
         public Point DragStartPosition { get; private set; } = new Point(0, 0);
 
+        public EventHandler BeginSelectionChanged { get; set; } = null;
+        public EventHandler EndSelectionChanged { get; set; } = null;
+
         protected Canvas Canvas { get; } = null;
         protected Point Offset { get; private set; } = new Point(0, 0);
         protected TranslateTransform Translate { get; private set; } = new TranslateTransform(0, 0);
@@ -114,8 +117,13 @@ namespace NodeGraph.Controls
 
         static void IsSelectedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var nodeBase = d as NodeBase;
-            nodeBase.Focus();
+            var node = d as NodeBase;
+
+            node.BeginSelectionChanged?.Invoke(node, EventArgs.Empty);
+
+            node.Focus();
+
+            node.EndSelectionChanged?.Invoke(node, EventArgs.Empty);
         }
 
         static void PositionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

@@ -202,6 +202,7 @@ namespace NodeGraph.Controls
         bool _PressedMouseToSelect = false;
         bool _PressedRightBotton = false;
         bool _IsRangeSelecting = false;
+        bool _IsSelectionChanging = false;
 
         const double DEADLENGTH_FOR_DRAGGING_MOVE = 4.0;
 
@@ -455,7 +456,7 @@ namespace NodeGraph.Controls
                     else
                     {
                         // If it is not selected dragging node, need to select first node and unselect already selected the nodes.
-                        BeginUpdateSelectedItems();
+                        BeginSelectionChanging();
 
                         _DraggingNodes[0].IsSelected = true; // select first drag node.
                         UpdateSelectedItems(_DraggingNodes[0]);
@@ -468,7 +469,7 @@ namespace NodeGraph.Controls
                                 UpdateSelectedItems(node);
                             }
                         }
-                        EndUpdateSelectedItems();
+                        EndSelectionChanging();
                     }
 
                     var draggingGroupNodes = _DraggingNodes.OfType<GroupNode>().ToArray();
@@ -515,16 +516,16 @@ namespace NodeGraph.Controls
                         switch (GroupIntersectType)
                         {
                             case GroupIntersectType.CursorPoint:
-                                {
-                                    isInsideNode = groupNode.IsInsideCompletely(current.Sub(Offset));
-                                }
-                                break;
+                            {
+                                isInsideNode = groupNode.IsInsideCompletely(current.Sub(Offset));
+                            }
+                            break;
                             case GroupIntersectType.BoundingBox:
-                                {
-                                    var groupBoundingBox = groupNode.GetInnerBoundingBox();
-                                    isInsideNode = boundingBoxes.Any(arg => groupBoundingBox.IntersectsWith(arg));
-                                }
-                                break;
+                            {
+                                var groupBoundingBox = groupNode.GetInnerBoundingBox();
+                                isInsideNode = boundingBoxes.Any(arg => groupBoundingBox.IntersectsWith(arg));
+                            }
+                            break;
                             default:
                                 throw new InvalidProgramException();
                         }
@@ -562,7 +563,7 @@ namespace NodeGraph.Controls
 
                 _RangeSelector.RangeRect = new Rect(_DragStartPointToSelect, posOnCanvas);
 
-                BeginUpdateSelectedItems();
+                BeginSelectionChanging();
 
                 bool anyIntersects = false;
                 var actualRangeRect = new Rect(_DragStartPointToSelect.Sub(Offset), posOnCanvas.Sub(Offset));
@@ -583,7 +584,7 @@ namespace NodeGraph.Controls
                 }
                 _RangeSelector.IsIntersects = anyIntersects;
 
-                EndUpdateSelectedItems();
+                EndSelectionChanging();
             }
             else if (_DraggingToResizeGroupNode != null && e.LeftButton == MouseButtonState.Pressed)
             {
@@ -619,7 +620,7 @@ namespace NodeGraph.Controls
             if (_PressedMouseToMove)
             {
                 _CaptureOffset = Offset;
-                _DragStartPointToMoveOffset = posOnCanvas;                
+                _DragStartPointToMoveOffset = posOnCanvas;
             }
 
             e.Handled = true;
@@ -654,13 +655,13 @@ namespace NodeGraph.Controls
             if (IsNodeSelected && _IsRangeSelecting == false)
             {
                 // click empty area to unselect nodes.
-                BeginUpdateSelectedItems();
+                BeginSelectionChanging();
                 foreach (var node in Canvas.Children.OfType<NodeBase>())
                 {
                     node.IsSelected = false;
                     UpdateSelectedItems(node);
                 }
-                EndUpdateSelectedItems();
+                EndSelectionChanging();
             }
 
             ClearRangeSelecting();
@@ -859,7 +860,7 @@ namespace NodeGraph.Controls
 
         void AddNodeLinksToCanvas(object[] addVMs)
         {
-            if(Canvas == null)
+            if (Canvas == null)
             {
                 DelayToBindNodeLinkVMs.AddRange(addVMs);
                 return;
@@ -915,8 +916,7 @@ namespace NodeGraph.Controls
             {
                 Canvas.Children.Remove(removeNode);
 
-                removeNode.MouseUp -= Node_MouseUp;
-                removeNode.MouseDown -= Node_MouseDown;
+                UnsubscribeNodeEvent(removeNode);
 
                 removeNode.Dispose();
             }
@@ -924,7 +924,7 @@ namespace NodeGraph.Controls
 
         void AddNodesToCanvas(object[] addVMs)
         {
-            if(Canvas == null)
+            if (Canvas == null)
             {
                 DelayToBindNodeVMs.AddRange(addVMs);
                 return;
@@ -940,8 +940,7 @@ namespace NodeGraph.Controls
                 node.Style = GetNodeStyle(vm, node);
                 node.Initialize();
 
-                node.MouseDown += Node_MouseDown;
-                node.MouseUp += Node_MouseUp;
+                SubscribeNodeEvent(node);
 
                 Canvas.Children.Add(node);
 
@@ -970,8 +969,7 @@ namespace NodeGraph.Controls
             {
                 Canvas.Children.Remove(removeGroupNode);
 
-                removeGroupNode.MouseUp -= Node_MouseUp;
-                removeGroupNode.MouseDown -= GroupNode_MouseDown;
+                UnsubscribeNodeEvent(removeGroupNode);
 
                 removeGroupNode.Dispose();
             }
@@ -979,7 +977,7 @@ namespace NodeGraph.Controls
 
         void AddGroupNodesToCanvas(object[] addVMs)
         {
-            if(Canvas == null)
+            if (Canvas == null)
             {
                 DelayToBindGroupNodeVMs.AddRange(addVMs);
                 return;
@@ -995,8 +993,7 @@ namespace NodeGraph.Controls
                 groupNode.Style = GroupNodeStyle;
                 groupNode.Initialize();
 
-                groupNode.MouseDown += GroupNode_MouseDown;
-                groupNode.MouseUp += Node_MouseUp;
+                SubscribeNodeEvent(groupNode);
 
                 Canvas.Children.Add(groupNode);
 
@@ -1046,6 +1043,22 @@ namespace NodeGraph.Controls
             Cursor = toEnd.CanConnect ? Cursors.Cross : Cursors.No;
         }
 
+        void SubscribeNodeEvent(NodeBase node)
+        {
+            node.MouseDown += Node_MouseDown;
+            node.MouseUp += Node_MouseUp;
+            node.BeginSelectionChanged += Node_BeginSelectionChanged;
+            node.EndSelectionChanged += Node_EndSelectionChanged;
+        }
+
+        void UnsubscribeNodeEvent(NodeBase node)
+        {
+            node.EndSelectionChanged -= Node_EndSelectionChanged;
+            node.BeginSelectionChanged -= Node_BeginSelectionChanged;
+            node.MouseUp -= Node_MouseUp;
+            node.MouseDown -= Node_MouseDown;
+        }
+
         void NodeLink_MouseDown(object sender, MouseButtonEventArgs e)
         {
             _PressedRightBotton = e.RightButton == MouseButtonState.Pressed;
@@ -1057,7 +1070,7 @@ namespace NodeGraph.Controls
             }
 
             var nodeLink = sender as NodeLink;
-            if(nodeLink.IsLocked)
+            if (nodeLink.IsLocked)
             {
                 e.Handled = true;
                 return;
@@ -1079,7 +1092,7 @@ namespace NodeGraph.Controls
         {
             _PressedMouseToSelect = false;
 
-            if(_PressedRightBotton)
+            if (_PressedRightBotton)
             {
                 _PressedRightBotton = false;
                 return;
@@ -1174,9 +1187,39 @@ namespace NodeGraph.Controls
             e.Handled = true;
         }
 
+        void Node_BeginSelectionChanged(object sender, EventArgs e)
+        {
+            BeginSelectionChanging();
+        }
+
+        void Node_EndSelectionChanged(object sender, EventArgs e)
+        {
+            UpdateSelectedItems((NodeBase)sender);
+
+            EndSelectionChanging();
+        }
+
+        void BeginSelectionChanging()
+        {
+            if (_IsSelectionChanging == false)
+            {
+                _IsSelectionChanging = true;
+                BeginUpdateSelectedItems();
+            }
+        }
+
+        void EndSelectionChanging()
+        {
+            if (_IsSelectionChanging)
+            {
+                EndUpdateSelectedItems();
+                _IsSelectionChanging = false;
+            }
+        }
+
         void UpdateNodeSelection(NodeBase targetNode)
         {
-            BeginUpdateSelectedItems();
+            BeginSelectionChanging();
             if ((Keyboard.GetKeyStates(Key.LeftCtrl) & KeyStates.Down) != 0)
             {
                 targetNode.IsSelected = !targetNode.IsSelected;
@@ -1190,7 +1233,7 @@ namespace NodeGraph.Controls
                     UpdateSelectedItems(node);
                 }
             }
-            EndUpdateSelectedItems();
+            EndSelectionChanging();
         }
 
         void StartToMoveDraggingNode(Point pos, NodeBase node)
@@ -1256,17 +1299,17 @@ namespace NodeGraph.Controls
             switch (GroupIntersectType)
             {
                 case GroupIntersectType.CursorPoint:
-                    {
-                        var cursor_bb = new Rect(e.GetPosition(Canvas).Sub(Offset), new Size(1, 1));
-                        isInsideAtLeastOneNode = groupNodes.Any(arg => cursor_bb.IntersectsWith(arg.GetBoundingBox()));
-                    }
+                {
+                    var cursor_bb = new Rect(e.GetPosition(Canvas).Sub(Offset), new Size(1, 1));
+                    isInsideAtLeastOneNode = groupNodes.Any(arg => cursor_bb.IntersectsWith(arg.GetBoundingBox()));
                     break;
+                }
                 case GroupIntersectType.BoundingBox:
-                    {
-                        var groupBoundingBoxes = groupNodes.Select(arg => arg.GetInnerBoundingBox()).ToArray();
-                        isInsideAtLeastOneNode = _DraggingNodes.Any(arg => groupBoundingBoxes.Any(bb => bb.IntersectsWith(arg.GetBoundingBox())));
-                    }
+                {
+                    var groupBoundingBoxes = groupNodes.Select(arg => arg.GetInnerBoundingBox()).ToArray();
+                    isInsideAtLeastOneNode = _DraggingNodes.Any(arg => groupBoundingBoxes.Any(bb => bb.IntersectsWith(arg.GetBoundingBox())));
                     break;
+                }
             }
 
             if (isInsideAtLeastOneNode)
@@ -1331,32 +1374,32 @@ namespace NodeGraph.Controls
                     switch (toEndConnector)
                     {
                         case NodeInputContent inputConnector:
-                            {
-                                input = inputConnector;
-                                output = _DraggingNodeLinkParam.StartConnector as NodeOutputContent;
+                        {
+                            input = inputConnector;
+                            output = _DraggingNodeLinkParam.StartConnector as NodeOutputContent;
 
-                                if (AllowToOverrideConnection && input.ConnectedCount > 0)
-                                {
-                                    // it has to disconnect previous connected node link.
-                                    var nodeLinks = Canvas.Children.OfType<NodeLink>().ToArray();
-                                    var disconnectNodeLink = nodeLinks.First(arg => arg.InputGuid == input.Guid);
-                                    // but cannot disconnect if node link is locked.
-                                    if (disconnectNodeLink.IsLocked)
-                                    {
-                                        ClearPreviewingNodeLink();
-                                        ClearConnectingNodeLinkState();
-                                        return;
-                                    }
-                                    DisconnectNodeLink(disconnectNodeLink);
-                                }
-                            }
-                            break;
-                        case NodeOutputContent outputConnector:
+                            if (AllowToOverrideConnection && input.ConnectedCount > 0)
                             {
-                                output = outputConnector;
-                                input = _DraggingNodeLinkParam.StartConnector as NodeInputContent;
+                                // it has to disconnect previous connected node link.
+                                var nodeLinks = Canvas.Children.OfType<NodeLink>().ToArray();
+                                var disconnectNodeLink = nodeLinks.First(arg => arg.InputGuid == input.Guid);
+                                // but cannot disconnect if node link is locked.
+                                if (disconnectNodeLink.IsLocked)
+                                {
+                                    ClearPreviewingNodeLink();
+                                    ClearConnectingNodeLinkState();
+                                    return;
+                                }
+                                DisconnectNodeLink(disconnectNodeLink);
                             }
                             break;
+                        }
+                        case NodeOutputContent outputConnector:
+                        {
+                            output = outputConnector;
+                            input = _DraggingNodeLinkParam.StartConnector as NodeInputContent;
+                            break;
+                        }
                         default:
                             throw new InvalidCastException();
                     }

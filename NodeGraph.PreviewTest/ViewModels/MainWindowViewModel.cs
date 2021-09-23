@@ -246,15 +246,22 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         void AddTestNodeLink()
         {
+            if(_NodeViewModels.Count < 2)
+            {
+                return;
+            }
             var nodeLink = new NodeLinkViewModel();
-            nodeLink.OutputGuid = (_NodeViewModels[0] as NodeViewModel1).Outputs.ElementAt(0).Guid;
-            nodeLink.InputGuid = (_NodeViewModels[1] as NodeViewModel1).Inputs.ElementAt(0).Guid;
+            nodeLink.OutputGuid = _NodeViewModels[0].Outputs.ElementAt(0).Guid;
+            nodeLink.InputGuid = _NodeViewModels[1].Inputs.ElementAt(0).Guid;
             _NodeLinkViewModels.Add(nodeLink);
         }
 
         void MoveTestNodes()
         {
-            _NodeViewModels[0].Position = new Point(0, 0);
+            if(_NodeLinkViewModels.Count > 0)
+            {
+                _NodeViewModels[0].Position = new Point(0, 0);
+            }
         }
     }
 }
