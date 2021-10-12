@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 namespace NodeGraph.Controls
 {
-    public interface ICanvasObject
+    public interface ICanvasObject : IDisposable
     {
         Guid Guid { get; set; }
         void UpdateOffset(Point offset);

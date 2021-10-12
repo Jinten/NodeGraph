@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace NodeGraph.Controls
@@ -140,6 +141,14 @@ namespace NodeGraph.Controls
 
         public void Dispose()
         {
+            // You need to clear Style.
+            // Because implemented on style for binding.
+            Style = null;
+
+            // Clear binding for subscribing source changed event from old control.
+            // throw exception about visual tree ancestor different if you not clear binding.
+            BindingOperations.ClearAllBindings(this);
+
             var nodeLinks = _NodeLinks.ToArray();
 
             // it must instance to nodeLinks because change node link collection in NodeLink Dispose.
@@ -223,11 +232,6 @@ namespace NodeGraph.Controls
             (d as NodeConnector<T>).UpdateConnectorsLayout();
         }
 
-        static void ConnectorLayoutPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            (d as NodeConnector<T>).UpdateConnectorsLayout();
-        }
-
         public void Initialize()
         {
             foreach(var connector in _Canvas.Children.OfType<NodeConnectorContent>())
@@ -240,6 +244,14 @@ namespace NodeGraph.Controls
 
         public void Dispose()
         {
+            // You need to clear Style.
+            // Because implemented on style for binding.
+            Style = null;
+
+            // Clear binding for subscribing source changed event from old control.
+            // throw exception about visual tree ancestor different if you not clear binding.
+            BindingOperations.ClearAllBindings(this);
+
             var connectors = _Canvas.Children.OfType<NodeConnectorContent>().ToArray();
 
             foreach(var connector in connectors)

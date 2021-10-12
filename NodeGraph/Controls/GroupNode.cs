@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -231,70 +232,70 @@ namespace NodeGraph.Controls
             switch (_IsDraggingToResizeType)
             {
                 case DragResizeType.LeftTop:
-                    {
-                        var x = (_CapturedNodeRect.Right - pos.X > MinHeight) ? pos.X : Position.X;
-                        var y = (_CapturedNodeRect.Bottom - pos.Y > MinHeight) ? pos.Y : Position.Y;
-                        Position = new Point(x, y);
-                        Width = Math.Max(MinWidth, _CapturedNodeRect.Right - Position.X);
-                        Height = Math.Max(MinWidth, _CapturedNodeRect.Bottom - Position.Y);
-                    }
-                    Mouse.SetCursor(Cursors.SizeNWSE);
-                    break;
+                {
+                    var x = (_CapturedNodeRect.Right - pos.X > MinHeight) ? pos.X : Position.X;
+                    var y = (_CapturedNodeRect.Bottom - pos.Y > MinHeight) ? pos.Y : Position.Y;
+                    Position = new Point(x, y);
+                    Width = Math.Max(MinWidth, _CapturedNodeRect.Right - Position.X);
+                    Height = Math.Max(MinWidth, _CapturedNodeRect.Bottom - Position.Y);
+                }
+                Mouse.SetCursor(Cursors.SizeNWSE);
+                break;
                 case DragResizeType.RightTop:
+                {
+                    var h = _CapturedNodeRect.Bottom - pos.Y;
+                    if (h > MinHeight)
                     {
-                        var h = _CapturedNodeRect.Bottom - pos.Y;
-                        if (h > MinHeight)
-                        {
-                            Position = new Point(Position.X, pos.Y);
-                            Height = Math.Max(MinHeight, h);
-                        }
+                        Position = new Point(Position.X, pos.Y);
+                        Height = Math.Max(MinHeight, h);
                     }
-                    Width = Math.Max(MinWidth, pos.X - _CapturedNodeRect.X);
-                    Mouse.SetCursor(Cursors.SizeNESW);
-                    break;
+                }
+                Width = Math.Max(MinWidth, pos.X - _CapturedNodeRect.X);
+                Mouse.SetCursor(Cursors.SizeNESW);
+                break;
                 case DragResizeType.LeftBottom:
+                {
+                    var w = _CapturedNodeRect.Right - pos.X;
+                    if (w > MinWidth)
                     {
-                        var w = _CapturedNodeRect.Right - pos.X;
-                        if (w > MinWidth)
-                        {
-                            Position = new Point(pos.X, Position.Y);
-                            Width = Math.Max(MinWidth, w);
-                        }
+                        Position = new Point(pos.X, Position.Y);
+                        Width = Math.Max(MinWidth, w);
                     }
-                    Height = Math.Max(MinHeight, pos.Y - _CapturedNodeRect.Y);
-                    Mouse.SetCursor(Cursors.SizeNESW);
-                    break;
+                }
+                Height = Math.Max(MinHeight, pos.Y - _CapturedNodeRect.Y);
+                Mouse.SetCursor(Cursors.SizeNESW);
+                break;
                 case DragResizeType.RightBottom:
                     Width = Math.Max(MinWidth, pos.X - _CapturedNodeRect.X);
                     Height = Math.Max(MinHeight, pos.Y - _CapturedNodeRect.Y);
                     Mouse.SetCursor(Cursors.SizeNWSE);
                     break;
                 case DragResizeType.Top:
+                {
+                    var h = _CapturedNodeRect.Bottom - pos.Y;
+                    if (h > MinHeight)
                     {
-                        var h = _CapturedNodeRect.Bottom - pos.Y;
-                        if (h > MinHeight)
-                        {
-                            Position = new Point(Position.X, pos.Y);
-                            Height = Math.Max(MinHeight, h);
-                        }
+                        Position = new Point(Position.X, pos.Y);
+                        Height = Math.Max(MinHeight, h);
                     }
-                    Mouse.SetCursor(Cursors.SizeNS);
-                    break;
+                }
+                Mouse.SetCursor(Cursors.SizeNS);
+                break;
                 case DragResizeType.Bottom:
                     Height = Math.Max(MinHeight, pos.Y - _CapturedNodeRect.Y);
                     Mouse.SetCursor(Cursors.SizeNS);
                     break;
                 case DragResizeType.Left:
+                {
+                    var w = _CapturedNodeRect.Right - pos.X;
+                    if (w > MinWidth)
                     {
-                        var w = _CapturedNodeRect.Right - pos.X;
-                        if (w > MinWidth)
-                        {
-                            Position = new Point(pos.X, Position.Y);
-                            Width = Math.Max(MinWidth, w);
-                        }
+                        Position = new Point(pos.X, Position.Y);
+                        Width = Math.Max(MinWidth, w);
                     }
-                    Mouse.SetCursor(Cursors.SizeWE);
-                    break;
+                }
+                Mouse.SetCursor(Cursors.SizeWE);
+                break;
                 case DragResizeType.Right:
                     Width = Math.Max(MinWidth, pos.X - _CapturedNodeRect.X);
                     Mouse.SetCursor(Cursors.SizeWE);

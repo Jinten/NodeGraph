@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -19,7 +20,7 @@ namespace NodeGraph.Controls
         Curve
     }
 
-    public class NodeLink : Shape, ICanvasObject, IDisposable
+    public class NodeLink : Shape, ICanvasObject
     {
         public Guid Guid
         {
@@ -191,6 +192,14 @@ namespace NodeGraph.Controls
 
         public void Dispose()
         {
+            // You need to clear Style.
+            // Because implemented on style for binding.
+            Style = null;
+
+            // Clear binding for subscribing source changed event from old control.
+            // throw exception about visual tree ancestor different if you not clear binding.
+            BindingOperations.ClearAllBindings(this);
+
             Input?.Disconnect(this);
             Input = null;
             Output?.Disconnect(this);

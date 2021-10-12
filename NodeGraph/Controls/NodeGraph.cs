@@ -339,6 +339,7 @@ namespace NodeGraph.Controls
             var removeElements = nodeGraph.Canvas.Children.OfType<T>().ToArray();
             foreach (var removeElement in removeElements)
             {
+                removeElement.Dispose();
                 nodeGraph.Canvas.Children.Remove(removeElement);
             }
 
@@ -696,6 +697,7 @@ namespace NodeGraph.Controls
                 DisconnectNodeLink(_DraggingNodeLinkParam.NodeLink);
                 if (_ReconnectGhostNodeLink != null)
                 {
+                    _ReconnectGhostNodeLink.Dispose();
                     Canvas.Children.Remove(_ReconnectGhostNodeLink);
                     _ReconnectGhostNodeLink = null;
                 }
@@ -744,8 +746,8 @@ namespace NodeGraph.Controls
                 DisconnectedCommand?.Execute(param);
             }
 
-            Canvas.Children.Remove(nodeLink);
             nodeLink.Dispose();
+            Canvas.Children.Remove(nodeLink);
         }
 
         void ClearPreviewedConnect()
@@ -850,11 +852,10 @@ namespace NodeGraph.Controls
             foreach (var removeNodeLink in removeNodeLinks)
             {
                 // add node link.
-                Canvas.Children.Remove(removeNodeLink);
-
                 removeNodeLink.MouseDown -= NodeLink_MouseDown;
-
                 removeNodeLink.Dispose();
+
+                Canvas.Children.Remove(removeNodeLink);
             }
         }
 
@@ -914,11 +915,11 @@ namespace NodeGraph.Controls
         {
             foreach (var removeNode in removeNodes)
             {
-                Canvas.Children.Remove(removeNode);
-
                 UnsubscribeNodeEvent(removeNode);
 
                 removeNode.Dispose();
+
+                Canvas.Children.Remove(removeNode);
             }
         }
 
@@ -967,11 +968,11 @@ namespace NodeGraph.Controls
         {
             foreach (var removeGroupNode in removeGroupNodes)
             {
-                Canvas.Children.Remove(removeGroupNode);
-
                 UnsubscribeNodeEvent(removeGroupNode);
 
                 removeGroupNode.Dispose();
+
+                Canvas.Children.Remove(removeGroupNode);
             }
         }
 
@@ -1432,8 +1433,8 @@ namespace NodeGraph.Controls
             else
             {
                 // preview node link. (new connecting)
-                Canvas.Children.Remove(_DraggingNodeLinkParam.NodeLink);
                 _DraggingNodeLinkParam.NodeLink.Dispose();
+                Canvas.Children.Remove(_DraggingNodeLinkParam.NodeLink);
             }
         }
 
@@ -1441,6 +1442,7 @@ namespace NodeGraph.Controls
         {
             if (_ReconnectGhostNodeLink != null)
             {
+                _ReconnectGhostNodeLink.Dispose();
                 Canvas.Children.Remove(_ReconnectGhostNodeLink);
                 _ReconnectGhostNodeLink = null;
             }
