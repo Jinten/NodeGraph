@@ -25,6 +25,7 @@
                 <Border x:Name="__GroupNodeHeader__" BorderThickness="0,0,0,1" BorderBrush="Black">
                     <ContentPresenter VerticalAlignment="Stretch"
                                       HorizontalAlignment="Stretch"
+                                      Content="{TemplateBinding DataContext}"
                                       ContentTemplate="{Binding HeaderContentTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"/>
                 </Border>
 

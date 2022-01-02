@@ -190,7 +190,7 @@ namespace NodeGraph.Controls
         {
             base.OnApplyTemplate();
 
-            _GroupNodeHeader = GetTemplateChild("__GroupNodeHeader__") as Border;
+            _GroupNodeHeader = (Border)GetTemplateChild("__GroupNodeHeader__");
             _GroupNodeHeader.SizeChanged += GroupNodeHeader_SizeChanged;
         }
 

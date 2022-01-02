@@ -1136,9 +1136,20 @@ namespace NodeGraph.Controls
         {
             _PressedRightBotton = e.RightButton == MouseButtonState.Pressed;
 
-            var element = e.OriginalSource as FrameworkElement;
+            if(sender is GroupNode groupNode)
+            {
+                groupNode.CaptureToResizeDragging();
 
-            if (element != null && element.Tag is NodeConnectorContent connector)
+                if (groupNode.IsDraggingToResize)
+                {
+                    _DraggingToResizeGroupNode = groupNode;
+                    e.Handled = true;
+
+                    return;
+                }
+            }
+
+            if(sender is FrameworkElement fwElement && fwElement.Tag is NodeConnectorContent connector)
             {
                 // clicked on the connector
                 var posOnCanvas = connector.GetContentPosition(Canvas);
@@ -1157,32 +1168,7 @@ namespace NodeGraph.Controls
             else if (IsOffsetMoveWithMouse(e) == false)
             {
                 // clicked on the Node
-                StartToMoveDraggingNode(e.GetPosition(Canvas), e.Source as NodeBase);
-            }
-
-            e.Handled = true;
-        }
-
-        void GroupNode_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            _PressedRightBotton = e.RightButton == MouseButtonState.Pressed;
-
-            var groupNode = sender as GroupNode;
-            groupNode.CaptureToResizeDragging();
-
-            if (groupNode.IsDraggingToResize)
-            {
-                _DraggingToResizeGroupNode = groupNode;
-                e.Handled = true;
-                return;
-            }
-
-            var element = e.OriginalSource as FrameworkElement;
-
-            if (IsOffsetMoveWithMouse(e) == false)
-            {
-                // clicked on the GroupNode
-                StartToMoveDraggingNode(e.GetPosition(Canvas), e.Source as NodeBase);
+                StartToMoveDraggingNode(e.GetPosition(Canvas), (NodeBase)e.Source);
             }
 
             e.Handled = true;
