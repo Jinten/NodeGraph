@@ -2,7 +2,7 @@
 Node graph control in WPF.  
 You can customize a node visual by style.
 
-# Pacage requirements
+# Package requirements
 * [Livet v4.0.2](https://github.com/runceel/Livet/releases/tag/v4.0.2)
 * [XamlBehaviorsWpf v1.1.19](https://github.com/microsoft/XamlBehaviorsWpf/releases/tag/v1.1.19)
 
