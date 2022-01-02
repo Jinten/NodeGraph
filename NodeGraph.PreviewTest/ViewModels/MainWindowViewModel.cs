@@ -148,6 +148,7 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         void ClearNodes()
         {
+            _NodeLinkViewModels.Clear();
             _NodeViewModels.Clear();
         }
 
