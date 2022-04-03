@@ -1,25 +1,17 @@
-﻿using NodeGraph.CommandParameters;
-using NodeGraph.Extensions;
+﻿using NodeGraph.Extensions;
+using NodeGraph.OperationEventArgs;
 using NodeGraph.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NodeGraph.Controls
 {
@@ -451,8 +443,8 @@ namespace NodeGraph.Controls
                             _DraggingNodes.Add(node);
                         }
 
-                        var param = new StartMoveNodesCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
-                        StartMoveNodesCommand?.Execute(param);
+                        var args = new StartMoveNodesOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+                        StartMoveNodesCommand?.Execute(args);
                     }
                     else
                     {
@@ -742,8 +734,8 @@ namespace NodeGraph.Controls
             {
                 var inputNode = nodeLink.Input.Node;
                 var outputNode = nodeLink.Output.Node;
-                var param = new DisconnectedCommandParameter(nodeLink.Guid, inputNode.Guid, nodeLink.InputGuid, outputNode.Guid, nodeLink.OutputGuid);
-                DisconnectedCommand?.Execute(param);
+                var args = new DisconnectedOperationEventArgs(nodeLink.Guid, inputNode.Guid, nodeLink.InputGuid, outputNode.Guid, nodeLink.OutputGuid);
+                DisconnectedCommand?.Execute(args);
             }
 
             nodeLink.Dispose();
@@ -1031,9 +1023,9 @@ namespace NodeGraph.Controls
         {
             if (start.CanConnectTo(toEnd) && toEnd.CanConnectTo(start))
             {
-                var param = new PreviewConnectCommandParameter(start.Node.Guid, start.Guid, toEnd.Node.Guid, toEnd.Guid);
-                PreviewConnectCommand?.Execute(param);
-                toEnd.CanConnect = param.CanConnect;
+                var args = new PreviewConnectOperationEventArgs(start.Node.Guid, start.Guid, toEnd.Node.Guid, toEnd.Guid);
+                PreviewConnectCommand?.Execute(args);
+                toEnd.CanConnect = args.CanConnect;
             }
             else
             {
@@ -1149,7 +1141,8 @@ namespace NodeGraph.Controls
                 }
             }
 
-            if(sender is FrameworkElement fwElement && fwElement.Tag is NodeConnectorContent connector)
+            var originalSender = e.OriginalSource as FrameworkElement;
+            if(originalSender?.Tag is NodeConnectorContent connector)
             {
                 // clicked on the connector
                 var posOnCanvas = connector.GetContentPosition(Canvas);
@@ -1229,8 +1222,8 @@ namespace NodeGraph.Controls
 
             _DraggingNodes.Add(node);
 
-            var param = new StartMoveNodesCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
-            StartMoveNodesCommand?.Execute(param);
+            var args = new StartMoveNodesOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+            StartMoveNodesCommand?.Execute(args);
 
             _DragStartPointToMoveNode = pos;
 
@@ -1276,8 +1269,8 @@ namespace NodeGraph.Controls
             {
                 return;
             }
-            var param = new NodesMovedCommandParameter(_DraggingNodes.Select(arg => arg.Guid).ToArray());
-            NodesMovedCommand?.Execute(param);
+            var args = new NodesMovedOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+            NodesMovedCommand?.Execute(args);
 
             // expand the group node area size if node within group.
             var groupNodes = Canvas.Children.OfType<GroupNode>().Where(arg => _DraggingNodes.Contains(arg) == false).ToArray();
@@ -1363,13 +1356,14 @@ namespace NodeGraph.Controls
                         case NodeInputContent inputConnector:
                         {
                             input = inputConnector;
-                            output = _DraggingNodeLinkParam.StartConnector as NodeOutputContent;
+                            output = (NodeOutputContent)_DraggingNodeLinkParam.StartConnector;
 
                             if (AllowToOverrideConnection && input.ConnectedCount > 0)
                             {
                                 // it has to disconnect previous connected node link.
                                 var nodeLinks = Canvas.Children.OfType<NodeLink>().ToArray();
                                 var disconnectNodeLink = nodeLinks.First(arg => arg.InputGuid == input.Guid);
+
                                 // but cannot disconnect if node link is locked.
                                 if (disconnectNodeLink.IsLocked)
                                 {
@@ -1384,7 +1378,7 @@ namespace NodeGraph.Controls
                         case NodeOutputContent outputConnector:
                         {
                             output = outputConnector;
-                            input = _DraggingNodeLinkParam.StartConnector as NodeInputContent;
+                            input = (NodeInputContent)_DraggingNodeLinkParam.StartConnector;
                             break;
                         }
                         default:
@@ -1393,8 +1387,8 @@ namespace NodeGraph.Controls
 
                     ClearPreviewingNodeLink();
 
-                    var param = new ConnectedCommandParameter(input.Node.Guid, input.Guid, output.Node.Guid, output.Guid);
-                    ConnectedCommand?.Execute(param);
+                    var args = new ConnectedOperationEventArgs(input.Node.Guid, input.Guid, output.Node.Guid, output.Guid);
+                    ConnectedCommand?.Execute(args);
 
                     connected = true;
                 }

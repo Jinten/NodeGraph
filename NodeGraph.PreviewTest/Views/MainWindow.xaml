@@ -8,7 +8,7 @@
         xmlns:ctrl="clr-namespace:NodeGraph.Controls;assembly=NodeGraph"
         xmlns:local="clr-namespace:NodeGraph.PreviewTest"
         mc:Ignorable="d"
-        Title="NodeGraph - prototype" Height="600" Width="1300">
+        Title="NodeGraph - prototype" Height="600" Width="1600">
 
     <Window.DataContext>
         <vm:MainWindowViewModel/>
@@ -124,6 +124,7 @@
             <ComboBox Margin="4" Height="24" ItemsSource="{Binding GroupIntersectTypes, Mode=OneTime}" SelectedItem="{Binding SelectedGroupIntersectType}"/>
             <CheckBox Margin="4" Height="24" Content="IsLockedAllNodeLinks" IsChecked="{Binding IsLockedAllNodeLinks}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
+            <CheckBox Margin="4" Height="24" Content="AllowToOverrideConnection" IsChecked="{Binding AllowToOverrideConnection}" VerticalContentAlignment="Center" ToolTip="You can't connect multiple links if true."/>
             <CheckBox Margin="4" Height="24" Content="ClipToBounds" IsChecked="{Binding ClipToBounds}" VerticalContentAlignment="Center"/>
         </DockPanel>
         <ctrl:NodeGraph Grid.Row="3"
@@ -139,7 +140,7 @@
                         PreviewConnectCommand="{Binding PreviewConnectCommand}"
                         ConnectedCommand="{Binding ConnectedCommand}"
                         DisconnectedCommand="{Binding DisconnectedCommand}"
-                        AllowToOverrideConnection="True"
+                        AllowToOverrideConnection="{Binding AllowToOverrideConnection}"
                         IsRangeSelectPerfectionism="True"
                         ClipToBounds="{Binding ClipToBounds}"
                         ContextMenu="{StaticResource NodeGraphContextMenu}">

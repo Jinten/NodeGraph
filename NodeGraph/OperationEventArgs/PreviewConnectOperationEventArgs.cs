@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NodeGraph.CommandParameters
+namespace NodeGraph.OperationEventArgs
 {
-    public class PreviewConnectCommandParameter
+    public class PreviewConnectOperationEventArgs
     {
         public bool CanConnect { get; set; } = true;
 
@@ -15,7 +15,7 @@ namespace NodeGraph.CommandParameters
         public Guid ConnectToEndNodeGuid { get; } = Guid.Empty;
         public Guid ConnectToEndConnectorGuid { get; } = Guid.Empty;
 
-        public PreviewConnectCommandParameter(
+        public PreviewConnectOperationEventArgs(
             Guid connectStartNodeGuid,
             Guid connectStartConnectorGuid,
             Guid connectToEndNodeGuid,
