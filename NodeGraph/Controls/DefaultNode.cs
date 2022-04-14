@@ -67,7 +67,7 @@ namespace NodeGraph.Controls
 
         public IEnumerable Inputs
         {
-            get => GetValue(InputsProperty) as IEnumerable;
+            get => (IEnumerable)GetValue(InputsProperty);
             set => SetValue(InputsProperty, value);
         }
         public static readonly DependencyProperty InputsProperty = DependencyProperty.Register(
@@ -78,7 +78,7 @@ namespace NodeGraph.Controls
 
         public Style InputStyle
         {
-            get => GetValue(InputStyleProperty) as Style;
+            get => (Style)GetValue(InputStyleProperty);
             set => SetValue(InputStyleProperty, value);
         }
         public static readonly DependencyProperty InputStyleProperty = DependencyProperty.Register(
@@ -111,7 +111,7 @@ namespace NodeGraph.Controls
 
         public IEnumerable Outputs
         {
-            get => GetValue(OutputsProperty) as IEnumerable;
+            get => (IEnumerable)GetValue(OutputsProperty);
             set => SetValue(OutputsProperty, value);
         }
         public static readonly DependencyProperty OutputsProperty = DependencyProperty.Register(
@@ -122,7 +122,7 @@ namespace NodeGraph.Controls
 
         public Style OutputStyle
         {
-            get => GetValue(OutputStyleProperty) as Style;
+            get => (Style)GetValue(OutputStyleProperty);
             set => SetValue(OutputStyleProperty, value);
         }
         public static readonly DependencyProperty OutputStyleProperty = DependencyProperty.Register(
@@ -133,7 +133,7 @@ namespace NodeGraph.Controls
 
         public ICommand SizeChangedCommand
         {
-            get => GetValue(SizeChangedCommandProperty) as ICommand;
+            get => (ICommand)GetValue(SizeChangedCommandProperty);
             set => SetValue(SizeChangedCommandProperty, value);
         }
         public static readonly DependencyProperty SizeChangedCommandProperty = DependencyProperty.Register(
@@ -144,6 +144,10 @@ namespace NodeGraph.Controls
 
         NodeInput _NodeInput = null;
         NodeOutput _NodeOutput = null;
+
+        ColumnDefinition _NodeInputGridColumnDefinition;
+        ColumnDefinition _NodeContentTemplateGridColumnDefinition;
+        ColumnDefinition _NodeOutputGridColumnDefinition;
 
         static void OutputsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {            
@@ -178,27 +182,31 @@ namespace NodeGraph.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(DefaultNode), new FrameworkPropertyMetadata(typeof(DefaultNode)));
         }
 
-        public DefaultNode(Canvas canvas, Point offset, double scale) : base(canvas, offset)
+        internal DefaultNode(Canvas canvas, Point offset, double scale) : base(canvas, offset)
         {
             SizeChanged += Node_SizeChanged;
         }
 
         public override void OnApplyTemplate()
         {
-            _NodeInput = GetTemplateChild("__NodeInput__") as NodeInput;
+            _NodeInput = (NodeInput)GetTemplateChild("__NodeInput__");
             _NodeInput.ApplyTemplate();
 
-            _NodeOutput = GetTemplateChild("__NodeOutput__") as NodeOutput;
+            _NodeOutput = (NodeOutput)GetTemplateChild("__NodeOutput__");
             _NodeOutput.ApplyTemplate();
+
+            _NodeInputGridColumnDefinition = (ColumnDefinition)GetTemplateChild("__NodeInputGridColumnDefinition__");
+            _NodeContentTemplateGridColumnDefinition = (ColumnDefinition)GetTemplateChild("__NodeContentTemplateGridColumnDefinition__");
+            _NodeOutputGridColumnDefinition = (ColumnDefinition)GetTemplateChild("__NodeOutputGridColumnDefinition__");
         }
 
-        public void Initialize()
+        internal void Initialize()
         {
             _NodeInput.Initialize();
             _NodeOutput.Initialize();
         }
 
-        public NodeLink[] EnumrateConnectedNodeLinks()
+        internal NodeLink[] EnumrateConnectedNodeLinks()
         {
             var inputNodeLinks = _NodeInput.EnumerateConnectedNodeLinks();
             var outputNodeLinks = _NodeOutput.EnumerateConnectedNodeLinks();
@@ -244,6 +252,10 @@ namespace NodeGraph.Controls
         {
             _NodeInput.UpdateLinkPosition(Canvas);
             _NodeOutput.UpdateLinkPosition(Canvas);
+
+            // Collapse input/output controls if not placement input/output connectors.            
+            _NodeInputGridColumnDefinition.Width = _NodeInput.HasItems ? new GridLength(1.0f, GridUnitType.Star) : new GridLength(0);
+            _NodeOutputGridColumnDefinition.Width = _NodeOutput.HasItems ? new GridLength(1.0f, GridUnitType.Star) : new GridLength(0);
 
             SizeChangedCommand?.Execute(e.NewSize);
         }

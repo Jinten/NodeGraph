@@ -89,13 +89,13 @@ namespace NodeGraph.Controls
 
         static void DashOffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var nodeLink = d as NodeLink;
+            var nodeLink = (NodeLink)d;
             nodeLink.InvalidateVisual();
         }
 
         static void LinkTypePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var nodeLink = d as NodeLink;
+            var nodeLink = (NodeLink)d;
             nodeLink.InvalidateVisual();
         }
 
@@ -171,7 +171,7 @@ namespace NodeGraph.Controls
             Canvas.SetZIndex(this, -1);
         }
 
-        public NodeLink CreateGhost()
+        internal NodeLink CreateGhost()
         {
             var ghost = new NodeLink(Canvas, _Scale);
             ghost._StartPoint = _StartPoint;
@@ -182,7 +182,7 @@ namespace NodeGraph.Controls
             return ghost;
         }
 
-        public void Validate()
+        internal void Validate()
         {
             if (Guid == Guid.Empty || InputGuid == Guid.Empty || OutputGuid == Guid.Empty)
             {
@@ -206,7 +206,7 @@ namespace NodeGraph.Controls
             Output = null;
         }
 
-        public void Connect(NodeInputContent input, NodeOutputContent output)
+        internal void Connect(NodeInputContent input, NodeOutputContent output)
         {
             Input?.Disconnect(this);
             Output?.Disconnect(this);
@@ -231,7 +231,7 @@ namespace NodeGraph.Controls
             InvalidateVisual();
         }
 
-        public void UpdateEdgePoint(double x, double y)
+        internal void UpdateEdgePoint(double x, double y)
         {
             if (Input == null)
             {
@@ -252,35 +252,28 @@ namespace NodeGraph.Controls
             InvalidateVisual();
         }
 
-        public void ReleaseEndPoint()
+        internal void ReleaseEndPoint()
         {
             IsHitTestVisible = false;
             _RestoreEndPoint = _EndPoint;
         }
 
-        public void RestoreEndPoint()
+        internal void RestoreEndPoint()
         {
             IsHitTestVisible = true;
             UpdateEdgePoint(_RestoreEndPoint.X, _RestoreEndPoint.Y);
         }
 
-        public void UpdateInputEdge(double x, double y)
+        internal void UpdateInputEdge(double x, double y)
         {
             _EndPoint = new Point(x, y);
             InvalidateVisual();
         }
 
-        public void UpdateOutputEdge(double x, double y)
+        internal void UpdateOutputEdge(double x, double y)
         {
             _StartPoint = new Point(x, y);
             InvalidateVisual();
-        }
-
-
-        void UpdateConnectPosition()
-        {
-            _EndPoint = Input.GetContentPosition(Canvas, 0, 0.5);
-            _StartPoint = Output.GetContentPosition(Canvas, 0.5, 0.5);
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -294,6 +287,12 @@ namespace NodeGraph.Controls
                     DrawCurve(drawingContext);
                     break;
             }
+        }
+
+        void UpdateConnectPosition()
+        {
+            _EndPoint = Input.GetContentPosition(Canvas, 0, 0.5);
+            _StartPoint = Output.GetContentPosition(Canvas, 0.5, 0.5);
         }
 
         void DrawLine(DrawingContext drawingContext)

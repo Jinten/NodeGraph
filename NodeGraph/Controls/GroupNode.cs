@@ -176,14 +176,14 @@ namespace NodeGraph.Controls
             DefaultStyleKeyProperty.OverrideMetadata(typeof(GroupNode), new FrameworkPropertyMetadata(typeof(GroupNode)));
         }
 
-        public GroupNode(Canvas canvas, Point offset, double scale) : base(canvas, offset)
+        internal GroupNode(Canvas canvas, Point offset, double scale) : base(canvas, offset)
         {
             SizeChanged += Group_SizeChanged;
         }
 
-        public void Initialize()
+        internal void Initialize()
         {
-
+            // Implement if anything.
         }
 
         public override void OnApplyTemplate()
@@ -194,7 +194,7 @@ namespace NodeGraph.Controls
             _GroupNodeHeader.SizeChanged += GroupNodeHeader_SizeChanged;
         }
 
-        public void ExpandSize(Rect rect)
+        internal void ExpandSize(Rect rect)
         {
             var oldPosition = Position;
             var maxX = Math.Max(oldPosition.X + Width, rect.Right + BorderSize);
@@ -213,7 +213,7 @@ namespace NodeGraph.Controls
             UpdateInnerPosition();
         }
 
-        public void CaptureToResizeDragging()
+        internal void CaptureToResizeDragging()
         {
             if (_IsDraggingToResizeType != DragResizeType.None)
             {
@@ -222,12 +222,12 @@ namespace NodeGraph.Controls
             }
         }
 
-        public void ReleaseToResizeDragging()
+        internal void ReleaseToResizeDragging()
         {
             IsDraggingToResize = false;
         }
 
-        public void Resize(Point pos)
+        internal void Resize(in Point pos)
         {
             switch (_IsDraggingToResizeType)
             {
@@ -305,7 +305,7 @@ namespace NodeGraph.Controls
             UpdateInnerPosition();
         }
 
-        public void ChangeInnerColor(bool inside)
+        internal void ChangeInnerColor(bool inside)
         {
             if (_IsInside != inside)
             {
@@ -314,19 +314,19 @@ namespace NodeGraph.Controls
             }
         }
 
-        public bool IsInsideCompletely(Rect rect)
+        internal bool IsInsideCompletely(in Rect rect)
         {
             return InnerPosition.X <= rect.X && rect.Right <= (InnerPosition.X + InnerWidth)
                 && InnerPosition.Y <= rect.Y && rect.Bottom <= (InnerPosition.Y + InnerHeight);
         }
 
-        public bool IsInsideCompletely(Point pos)
+        internal bool IsInsideCompletely(Point pos)
         {
             return InnerPosition.X <= pos.X && pos.X <= (InnerPosition.X + InnerWidth)
                 && InnerPosition.Y <= pos.Y && pos.Y <= (InnerPosition.Y + InnerHeight);
         }
 
-        public Rect GetInnerBoundingBox()
+        internal Rect GetInnerBoundingBox()
         {
             return new Rect(InnerPosition, new Size(InnerWidth, InnerHeight));
         }

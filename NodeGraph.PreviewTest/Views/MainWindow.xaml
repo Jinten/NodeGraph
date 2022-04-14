@@ -72,8 +72,8 @@
                         <StackPanel>
                             <TextBox Text="{Binding Body}"/>
                             <DockPanel TextBlock.Foreground="WhiteSmoke">
-                                <TextBlock Margin="0,0,0,4" Text="{Binding Width, StringFormat=Width:{0}}"/>
-                                <TextBlock Margin="4,0,0,0" Text="{Binding Height, StringFormat=Height:{0}}"/>
+                                <TextBlock Margin="0,0,0,4" Text="{Binding Width, StringFormat=Width:{0:F2}}"/>
+                                <TextBlock Margin="4,0,0,0" Text="{Binding Height, StringFormat=Height:{0:F2}}"/>
                             </DockPanel>
                         </StackPanel>
                     </DataTemplate>

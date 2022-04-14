@@ -77,8 +77,8 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand ResetScaleCommand => _ResetScaleCommand.Get(ResetScale);
         ViewModelCommandHandler _ResetScaleCommand = new ViewModelCommandHandler();
 
-        public IEnumerable<NodeBaseViewModel> NodeViewModels => _NodeViewModels;
-        ObservableCollection<NodeBaseViewModel> _NodeViewModels = new ObservableCollection<NodeBaseViewModel>();
+        public IEnumerable<DefaultNodeViewModel> NodeViewModels => _NodeViewModels;
+        ObservableCollection<DefaultNodeViewModel> _NodeViewModels = new ObservableCollection<DefaultNodeViewModel>();
 
         public IEnumerable<NodeLinkViewModel> NodeLinkViewModels => _NodeLinkViewModels;
         ObservableCollection<NodeLinkViewModel> _NodeLinkViewModels = new ObservableCollection<NodeLinkViewModel>();
@@ -126,14 +126,16 @@ namespace NodeGraph.PreviewTest.ViewModels
         public MainWindowViewModel()
         {
             _GroupNodeViewModels.Add(new GroupNodeViewModel() { Name = "Group1" });
-            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node1", Body = "Content1", Position = new Point(0, 100) });
-            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node2", Body = "Content2", Position = new Point(100, 200) });
-            _NodeViewModels.Add(new NodeViewModel1() { Name = "Node3", Body = "Content3", Position = new Point(200, 300) });
+            _NodeViewModels.Add(new Test1DefaultNodeViewModel() { Name = "Node1", Body = "Content1", Position = new Point(0, 100) });
+            _NodeViewModels.Add(new Test1DefaultNodeViewModel() { Name = "Node2", Body = "Content2", Position = new Point(100, 200) });
+            _NodeViewModels.Add(new Test1DefaultNodeViewModel() { Name = "Node3", Body = "Content3", Position = new Point(200, 300) });
+            _NodeViewModels.Add(new Test3DefaultNodeViewModel() { Name = "Node4", Body = "OutputsOnlyNode", Position = new Point(500, 100) });
+            _NodeViewModels.Add(new Test4DefaultNodeViewModel() { Name = "Node5", Body = "InputsOnlyNode", Position = new Point(600, 200) });
         }
 
         void AddNode()
         {
-            _NodeViewModels.Add(new NodeViewModel2() { Name = "NewNode", Body = "NewContent" });
+            _NodeViewModels.Add(new Test2DefaultNodeViewModel() { Name = "NewNode", Body = "NewContent" });
         }
 
         void AddGroupNode()

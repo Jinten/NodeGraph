@@ -9,6 +9,9 @@ using System.Windows.Media;
 
 namespace NodeGraph.Controls
 {
+    /// <summary>
+    /// Infinity grid rendering canvas.
+    /// </summary>
     public class GridCanvas : Canvas
     {
         public Point Offset
@@ -130,6 +133,7 @@ namespace NodeGraph.Controls
         {
             base.OnRender(dc);
 
+            // render grid only visual area.
             int subGridCount = SubDivisionCount + 1;
             double subGridSpace = Spacing / subGridCount;
             double subGridOffset = subGridSpace * subGridCount;
@@ -181,10 +185,6 @@ namespace NodeGraph.Controls
                 double v = i * Spacing + Offset.X % Spacing;
                 dc.DrawLine(_GridMainPen, new Point(v, MinVerticalOnCanvas), new Point(v, MaxVerticalOnCanvas));
             }
-        }
-
-        void DrawLTtoRB(DrawingContext dc)
-        {
         }
 
         void UpdateMainGridPen()

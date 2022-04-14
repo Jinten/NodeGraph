@@ -55,7 +55,7 @@ namespace NodeGraph.Controls
         protected TranslateTransform Translate { get; private set; } = new TranslateTransform(0, 0);
 
 
-        public NodeBase(Canvas canvas, Point offset)
+        internal NodeBase(Canvas canvas, Point offset)
         {
             Focusable = true;
 
@@ -71,17 +71,17 @@ namespace NodeGraph.Controls
             RenderTransform = transformGroup;
         }
 
-        public Rect GetBoundingBox()
+        internal Rect GetBoundingBox()
         {
             return new Rect(Position.X, Position.Y, ActualWidth, ActualHeight);
         }
 
-        public void CaptureDragStartPosition()
+        internal void CaptureDragStartPosition()
         {
             DragStartPosition = Position;
         }
 
-        public void UpdatePosition(double x, double y)
+        internal void UpdatePosition(double x, double y)
         {
             Position = new Point(x, y);
 

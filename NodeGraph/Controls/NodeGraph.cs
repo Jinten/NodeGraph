@@ -230,7 +230,7 @@ namespace NodeGraph.Controls
 
         static void OffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var nodeGraph = d as NodeGraph;
+            var nodeGraph = (NodeGraph)d;
 
             // need to calculate node position before calculate link absolute position.
             foreach (var obj in nodeGraph.Canvas.Children.OfType<DefaultNode>())

@@ -71,7 +71,7 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         public string Comment
         {
-            get => $"InnerWidth = {InnerWidth}, InnerHeight = {InnerHeight},\n Position = {Position}, InnerPosition = {InnerPosition}";
+            get => $"InnerWidth = {InnerWidth:F2}, InnerHeight = {InnerHeight:F2},\n Position = {Position:F2}, InnerPosition = {InnerPosition:F2}";
         }
 
         public bool IsSelected
@@ -90,7 +90,7 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
     }
 
-    public abstract class NodeBaseViewModel : ViewModel, INodeViewModel
+    public abstract class DefaultNodeViewModel : ViewModel, INodeViewModel
     {
         public double Width
         {
@@ -142,7 +142,7 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
     }
 
-    public class NodeViewModel1 : NodeBaseViewModel
+    public class Test1DefaultNodeViewModel : DefaultNodeViewModel
     {
         public string Name
         {
@@ -159,12 +159,12 @@ namespace NodeGraph.PreviewTest.ViewModels
         string _Body = string.Empty;
 
         public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
-        ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
+        readonly ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 
         public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
-        ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
+        readonly ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
-        public NodeViewModel1()
+        public Test1DefaultNodeViewModel()
         {
             for (int i = 0; i < 4; ++i)
             {
@@ -202,7 +202,7 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
     }
 
-    public class NodeViewModel2 : NodeBaseViewModel
+    public class Test2DefaultNodeViewModel : DefaultNodeViewModel
     {
         public string Name
         {
@@ -219,12 +219,12 @@ namespace NodeGraph.PreviewTest.ViewModels
         string _Body = string.Empty;
 
         public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
-        ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
+        readonly ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 
         public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
-        ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
+        readonly ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
-        public NodeViewModel2()
+        public Test2DefaultNodeViewModel()
         {
             for (int i = 0; i < 5; ++i)
             {
@@ -252,6 +252,83 @@ namespace NodeGraph.PreviewTest.ViewModels
 
             var output = Outputs.FirstOrDefault(arg => arg.Guid == guid);
             return output;
+        }
+    }
+
+    public class Test3DefaultNodeViewModel : DefaultNodeViewModel
+    {
+        public string Name
+        {
+            get => _Name;
+            set => RaisePropertyChangedIfSet(ref _Name, value);
+        }
+        string _Name = string.Empty;
+
+        public string Body
+        {
+            get => _Body;
+            set => RaisePropertyChangedIfSet(ref _Body, value);
+        }
+        string _Body = string.Empty;
+
+        public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
+        readonly ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
+
+        public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
+        readonly ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
+
+        public Test3DefaultNodeViewModel()
+        {
+            for (int i = 0; i < 2; ++i)
+            {
+                _Outputs.Add(new NodeOutputViewModel($"Output{i}"));
+            }
+        }
+
+        public override NodeConnectorViewModel FindConnector(Guid guid)
+        {
+            return Outputs.FirstOrDefault(arg => arg.Guid == guid);
+        }
+    }
+
+    public class Test4DefaultNodeViewModel : DefaultNodeViewModel
+    {
+        public string Name
+        {
+            get => _Name;
+            set => RaisePropertyChangedIfSet(ref _Name, value);
+        }
+        string _Name = string.Empty;
+
+        public string Body
+        {
+            get => _Body;
+            set => RaisePropertyChangedIfSet(ref _Body, value);
+        }
+        string _Body = string.Empty;
+
+        public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
+        readonly ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
+
+        public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
+        readonly ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
+
+        public Test4DefaultNodeViewModel()
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                var label = $"Input{i}";
+                if (i > 2)
+                {
+                    label += " Allow to connect multiple";
+                }
+                _Inputs.Add(new NodeInputViewModel(label, i > 2));
+            }
+        }
+
+        public override NodeConnectorViewModel FindConnector(Guid guid)
+        {
+            return Inputs.FirstOrDefault(arg => arg.Guid == guid);
         }
     }
 }
