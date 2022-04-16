@@ -13,6 +13,9 @@ Basic operations.
 Node Grouping.  
 ![GroupNode](https://user-images.githubusercontent.com/9315925/85937980-d6728c00-b943-11ea-9339-9287247ca9d9.gif)
 ![GroupNode_Resize_Comment](https://user-images.githubusercontent.com/9315925/85938001-1a659100-b944-11ea-976c-821046211cd2.gif)  
+
+You can check behaviors with samples.
+![image](https://user-images.githubusercontent.com/9315925/163401928-21420a7c-9ade-42a9-84c1-630a43463399.png)
 　  
 Used MaterialEditor in my Engine.  
 ![CamouflageShader](https://user-images.githubusercontent.com/9315925/85938058-7f20eb80-b944-11ea-9c21-7296a0325f8f.gif)  
