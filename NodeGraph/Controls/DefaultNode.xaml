@@ -50,7 +50,7 @@
 
                     <ContentPresenter Grid.Column="1"
                                       x:Name="__NodeContentTemplate__"
-                                      HorizontalAlignment="Center"
+                                      HorizontalAlignment="Stretch"
                                       VerticalAlignment="Center"
                                       Margin="{TemplateBinding ContentMargin}"
                                       Content="{TemplateBinding DataContext}"
