@@ -57,8 +57,6 @@ namespace NodeGraph.Controls
 
         internal NodeBase(Canvas canvas, Point offset)
         {
-            Focusable = true;
-
             Canvas = canvas;
             Offset = offset;
 
@@ -128,11 +126,14 @@ namespace NodeGraph.Controls
 
         static void IsSelectedPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var node = d as NodeBase;
+            var node = (NodeBase)d;
 
             node.BeginSelectionChanged?.Invoke(node, EventArgs.Empty);
 
-            node.Focus();
+            if (node.Focusable)
+            {
+                node.Focus();
+            }
 
             node.EndSelectionChanged?.Invoke(node, EventArgs.Empty);
         }
