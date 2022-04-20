@@ -81,45 +81,45 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty OffsetProperty =
             DependencyProperty.Register(nameof(Offset), typeof(Point), typeof(NodeGraph), new FrameworkPropertyMetadata(new Point(0, 0), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OffsetPropertyChanged));
 
-        public ICommand PreviewConnectCommand
+        public ICommand PreviewConnectLinkCommand
         {
-            get => (ICommand)GetValue(PreviewConnectCommandProperty);
-            set => SetValue(PreviewConnectCommandProperty, value);
+            get => (ICommand)GetValue(PreviewConnectLinkCommandProperty);
+            set => SetValue(PreviewConnectLinkCommandProperty, value);
         }
-        public static readonly DependencyProperty PreviewConnectCommandProperty =
-            DependencyProperty.Register(nameof(PreviewConnectCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty PreviewConnectLinkCommandProperty =
+            DependencyProperty.Register(nameof(PreviewConnectLinkCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
-        public ICommand ConnectedCommand
+        public ICommand ConnectedLinkCommand
         {
-            get => (ICommand)GetValue(ConnectedCommandProperty);
-            set => SetValue(ConnectedCommandProperty, value);
+            get => (ICommand)GetValue(ConnectedLinkCommandProperty);
+            set => SetValue(ConnectedLinkCommandProperty, value);
         }
-        public static readonly DependencyProperty ConnectedCommandProperty =
-            DependencyProperty.Register(nameof(ConnectedCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty ConnectedLinkCommandProperty =
+            DependencyProperty.Register(nameof(ConnectedLinkCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
-        public ICommand DisconnectedCommand
+        public ICommand DisconnectedLinkCommand
         {
-            get => (ICommand)GetValue(DisconnectedCommandProperty);
-            set => SetValue(DisconnectedCommandProperty, value);
+            get => (ICommand)GetValue(DisconnectedLinkCommandProperty);
+            set => SetValue(DisconnectedLinkCommandProperty, value);
         }
-        public static readonly DependencyProperty DisconnectedCommandProperty =
-            DependencyProperty.Register(nameof(DisconnectedCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty DisconnectedLinkCommandProperty =
+            DependencyProperty.Register(nameof(DisconnectedLinkCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
-        public ICommand StartMoveNodesCommand
+        public ICommand BeginMoveNodesCommand
         {
-            get => (ICommand)GetValue(StartMoveNodesCommandProperty);
-            set => SetValue(StartMoveNodesCommandProperty, value);
+            get => (ICommand)GetValue(BeginMoveNodesCommandProperty);
+            set => SetValue(BeginMoveNodesCommandProperty, value);
         }
-        public static readonly DependencyProperty StartMoveNodesCommandProperty =
-            DependencyProperty.Register(nameof(StartMoveNodesCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty BeginMoveNodesCommandProperty =
+            DependencyProperty.Register(nameof(BeginMoveNodesCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
-        public ICommand NodesMovedCommand
+        public ICommand EndMoveNodesCommand
         {
-            get => (ICommand)GetValue(NodesMovedCommandProperty);
-            set => SetValue(NodesMovedCommandProperty, value);
+            get => (ICommand)GetValue(EndMoveNodesCommandProperty);
+            set => SetValue(EndMoveNodesCommandProperty, value);
         }
-        public static readonly DependencyProperty NodesMovedCommandProperty =
-            DependencyProperty.Register(nameof(NodesMovedCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty EndMoveNodesCommandProperty =
+            DependencyProperty.Register(nameof(EndMoveNodesCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
         public Style NodeLinkStyle
         {
@@ -443,8 +443,8 @@ namespace NodeGraph.Controls
                             _DraggingNodes.Add(node);
                         }
 
-                        var args = new StartMoveNodesOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
-                        StartMoveNodesCommand?.Execute(args);
+                        var args = new BeginMoveNodesOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+                        BeginMoveNodesCommand?.Execute(args);
                     }
                     else
                     {
@@ -734,8 +734,8 @@ namespace NodeGraph.Controls
             {
                 var inputNode = nodeLink.Input.Node;
                 var outputNode = nodeLink.Output.Node;
-                var args = new DisconnectedOperationEventArgs(nodeLink.Guid, inputNode.Guid, nodeLink.InputGuid, outputNode.Guid, nodeLink.OutputGuid);
-                DisconnectedCommand?.Execute(args);
+                var args = new DisconnectedLinkOperationEventArgs(nodeLink.Guid, nodeLink.OutputConnectorGuid, outputNode.Guid, nodeLink.InputConnectorGuid, inputNode.Guid);
+                DisconnectedLinkCommand?.Execute(args);
             }
 
             nodeLink.Dispose();
@@ -864,8 +864,9 @@ namespace NodeGraph.Controls
                 var nodeLink = new NodeLink(Canvas, Scale)
                 {
                     DataContext = vm,
-                    Style = NodeLinkStyle ?? NodeLinkAnimationStyle,
                 };
+
+                nodeLink.Style = NodeLinkStyle ?? NodeLinkAnimationStyle;
 
                 nodeLink.Validate();
 
@@ -876,8 +877,8 @@ namespace NodeGraph.Controls
                 }
 
                 var nodes = Canvas.Children.OfType<DefaultNode>().ToArray();
-                var nodeInput = FindConnectorContentInNodes<NodeInputContent>(nodes, nodeLink.InputGuid);
-                var nodeOutput = FindConnectorContentInNodes<NodeOutputContent>(nodes, nodeLink.OutputGuid);
+                var nodeInput = FindConnectorContentInNodes<NodeInputContent>(nodes, nodeLink.InputConnectorGuid);
+                var nodeOutput = FindConnectorContentInNodes<NodeOutputContent>(nodes, nodeLink.OutputConnectorGuid);
 
                 nodeInput.Connect(nodeLink);
                 nodeOutput.Connect(nodeLink);
@@ -1023,8 +1024,8 @@ namespace NodeGraph.Controls
         {
             if (start.CanConnectTo(toEnd) && toEnd.CanConnectTo(start))
             {
-                var args = new PreviewConnectOperationEventArgs(start.Node.Guid, start.Guid, toEnd.Node.Guid, toEnd.Guid);
-                PreviewConnectCommand?.Execute(args);
+                var args = new PreviewConnectLinkOperationEventArgs(start.Node.Guid, start.Guid, toEnd.Node.Guid, toEnd.Guid);
+                PreviewConnectLinkCommand?.Execute(args);
                 toEnd.CanConnect = args.CanConnect;
             }
             else
@@ -1150,8 +1151,9 @@ namespace NodeGraph.Controls
                 var nodeLink = new NodeLink(Canvas, posOnCanvas.X, posOnCanvas.Y, Scale, connector)
                 {
                     DataContext = null,
-                    Style = NodeLinkStyle ?? NodeLinkAnimationStyle
                 };
+
+                nodeLink.Style = NodeLinkStyle ?? NodeLinkAnimationStyle;
 
                 _DraggingNodeLinkParam = new DraggingNodeLinkParam(nodeLink, connector);
                 Canvas.Children.Add(_DraggingNodeLinkParam.NodeLink);
@@ -1222,8 +1224,8 @@ namespace NodeGraph.Controls
 
             _DraggingNodes.Add(node);
 
-            var args = new StartMoveNodesOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
-            StartMoveNodesCommand?.Execute(args);
+            var args = new BeginMoveNodesOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+            BeginMoveNodesCommand?.Execute(args);
 
             _DragStartPointToMoveNode = pos;
 
@@ -1269,8 +1271,8 @@ namespace NodeGraph.Controls
             {
                 return;
             }
-            var args = new NodesMovedOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
-            NodesMovedCommand?.Execute(args);
+            var args = new EndMoveNodesOperationEventArgs(_DraggingNodes.Select(arg => arg.Guid).ToArray());
+            EndMoveNodesCommand?.Execute(args);
 
             // expand the group node area size if node within group.
             var groupNodes = Canvas.Children.OfType<GroupNode>().Where(arg => _DraggingNodes.Contains(arg) == false).ToArray();
@@ -1362,7 +1364,7 @@ namespace NodeGraph.Controls
                             {
                                 // it has to disconnect previous connected node link.
                                 var nodeLinks = Canvas.Children.OfType<NodeLink>().ToArray();
-                                var disconnectNodeLink = nodeLinks.First(arg => arg.InputGuid == input.Guid);
+                                var disconnectNodeLink = nodeLinks.First(arg => arg.InputConnectorGuid == input.Guid);
 
                                 // but cannot disconnect if node link is locked.
                                 if (disconnectNodeLink.IsLocked)
@@ -1387,8 +1389,8 @@ namespace NodeGraph.Controls
 
                     ClearPreviewingNodeLink();
 
-                    var args = new ConnectedOperationEventArgs(input.Node.Guid, input.Guid, output.Node.Guid, output.Guid);
-                    ConnectedCommand?.Execute(args);
+                    var args = new ConnectedLinkOperationEventArgs(output.Guid, output.Node.Guid, input.Guid, input.Node.Guid);
+                    ConnectedLinkCommand?.Execute(args);
 
                     connected = true;
                 }

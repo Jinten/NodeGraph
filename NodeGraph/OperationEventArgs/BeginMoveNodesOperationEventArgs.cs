@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace NodeGraph.OperationEventArgs
 {
-    public class StartMoveNodesOperationEventArgs : EventArgs
+    public class BeginMoveNodesOperationEventArgs : EventArgs
     {
         public Guid[] NodeGuids { get; } = null;
 
-        public StartMoveNodesOperationEventArgs(Guid[] nodeGuids)
+        public BeginMoveNodesOperationEventArgs(Guid[] nodeGuids)
         {
             NodeGuids = nodeGuids;
         }

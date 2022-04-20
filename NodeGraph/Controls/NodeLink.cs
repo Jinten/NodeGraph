@@ -33,24 +33,24 @@ namespace NodeGraph.Controls
             typeof(NodeLink),
             new FrameworkPropertyMetadata(Guid.NewGuid()));
 
-        public Guid InputGuid
+        public Guid InputConnectorGuid
         {
-            get => (Guid)GetValue(InputGuidProperty);
-            set => SetValue(InputGuidProperty, value);
+            get => (Guid)GetValue(InputConnectorGuidProperty);
+            set => SetValue(InputConnectorGuidProperty, value);
         }
-        public static readonly DependencyProperty InputGuidProperty = DependencyProperty.Register(
-            nameof(InputGuid),
+        public static readonly DependencyProperty InputConnectorGuidProperty = DependencyProperty.Register(
+            nameof(InputConnectorGuid),
             typeof(Guid),
             typeof(NodeLink),
             new FrameworkPropertyMetadata(Guid.NewGuid()));
 
-        public Guid OutputGuid
+        public Guid OutputConnectorGuid
         {
-            get => (Guid)GetValue(OutputGuidProperty);
-            set => SetValue(OutputGuidProperty, value);
+            get => (Guid)GetValue(OutputConnectorGuidProperty);
+            set => SetValue(OutputConnectorGuidProperty, value);
         }
-        public static readonly DependencyProperty OutputGuidProperty = DependencyProperty.Register(
-            nameof(OutputGuid),
+        public static readonly DependencyProperty OutputConnectorGuidProperty = DependencyProperty.Register(
+            nameof(OutputConnectorGuid),
             typeof(Guid),
             typeof(NodeLink),
             new FrameworkPropertyMetadata(Guid.NewGuid()));
@@ -153,6 +153,7 @@ namespace NodeGraph.Controls
 
         NodeLink(Canvas canvas, double x, double y, double scale)
         {
+            // create from view for preview reconnecting link.
             Canvas = canvas;
 
             IsHitTestVisible = false; // no need to hit until connected
@@ -174,6 +175,7 @@ namespace NodeGraph.Controls
         internal NodeLink CreateGhost()
         {
             var ghost = new NodeLink(Canvas, _Scale);
+            ghost.DataContext = null; // ghost link cannot binding connector properties. so you have to bind null to DataContext.(otherwise, occur binding errors)
             ghost._StartPoint = _StartPoint;
             ghost._EndPoint = _EndPoint;
             ghost.IsHitTestVisible = false;
@@ -184,7 +186,7 @@ namespace NodeGraph.Controls
 
         internal void Validate()
         {
-            if (Guid == Guid.Empty || InputGuid == Guid.Empty || OutputGuid == Guid.Empty)
+            if (Guid == Guid.Empty || InputConnectorGuid == Guid.Empty || OutputConnectorGuid == Guid.Empty)
             {
                 throw new DataException("Does not assigned guid");
             }

@@ -16,28 +16,28 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         Guid _Guid = Guid.NewGuid();
 
-        public Guid InputGuid
+        public Guid InputConnectorGuid
         {
-            get => _InputGuid;
-            set => RaisePropertyChangedIfSet(ref _InputGuid, value);
+            get => _InputConnectorGuid;
+            set => RaisePropertyChangedIfSet(ref _InputConnectorGuid, value);
         }
-        Guid _InputGuid = Guid.NewGuid();
+        Guid _InputConnectorGuid = Guid.NewGuid();
 
-        public Guid OutputGuid
+        public Guid OutputConnectorGuid
         {
-            get => _OutputGuid;
-            set => RaisePropertyChangedIfSet(ref _OutputGuid, value);
+            get => _OutputConnectorGuid;
+            set => RaisePropertyChangedIfSet(ref _OutputConnectorGuid, value);
         }
-        Guid _OutputGuid = Guid.NewGuid();
+        Guid _OutputConnectorGuid = Guid.NewGuid();
 
-        public Guid InputNodeGuid
+        public Guid InputConnectorNodeGuid
         {
             get => _InputNodeGuid;
             set => RaisePropertyChangedIfSet(ref _InputNodeGuid, value);
         }
         Guid _InputNodeGuid = Guid.NewGuid();
 
-        public Guid OutputNodeGuid
+        public Guid OutputConnectorNodeGuid
         {
             get => _OutputNodeGuid;
             set => RaisePropertyChangedIfSet(ref _OutputNodeGuid, value);

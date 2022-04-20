@@ -81,13 +81,13 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OperationEventArgs\ConnectOperationEventArgs.cs" />
-    <Compile Include="OperationEventArgs\DisconnectOperationEventArgs.cs" />
-    <Compile Include="OperationEventArgs\MovedNodesOperationEventArgs.cs" />
+    <Compile Include="OperationEventArgs\ConnectedLinkOperationEventArgs.cs" />
+    <Compile Include="OperationEventArgs\DisconnectedLinkOperationEventArgs.cs" />
+    <Compile Include="OperationEventArgs\EndMoveNodesOperationEventArgs.cs" />
     <Compile Include="Controls\GroupNode.cs" />
     <Compile Include="Controls\NodeBase.cs" />
     <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
-    <Compile Include="OperationEventArgs\PreviewConnectOperationEventArgs.cs" />
+    <Compile Include="OperationEventArgs\PreviewConnectLinkOperationEventArgs.cs" />
     <Compile Include="Controls\GridCanvas.cs" />
     <Compile Include="Controls\ICanvasObject.cs" />
     <Compile Include="Controls\DefaultNode.cs" />
@@ -96,7 +96,7 @@
     <Compile Include="Extensions\PointExtension.cs" />
     <Compile Include="Extensions\RectExtension.cs" />
     <Compile Include="Extensions\VectorExtension.cs" />
-    <Compile Include="OperationEventArgs\StartMoveNodesOperationEventArgs.cs" />
+    <Compile Include="OperationEventArgs\BeginMoveNodesOperationEventArgs.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
     <Page Include="Controls\GroupNode.xaml">
       <SubType>Designer</SubType>

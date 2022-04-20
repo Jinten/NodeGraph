@@ -36,8 +36,8 @@
 
         <Style x:Key="NodeLinkStyle" TargetType="{x:Type ctrl:NodeLink}" BasedOn="{StaticResource {x:Type ctrl:NodeLink}}">
             <Setter Property="Guid" Value="{Binding Guid, Mode=OneWay}"/>
-            <Setter Property="InputGuid" Value="{Binding InputGuid, Mode=OneWay}"/>
-            <Setter Property="OutputGuid" Value="{Binding OutputGuid, Mode=OneWay}"/>
+            <Setter Property="OutputConnectorGuid" Value="{Binding OutputConnectorGuid, Mode=OneWay}"/>
+            <Setter Property="InputConnectorGuid" Value="{Binding InputConnectorGuid, Mode=OneWay}"/>
             <Setter Property="IsLocked" Value="{Binding IsLocked, Mode=OneWay}"/>
         </Style>
 
@@ -137,9 +137,9 @@
                         NodeLinkStyle="{StaticResource NodeLinkStyle}"                        
                         GroupNodes="{Binding GroupNodeViewModels}"
                         GroupNodeStyle="{StaticResource GroupNodeStyle}"
-                        PreviewConnectCommand="{Binding PreviewConnectCommand}"
-                        ConnectedCommand="{Binding ConnectedCommand}"
-                        DisconnectedCommand="{Binding DisconnectedCommand}"
+                        PreviewConnectLinkCommand="{Binding PreviewConnectLinkCommand}"
+                        ConnectedLinkCommand="{Binding ConnectedLinkCommand}"
+                        DisconnectedLinkCommand="{Binding DisconnectedLinkCommand}"
                         AllowToOverrideConnection="{Binding AllowToOverrideConnection}"
                         IsRangeSelectPerfectionism="True"
                         ClipToBounds="{Binding ClipToBounds}"

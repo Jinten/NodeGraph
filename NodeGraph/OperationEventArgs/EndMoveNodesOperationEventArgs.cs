@@ -7,11 +7,11 @@ using System.Windows;
 
 namespace NodeGraph.OperationEventArgs
 {
-    public class NodesMovedOperationEventArgs : EventArgs
+    public class EndMoveNodesOperationEventArgs : EventArgs
     {
         public Guid[] NodeGuids { get; } = null;
 
-        public NodesMovedOperationEventArgs(Guid[] nodeGuids)
+        public EndMoveNodesOperationEventArgs(Guid[] nodeGuids)
         {
             NodeGuids = nodeGuids;
         }

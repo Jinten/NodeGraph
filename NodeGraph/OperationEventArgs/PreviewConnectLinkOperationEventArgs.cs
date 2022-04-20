@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NodeGraph.OperationEventArgs
 {
-    public class PreviewConnectOperationEventArgs
+    public class PreviewConnectLinkOperationEventArgs
     {
         public bool CanConnect { get; set; } = true;
 
@@ -15,7 +15,7 @@ namespace NodeGraph.OperationEventArgs
         public Guid ConnectToEndNodeGuid { get; } = Guid.Empty;
         public Guid ConnectToEndConnectorGuid { get; } = Guid.Empty;
 
-        public PreviewConnectOperationEventArgs(
+        public PreviewConnectLinkOperationEventArgs(
             Guid connectStartNodeGuid,
             Guid connectStartConnectorGuid,
             Guid connectToEndNodeGuid,

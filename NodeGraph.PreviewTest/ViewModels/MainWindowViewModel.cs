@@ -38,17 +38,17 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ViewModelCommand RemoveNodesCommand => _RemoveNodesCommand.Get(RemoveNodes);
         ViewModelCommandHandler _RemoveNodesCommand = new ViewModelCommandHandler();
 
-        public ListenerCommand<PreviewConnectOperationEventArgs> PreviewConnectCommand => _PreviewConnectCommand.Get(PreviewConnect);
-        ViewModelCommandHandler<PreviewConnectOperationEventArgs> _PreviewConnectCommand = new ViewModelCommandHandler<PreviewConnectOperationEventArgs>();
+        public ListenerCommand<PreviewConnectLinkOperationEventArgs> PreviewConnectLinkCommand => _PreviewConnectLinkCommand.Get(PreviewConnect);
+        ViewModelCommandHandler<PreviewConnectLinkOperationEventArgs> _PreviewConnectLinkCommand = new ViewModelCommandHandler<PreviewConnectLinkOperationEventArgs>();
 
-        public ListenerCommand<ConnectedOperationEventArgs> ConnectedCommand => _ConnectedCommand.Get(Connected);
-        ViewModelCommandHandler<ConnectedOperationEventArgs> _ConnectedCommand = new ViewModelCommandHandler<ConnectedOperationEventArgs>();
+        public ListenerCommand<ConnectedLinkOperationEventArgs> ConnectedLinkCommand => _ConnectedLinkCommand.Get(Connected);
+        ViewModelCommandHandler<ConnectedLinkOperationEventArgs> _ConnectedLinkCommand = new ViewModelCommandHandler<ConnectedLinkOperationEventArgs>();
 
-        public ListenerCommand<DisconnectedOperationEventArgs> DisconnectedCommand => _DisconnectedCommand.Get(Disconnected);
-        ViewModelCommandHandler<DisconnectedOperationEventArgs> _DisconnectedCommand = new ViewModelCommandHandler<DisconnectedOperationEventArgs>();
+        public ListenerCommand<DisconnectedLinkOperationEventArgs> DisconnectedLinkCommand => _DisconnectedLinkCommand.Get(Disconnected);
+        ViewModelCommandHandler<DisconnectedLinkOperationEventArgs> _DisconnectedLinkCommand = new ViewModelCommandHandler<DisconnectedLinkOperationEventArgs>();
 
-        public ListenerCommand<NodesMovedOperationEventArgs> NodesMovedCommand => _NodesMovedCommand.Get(NodesMoved);
-        ViewModelCommandHandler<NodesMovedOperationEventArgs> _NodesMovedCommand = new ViewModelCommandHandler<NodesMovedOperationEventArgs>();
+        public ListenerCommand<EndMoveNodesOperationEventArgs> EndMoveNodesCommand => _EndMoveNodesCommand.Get(NodesMoved);
+        ViewModelCommandHandler<EndMoveNodesOperationEventArgs> _EndMoveNodesCommand = new ViewModelCommandHandler<EndMoveNodesOperationEventArgs>();
 
         public ListenerCommand<IList> SelectionChangedCommand => _SelectionChangedCommand.Get(SelectionChanged);
         ViewModelCommandHandler<IList> _SelectionChangedCommand = new ViewModelCommandHandler<IList>();
@@ -150,7 +150,7 @@ namespace NodeGraph.PreviewTest.ViewModels
             {
                 _NodeViewModels.Remove(removeNode);
 
-                var removeNodeLink = NodeLinkViewModels.FirstOrDefault(arg => arg.InputNodeGuid == removeNode.Guid || arg.OutputNodeGuid == removeNode.Guid);
+                var removeNodeLink = NodeLinkViewModels.FirstOrDefault(arg => arg.InputConnectorNodeGuid == removeNode.Guid || arg.OutputConnectorNodeGuid == removeNode.Guid);
                 _NodeLinkViewModels.Remove(removeNodeLink);
             }
         }
@@ -218,33 +218,33 @@ namespace NodeGraph.PreviewTest.ViewModels
             RaisePropertyChanged(nameof(IsEnableAllNodeConnectors));
         }
 
-        void PreviewConnect(PreviewConnectOperationEventArgs args)
+        void PreviewConnect(PreviewConnectLinkOperationEventArgs args)
         {
             var inputNode = NodeViewModels.First(arg => arg.Guid == args.ConnectToEndNodeGuid);
             var inputConnector = inputNode.FindConnector(args.ConnectToEndConnectorGuid);
             args.CanConnect = inputConnector.Label == "Limited Input" == false;
         }
 
-        void Connected(ConnectedOperationEventArgs param)
+        void Connected(ConnectedLinkOperationEventArgs param)
         {
             var nodeLink = new NodeLinkViewModel()
             {
-                InputGuid = param.InputConnectorGuid,
-                InputNodeGuid = param.InputNodeGuid,
-                OutputGuid = param.OutputConnectorGuid,
-                OutputNodeGuid = param.OutputNodeGuid,
+                OutputConnectorGuid = param.OutputConnectorGuid,
+                OutputConnectorNodeGuid = param.OutputConnectorNodeGuid,
+                InputConnectorGuid = param.InputConnectorGuid,
+                InputConnectorNodeGuid = param.InputConnectorNodeGuid,
                 IsLocked = IsLockedAllNodeLinks,
             };
             _NodeLinkViewModels.Add(nodeLink);
         }
 
-        void Disconnected(DisconnectedOperationEventArgs param)
+        void Disconnected(DisconnectedLinkOperationEventArgs param)
         {
             var nodeLink = _NodeLinkViewModels.First(arg => arg.Guid == param.NodeLinkGuid);
             _NodeLinkViewModels.Remove(nodeLink);
         }
 
-        void NodesMoved(NodesMovedOperationEventArgs param)
+        void NodesMoved(EndMoveNodesOperationEventArgs param)
         {
 
         }
@@ -261,8 +261,8 @@ namespace NodeGraph.PreviewTest.ViewModels
                 return;
             }
             var nodeLink = new NodeLinkViewModel();
-            nodeLink.OutputGuid = _NodeViewModels[0].Outputs.ElementAt(0).Guid;
-            nodeLink.InputGuid = _NodeViewModels[1].Inputs.ElementAt(0).Guid;
+            nodeLink.OutputConnectorGuid = _NodeViewModels[0].Outputs.ElementAt(0).Guid;
+            nodeLink.InputConnectorGuid = _NodeViewModels[1].Inputs.ElementAt(0).Guid;
             _NodeLinkViewModels.Add(nodeLink);
         }
 
