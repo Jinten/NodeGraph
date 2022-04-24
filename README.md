@@ -1,7 +1,7 @@
 # NodeGraph
 Node graph control in WPF.  
-You can customize a node visual by style.
-So you dont need to implement code behavior in views.
+You can customize a node visual by style.  
+So you dont need to implement code behavior in views.  
 You can keep MVVM design because pure binding V-VM only on xaml.
 
 # Package requirements
@@ -30,8 +30,8 @@ Used MaterialEditor in my Engine.
 ![CamouflageShader](https://user-images.githubusercontent.com/9315925/85938058-7f20eb80-b944-11ea-9c21-7296a0325f8f.gif)  
 
 #Loadmap
-upgrade to .NET 6.
-optimize for rendering.
+* upgrade to .NET 6.
+* optimize for rendering.
 　  
 # License
 *  [MIT](https://github.com/Jinten/NodeGraph/blob/master/LICENSE)
