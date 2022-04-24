@@ -9,8 +9,8 @@ You can keep MVVM design because pure binding V-VM only on xaml.
 * [XamlBehaviorsWpf v1.1.19](https://github.com/microsoft/XamlBehaviorsWpf/releases/tag/v1.1.19)
 
 # Environment
-.NET Framework 4.7.2
-VisualStudio 2019/2022
+* .NET Framework 4.7.2
+* VisualStudio 2019/2022
 
 # Demo 
 Basic operations.  
