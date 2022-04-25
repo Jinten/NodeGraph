@@ -1,6 +1,6 @@
 ﻿using Livet;
 using Livet.Commands;
-using NodeGraph.OperationEventArgs;
+using NodeGraph.Operation;
 using NodeGraph.PreviewTest.ViewModels;
 using NodeGraph.Utilities;
 using System;

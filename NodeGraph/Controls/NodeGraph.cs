@@ -1,5 +1,5 @@
 ﻿using NodeGraph.Extensions;
-using NodeGraph.OperationEventArgs;
+using NodeGraph.Operation;
 using NodeGraph.Utilities;
 using System;
 using System.Collections;
@@ -176,6 +176,15 @@ namespace NodeGraph.Controls
         }
         public static readonly DependencyProperty IsRangeSelectPerfectionismProperty =
             DependencyProperty.Register(nameof(IsRangeSelectPerfectionism), typeof(bool), typeof(NodeGraph), new FrameworkPropertyMetadata(false));
+
+        public ICommand MouseMovedOnCanvasCommand
+        {
+            get => (ICommand)GetValue(MouseMovedOnCanvasCommandProperty);
+            set => SetValue(MouseMovedOnCanvasCommandProperty, value);
+        }
+        public static readonly DependencyProperty MouseMovedOnCanvasCommandProperty =
+            DependencyProperty.Register(nameof(MouseMovedOnCanvasCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+
 
         ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
         ResourceInstance<ControlTemplate> _NodeTemplate = new ResourceInstance<ControlTemplate>();
@@ -428,6 +437,18 @@ namespace NodeGraph.Controls
             base.OnMouseMove(e);
 
             var posOnCanvas = e.GetPosition(Canvas);
+
+            if (MouseMovedOnCanvasCommand != null)
+            {
+                var offsetPosOnCanvasX = posOnCanvas.X - Offset.X;
+                var offsetPosOnCanvasY = posOnCanvas.Y - Offset.Y;
+                var canvasMouseEventArgs = new CanvasMouseEventArgs(new Point(offsetPosOnCanvasX, offsetPosOnCanvasY), e.MouseDevice, e.Timestamp);
+
+                if (MouseMovedOnCanvasCommand.CanExecute(canvasMouseEventArgs))
+                {
+                    MouseMovedOnCanvasCommand.Execute(canvasMouseEventArgs);
+                }
+            }
 
             if (_DraggingNodes.Count > 0)
             {

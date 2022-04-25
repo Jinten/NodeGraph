@@ -81,13 +81,14 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OperationEventArgs\ConnectedLinkOperationEventArgs.cs" />
-    <Compile Include="OperationEventArgs\DisconnectedLinkOperationEventArgs.cs" />
-    <Compile Include="OperationEventArgs\EndMoveNodesOperationEventArgs.cs" />
+    <Compile Include="Controls\CanvasMouseEventArgs.cs" />
+    <Compile Include="Operation\ConnectedLinkOperationEventArgs.cs" />
+    <Compile Include="Operation\DisconnectedLinkOperationEventArgs.cs" />
+    <Compile Include="Operation\EndMoveNodesOperationEventArgs.cs" />
     <Compile Include="Controls\GroupNode.cs" />
     <Compile Include="Controls\NodeBase.cs" />
     <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
-    <Compile Include="OperationEventArgs\PreviewConnectLinkOperationEventArgs.cs" />
+    <Compile Include="Operation\PreviewConnectLinkOperationEventArgs.cs" />
     <Compile Include="Controls\GridCanvas.cs" />
     <Compile Include="Controls\ICanvasObject.cs" />
     <Compile Include="Controls\DefaultNode.cs" />
@@ -96,7 +97,7 @@
     <Compile Include="Extensions\PointExtension.cs" />
     <Compile Include="Extensions\RectExtension.cs" />
     <Compile Include="Extensions\VectorExtension.cs" />
-    <Compile Include="OperationEventArgs\BeginMoveNodesOperationEventArgs.cs" />
+    <Compile Include="Operation\BeginMoveNodesOperationEventArgs.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />
     <Page Include="Controls\GroupNode.xaml">
       <SubType>Designer</SubType>
@@ -161,5 +162,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
