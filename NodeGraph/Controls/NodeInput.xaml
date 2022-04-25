@@ -3,7 +3,7 @@
                     xmlns:converters="clr-namespace:NodeGraph.Converters"
                     xmlns:local="clr-namespace:NodeGraph.Controls">
 
-    <BooleanToVisibilityConverter x:Key="BooleanToVisbilityConverter"/>
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibility"/>
 
     <Style TargetType="{x:Type local:NodeInputContent}">
@@ -37,7 +37,7 @@
                 <DockPanel x:Name="__InputConnector__"
                            Background="#00FFFFFF" 
                            Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:NodeInputContent}}}"
-                           Visibility="{TemplateBinding CanConnect, Converter={StaticResource BooleanToVisbilityConverter}}">
+                           Visibility="{TemplateBinding CanConnect, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Ellipse x:Name="ConnectorShape1"
                              Width="{x:Static local:ControlSize.ConnectorSize}"
                              Height="{x:Static local:ControlSize.ConnectorSize}"
