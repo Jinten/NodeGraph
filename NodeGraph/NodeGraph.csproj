@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\CanvasMouseEventArgs.cs" />
+    <Compile Include="Controls\ISelectableObject.cs" />
     <Compile Include="Operation\ConnectedLinkOperationEventArgs.cs" />
     <Compile Include="Operation\DisconnectedLinkOperationEventArgs.cs" />
     <Compile Include="Operation\EndMoveNodesOperationEventArgs.cs" />
@@ -95,7 +96,6 @@
     <Compile Include="Controls\RangeSelector.cs" />
     <Compile Include="Controls\Ruler.cs" />
     <Compile Include="Extensions\PointExtension.cs" />
-    <Compile Include="Extensions\RectExtension.cs" />
     <Compile Include="Extensions\VectorExtension.cs" />
     <Compile Include="Operation\BeginMoveNodesOperationEventArgs.cs" />
     <Compile Include="Utilities\ResourceInstance.cs" />

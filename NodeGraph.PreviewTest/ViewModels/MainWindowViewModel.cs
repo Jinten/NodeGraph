@@ -16,8 +16,14 @@ namespace NodeGraph.PreviewTest.ViewModels
 {
     public enum GroupIntersectType
     {
-        CursorPoint,
-        BoundingBox,
+        CursorPointVMDefine,
+        BoundingBoxVMDefine,
+    }
+
+    public enum RangeSelectionMode
+    {
+        ContainVMDefine,
+        IntersectVMDefine,
     }
 
     public class MainWindowViewModel : ViewModel
@@ -86,7 +92,8 @@ namespace NodeGraph.PreviewTest.ViewModels
         public IEnumerable<GroupNodeViewModel> GroupNodeViewModels => _GroupNodeViewModels;
         ObservableCollection<GroupNodeViewModel> _GroupNodeViewModels = new ObservableCollection<GroupNodeViewModel>();
 
-        public GroupIntersectType[] GroupIntersectTypes => Enum.GetValues(typeof(GroupIntersectType)).OfType<GroupIntersectType>().ToArray();
+        public GroupIntersectType[] GroupIntersectTypes { get; } = Enum.GetValues(typeof(GroupIntersectType)).OfType<GroupIntersectType>().ToArray();
+        public RangeSelectionMode[] RangeSelectionModes { get; } = Enum.GetValues(typeof(RangeSelectionMode)).OfType<RangeSelectionMode>().ToArray();
 
         public GroupIntersectType SelectedGroupIntersectType
         {
@@ -94,6 +101,13 @@ namespace NodeGraph.PreviewTest.ViewModels
             set => RaisePropertyChangedIfSet(ref _SelectedGroupIntersectType, value);
         }
         GroupIntersectType _SelectedGroupIntersectType;
+
+        public RangeSelectionMode SelectedRangeSelectionMode
+        {
+            get => _SelectedRangeSelectionMode;
+            set => RaisePropertyChangedIfSet(ref _SelectedRangeSelectionMode, value);
+        }
+        RangeSelectionMode _SelectedRangeSelectionMode = RangeSelectionMode.ContainVMDefine;
 
         public bool IsLockedAllNodeLinks
         {
@@ -256,7 +270,7 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         void AddTestNodeLink()
         {
-            if(_NodeViewModels.Count < 2)
+            if (_NodeViewModels.Count < 2)
             {
                 return;
             }
@@ -268,7 +282,7 @@ namespace NodeGraph.PreviewTest.ViewModels
 
         void MoveTestNodes()
         {
-            if(_NodeLinkViewModels.Count > 0)
+            if (_NodeLinkViewModels.Count > 0)
             {
                 _NodeViewModels[0].Position = new Point(0, 0);
             }

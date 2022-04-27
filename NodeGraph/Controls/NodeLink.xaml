@@ -9,34 +9,47 @@
     </Storyboard>
 
     <Style x:Key="__NodeLinkAnimationStyle__" TargetType="{x:Type local:NodeLink}">
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Fill" Value="Aqua"/>
-                <Trigger.ExitActions>
+        <Style.Triggers>            
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsSelected" Value="False"/>
+                    <Condition Property="IsMouseOver" Value="True"/>
+                </MultiTrigger.Conditions>
+
+                <MultiTrigger.Setters>
+                    <Setter Property="Fill" Value="Violet"/>
+                </MultiTrigger.Setters>
+
+                <MultiTrigger.ExitActions>
                     <RemoveStoryboard BeginStoryboardName="__NodeLinkAnimation__"/>
-                </Trigger.ExitActions>
-                <Trigger.EnterActions>
+                </MultiTrigger.ExitActions>
+                
+                <MultiTrigger.EnterActions>
                     <BeginStoryboard Name="__NodeLinkAnimation__" Storyboard="{StaticResource NodeLinkMouseOver}"/>
+                </MultiTrigger.EnterActions>
+            </MultiTrigger>
+
+            <!--
+            IsSelected not to be true when IsMouseOver true at first time.
+            So it need to set RemoveStoryboard when IsSelected to be true.
+            -->
+            <Trigger Property="IsSelected" Value="True">
+                <Trigger.EnterActions>
+                    <RemoveStoryboard BeginStoryboardName="__NodeLinkAnimation__"/>
                 </Trigger.EnterActions>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <Style TargetType="{x:Type local:NodeLink}">
+    <Style TargetType="{x:Type local:NodeLink}" BasedOn="{StaticResource __NodeLinkAnimationStyle__}">
         <Setter Property="LinkSize" Value="2"/>
         <Setter Property="Fill" Value="#FFAAAAAA"/>
         <Setter Property="StrokeThickness" Value="10"/>
         <Setter Property="StrokeEndLineCap" Value="Round"/>
         <Setter Property="StrokeStartLineCap" Value="Round"/>
         <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
+            <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Fill" Value="Aqua"/>
-                <Trigger.ExitActions>
-                    <RemoveStoryboard BeginStoryboardName="__NodeLinkAnimation__"/>
-                </Trigger.ExitActions>
-                <Trigger.EnterActions>
-                    <BeginStoryboard Name="__NodeLinkAnimation__" Storyboard="{StaticResource NodeLinkMouseOver}"/>
-                </Trigger.EnterActions>
             </Trigger>
         </Style.Triggers>
     </Style>

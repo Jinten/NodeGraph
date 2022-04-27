@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace NodeGraph.Controls
 {
-    public abstract class NodeBase : ContentControl, ICanvasObject, IDisposable
+    public abstract class NodeBase : ContentControl, ICanvasObject, ISelectableObject, IDisposable
     {
         public Guid Guid
         {
@@ -47,8 +47,8 @@ namespace NodeGraph.Controls
 
         public Point DragStartPosition { get; private set; } = new Point(0, 0);
 
-        public EventHandler BeginSelectionChanged { get; set; } = null;
-        public EventHandler EndSelectionChanged { get; set; } = null;
+        internal EventHandler BeginSelectionChanged { get; set; } = null;
+        internal EventHandler EndSelectionChanged { get; set; } = null;
 
         protected Canvas Canvas { get; } = null;
         protected Point Offset { get; private set; } = new Point(0, 0);
@@ -93,6 +93,16 @@ namespace NodeGraph.Controls
             UpdateTranslation();
 
             InvalidateVisual();
+        }
+
+        public bool Contains(Rect rect)
+        {
+            return rect.Contains(GetBoundingBox());
+        }
+
+        public bool IntersectsWith(Rect rect)
+        {
+            return GetBoundingBox().IntersectsWith(rect);
         }
 
         public void Dispose()

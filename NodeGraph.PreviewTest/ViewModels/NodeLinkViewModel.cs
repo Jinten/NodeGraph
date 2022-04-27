@@ -50,5 +50,12 @@ namespace NodeGraph.PreviewTest.ViewModels
             set => RaisePropertyChangedIfSet(ref _IsLocked, value);
         }
         bool _IsLocked = false;
+
+        public bool IsSelected
+        {
+            get => _IsSelected;
+            set => RaisePropertyChangedIfSet(ref _IsSelected, value);
+        }
+        bool _IsSelected = false;
     }
 }

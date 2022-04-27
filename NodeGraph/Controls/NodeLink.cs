@@ -20,7 +20,7 @@ namespace NodeGraph.Controls
         Curve
     }
 
-    public class NodeLink : Shape, ICanvasObject
+    public class NodeLink : Shape, ICanvasObject, ISelectableObject
     {
         public Guid Guid
         {
@@ -87,6 +87,14 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty IsLockedProperty =
             DependencyProperty.Register(nameof(IsLocked), typeof(bool), typeof(NodeLink), new FrameworkPropertyMetadata(false));
 
+        public bool IsSelected
+        {
+            get => (bool)GetValue(IsSelectedProperty);
+            set => SetValue(IsSelectedProperty, value);
+        }
+        public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register(
+            nameof(IsSelected), typeof(bool), typeof(NodeLink), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
         static void DashOffsetPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var nodeLink = (NodeLink)d;
@@ -107,7 +115,7 @@ namespace NodeGraph.Controls
         public NodeConnectorContent StartConnector { get; private set; } = null;
         public NodeConnectorContent ToEndConnector { get; private set; } = null;
 
-        protected override Geometry DefiningGeometry => Geometry.Empty;
+        protected override Geometry DefiningGeometry => StreamGeometry;
 
         double EndPointX => _EndPoint.X / _Scale;
         double EndPointY => _EndPoint.Y / _Scale;
@@ -120,22 +128,37 @@ namespace NodeGraph.Controls
         Canvas Canvas { get; } = null;
 
         double _Scale = 1.0f;
+        Point _Offset = new Point(0, 0);
         Point _RestoreEndPoint = new Point();
+
+        readonly StreamGeometry StreamGeometry = new StreamGeometry();
 
         static NodeLink()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeLink), new FrameworkPropertyMetadata(typeof(NodeLink)));
         }
 
-        public NodeLink(Canvas canvas, double scale) : this(canvas, 0, 0, scale)
+        internal NodeLink(Canvas canvas, double scale, Point offset)
         {
-            // constructed from view model.
+            // constructed from view model or other constructors.
+            Canvas = canvas;
+
+            IsHitTestVisible = false; // no need to hit until connected
+
+            _Scale = scale;
+            _Offset = offset;
+
+            var transformGroup = new TransformGroup();
+            transformGroup.Children.Add(new ScaleTransform() { ScaleX = scale, ScaleY = scale });
+            RenderTransform = transformGroup;
+            RenderTransformOrigin = new Point(0.5, 0.5);
+
+            Canvas.SetZIndex(this, -1);
         }
 
-        public NodeLink(Canvas canvas, double x, double y, double scale, NodeConnectorContent connector) : this(canvas, x, y, scale)
+        internal NodeLink(NodeConnectorContent connector, double x, double y, Canvas canvas, double scale, Point offset) : this(x, y, canvas, scale, offset)
         {
-            // constructed from view for previewing node link. 
-
+            // constructed from view for previewing node link.
             switch (connector)
             {
                 case NodeInputContent input:
@@ -151,30 +174,29 @@ namespace NodeGraph.Controls
             }
         }
 
-        NodeLink(Canvas canvas, double x, double y, double scale)
+        NodeLink(double x, double y, Canvas canvas, double scale, Point offset) : this(canvas, scale, offset)
         {
             // create from view for preview reconnecting link.
-            Canvas = canvas;
-
-            IsHitTestVisible = false; // no need to hit until connected
-
             var point = new Point(x, y);
             _StartPoint = point;
             _EndPoint = point;
+        }
 
-            _Scale = scale;
+        public bool Contains(Rect rect)
+        {
+            var test = Rect.Offset(RenderedGeometry.Bounds, -_Offset.X, -_Offset.Y);
+            return rect.Contains(test);
+        }
 
-            var transformGroup = new TransformGroup();
-            transformGroup.Children.Add(new ScaleTransform() { ScaleX = scale, ScaleY = scale });
-            RenderTransform = transformGroup;
-            RenderTransformOrigin = new Point(0.5, 0.5);
-
-            Canvas.SetZIndex(this, -1);
+        public bool IntersectsWith(Rect rect)
+        {
+            var test = Rect.Offset(RenderedGeometry.Bounds, -_Offset.X, -_Offset.Y);
+            return rect.IntersectsWith(test);
         }
 
         internal NodeLink CreateGhost()
         {
-            var ghost = new NodeLink(Canvas, _Scale);
+            var ghost = new NodeLink(Canvas, _Scale, _Offset);
             ghost.DataContext = null; // ghost link cannot binding connector properties. so you have to bind null to DataContext.(otherwise, occur binding errors)
             ghost._StartPoint = _StartPoint;
             ghost._EndPoint = _EndPoint;
@@ -228,6 +250,8 @@ namespace NodeGraph.Controls
 
         public void UpdateOffset(Point offset)
         {
+            _Offset = offset;
+
             UpdateConnectPosition();
 
             InvalidateVisual();
@@ -370,14 +394,13 @@ namespace NodeGraph.Controls
             c0 = new Point(+(power + bias) * k + start.X, start.Y);
             c1 = new Point(-(power + bias) * k + end.X, end.Y);
 
-            var stream = new StreamGeometry();
+            StreamGeometry.Clear();
 
-            using (var context = stream.Open())
+            using (var context = StreamGeometry.Open())
             {
                 context.BeginFigure(start, true, false);
                 context.BezierTo(c0, c1, end, true, false);
             }
-            stream.Freeze();
 
             double linkSize = LinkSize * (1.0f / _Scale);
 
@@ -386,7 +409,7 @@ namespace NodeGraph.Controls
             {
                 var hitVisiblePen = new Pen(Brushes.Transparent, linkSize + StrokeThickness);
                 hitVisiblePen.Freeze();
-                drawingContext.DrawGeometry(null, hitVisiblePen, stream);
+                drawingContext.DrawGeometry(null, hitVisiblePen, StreamGeometry);
             }
 
             // actually visual
@@ -398,7 +421,7 @@ namespace NodeGraph.Controls
 
             visualPen.Freeze();
 
-            drawingContext.DrawGeometry(null, visualPen, stream);
+            drawingContext.DrawGeometry(null, visualPen, StreamGeometry);
         }
     }
 }

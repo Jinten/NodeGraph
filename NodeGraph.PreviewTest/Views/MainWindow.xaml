@@ -39,6 +39,7 @@
             <Setter Property="OutputConnectorGuid" Value="{Binding OutputConnectorGuid, Mode=OneWay}"/>
             <Setter Property="InputConnectorGuid" Value="{Binding InputConnectorGuid, Mode=OneWay}"/>
             <Setter Property="IsLocked" Value="{Binding IsLocked, Mode=OneWay}"/>
+            <Setter Property="IsSelected" Value="{Binding IsSelected}"/> <!--dont need to specify Mode=TwoWay because link is set default two way property.-->
         </Style>
 
         <Style x:Key="DefaultNodeStyle" TargetType="{x:Type ctrl:DefaultNode}" BasedOn="{StaticResource {x:Type ctrl:DefaultNode}}">
@@ -122,6 +123,7 @@
             <Button Margin="4" Height="24" Content="ChangeGroupInnerPosition" Command="{Binding ChangeGroupInnerPositionCommand}"/>
             <Button Margin="4" Height="24" Content="ResetScale" Command="{Binding ResetScaleCommand}"/>
             <ComboBox Margin="4" Height="24" ItemsSource="{Binding GroupIntersectTypes, Mode=OneTime}" SelectedItem="{Binding SelectedGroupIntersectType}"/>
+            <ComboBox Margin="4" Height="24" ItemsSource="{Binding RangeSelectionModes, Mode=OneTime}" SelectedItem="{Binding SelectedRangeSelectionMode}"/>
             <CheckBox Margin="4" Height="24" Content="IsLockedAllNodeLinks" IsChecked="{Binding IsLockedAllNodeLinks}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
             <CheckBox Margin="4" Height="24" Content="AllowToOverrideConnection" IsChecked="{Binding AllowToOverrideConnection}" VerticalContentAlignment="Center" ToolTip="You can't connect multiple links if true."/>
@@ -141,18 +143,26 @@
                         ConnectedLinkCommand="{Binding ConnectedLinkCommand}"
                         DisconnectedLinkCommand="{Binding DisconnectedLinkCommand}"
                         AllowToOverrideConnection="{Binding AllowToOverrideConnection}"
-                        IsRangeSelectPerfectionism="True"
                         ClipToBounds="{Binding ClipToBounds}"
                         ContextMenu="{StaticResource NodeGraphContextMenu}">
 
             <ctrl:NodeGraph.Style>
                 <Style TargetType="{x:Type ctrl:NodeGraph}" BasedOn="{StaticResource {x:Type ctrl:NodeGraph}}">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding SelectedGroupIntersectType}" Value="{x:Static vm:GroupIntersectType.CursorPoint}">
+                        <!--Group intersect -->
+                        <DataTrigger Binding="{Binding SelectedGroupIntersectType}" Value="{x:Static vm:GroupIntersectType.CursorPointVMDefine}">
                             <Setter Property="GroupIntersectType" Value="{x:Static ctrl:GroupIntersectType.CursorPoint}"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding SelectedGroupIntersectType}" Value="{x:Static vm:GroupIntersectType.BoundingBox}">
+                        <DataTrigger Binding="{Binding SelectedGroupIntersectType}" Value="{x:Static vm:GroupIntersectType.BoundingBoxVMDefine}">
                             <Setter Property="GroupIntersectType" Value="{x:Static ctrl:GroupIntersectType.BoundingBox}"/>
+                        </DataTrigger>
+
+                        <!--Range selection mode-->
+                        <DataTrigger Binding="{Binding SelectedRangeSelectionMode}" Value="{x:Static vm:RangeSelectionMode.ContainVMDefine}">
+                            <Setter Property="RangeSelectionMdoe" Value="{x:Static ctrl:RangeSelectionMode.Contain}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding SelectedRangeSelectionMode}" Value="{x:Static vm:RangeSelectionMode.IntersectVMDefine}">
+                            <Setter Property="RangeSelectionMdoe" Value="{x:Static ctrl:RangeSelectionMode.Intersect}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
