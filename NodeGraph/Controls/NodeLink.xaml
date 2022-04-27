@@ -12,7 +12,6 @@
         <Style.Triggers>            
             <MultiTrigger>
                 <MultiTrigger.Conditions>
-                    <Condition Property="IsSelected" Value="False"/>
                     <Condition Property="IsMouseOver" Value="True"/>
                 </MultiTrigger.Conditions>
 
@@ -28,16 +27,6 @@
                     <BeginStoryboard Name="__NodeLinkAnimation__" Storyboard="{StaticResource NodeLinkMouseOver}"/>
                 </MultiTrigger.EnterActions>
             </MultiTrigger>
-
-            <!--
-            IsSelected not to be true when IsMouseOver true at first time.
-            So it need to set RemoveStoryboard when IsSelected to be true.
-            -->
-            <Trigger Property="IsSelected" Value="True">
-                <Trigger.EnterActions>
-                    <RemoveStoryboard BeginStoryboardName="__NodeLinkAnimation__"/>
-                </Trigger.EnterActions>
-            </Trigger>
         </Style.Triggers>
     </Style>
 

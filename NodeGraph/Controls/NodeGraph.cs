@@ -572,13 +572,7 @@ namespace NodeGraph.Controls
             }
             else if (_PressedMouseToSelect)
             {
-                if (_IsRangeSelecting == false)
-                {
-                    Canvas.Children.Add(_RangeSelector);
-
-                    _IsRangeSelecting = true;
-                    Cursor = Cursors.SizeAll;
-                }
+                StartRangeSelecting();
 
                 _RangeSelector.RangeRect = new Rect(_DragStartPointToSelect, posOnCanvas);
 
@@ -1127,7 +1121,7 @@ namespace NodeGraph.Controls
                 return;
             }
 
-            UpdateSelectionItem((NodeLink)sender);
+            UpdateNodeSelectionItem((NodeLink)sender);
         }
 
         void Node_MouseUp(object sender, MouseButtonEventArgs e)
@@ -1168,7 +1162,7 @@ namespace NodeGraph.Controls
 
             NodeLinkDragged((FrameworkElement)e.OriginalSource);
 
-            UpdateSelectionItem((NodeBase)sender);
+            UpdateNodeSelectionItem((NodeBase)sender);
 
             e.Handled = true;
         }
@@ -1247,7 +1241,7 @@ namespace NodeGraph.Controls
             }
         }
 
-        void UpdateSelectionItem<T>(T item) where T : ISelectableObject
+        void UpdateNodeSelectionItem<T>(T item) where T : ISelectableObject
         {
             BeginSelectionChanging();
 
@@ -1358,13 +1352,43 @@ namespace NodeGraph.Controls
             }
             _DraggingNodes.Clear();
         }
-
-        void ClearRangeSelecting()
+        void StartRangeSelecting()
         {
             if (_IsRangeSelecting)
             {
-                Canvas.Children.Remove(_RangeSelector);
-                _IsRangeSelecting = false;
+                return;
+            }
+
+            Canvas.Children.Add(_RangeSelector);
+
+            _IsRangeSelecting = true;
+
+            // links dont need to trigger link animation.
+            // cannot control link animation disable when range selecting and IsSelected condition.
+            // because it must action with condtion as IsMouseOver=truea and IsSelected=false.(Probably only first time)
+            // So disable IsHitTestVisible when range selecting. it is better performance.
+            foreach (var link in Canvas.Children.OfType<NodeLink>())
+            {
+                link.IsHitTestVisible = false;
+            }
+
+            Cursor = Cursors.SizeAll;
+        }
+
+        void ClearRangeSelecting()
+        {
+            if (_IsRangeSelecting == false)
+            {
+                return;
+            }
+
+            Canvas.Children.Remove(_RangeSelector);
+            _IsRangeSelecting = false;
+
+            // recover to be able to action link animation from range selecting.
+            foreach (var link in Canvas.Children.OfType<NodeLink>())
+            {
+                link.IsHitTestVisible = true;
             }
         }
 
