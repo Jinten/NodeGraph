@@ -183,13 +183,21 @@ namespace NodeGraph.Controls
         public static readonly DependencyProperty RangeSelectionMdoeProperty =
             DependencyProperty.Register(nameof(RangeSelectionMdoe), typeof(RangeSelectionMode), typeof(NodeGraph), new FrameworkPropertyMetadata(RangeSelectionMode.Contain));
 
-        public ICommand MouseMovedOnCanvasCommand
+        public ICommand PreviewDropOnCanvasCommand
         {
-            get => (ICommand)GetValue(MouseMovedOnCanvasCommandProperty);
-            set => SetValue(MouseMovedOnCanvasCommandProperty, value);
+            get => (ICommand)GetValue(PreviewDropOnCanvasCommandProperty);
+            set => SetValue(PreviewDropOnCanvasCommandProperty, value);
         }
-        public static readonly DependencyProperty MouseMovedOnCanvasCommandProperty =
-            DependencyProperty.Register(nameof(MouseMovedOnCanvasCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty PreviewDropOnCanvasCommandProperty =
+            DependencyProperty.Register(nameof(PreviewDropOnCanvasCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
+
+        public ICommand MouseMoveOnCanvasCommand
+        {
+            get => (ICommand)GetValue(MouseMoveOnCanvasCommandProperty);
+            set => SetValue(MouseMoveOnCanvasCommandProperty, value);
+        }
+        public static readonly DependencyProperty MouseMoveOnCanvasCommandProperty =
+            DependencyProperty.Register(nameof(MouseMoveOnCanvasCommand), typeof(ICommand), typeof(NodeGraph), new FrameworkPropertyMetadata(null));
 
 
         ControlTemplate NodeTemplate => _NodeTemplate.Get("__NodeTemplate__");
@@ -437,21 +445,40 @@ namespace NodeGraph.Controls
             }
         }
 
+        protected override void OnPreviewDrop(DragEventArgs e)
+        {
+            base.OnPreviewDrop(e);
+
+            var posOnCanvas = e.GetPosition(Canvas);
+
+            if (PreviewDropOnCanvasCommand != null)
+            {
+                var offsetPosOnCanvasX = posOnCanvas.X - Offset.X;
+                var offsetPosOnCanvasY = posOnCanvas.Y - Offset.Y;
+                var canvasMouseEventArgs = new CanvasMouseEventArgs(new Point(offsetPosOnCanvasX, offsetPosOnCanvasY));
+
+                if (PreviewDropOnCanvasCommand.CanExecute(canvasMouseEventArgs))
+                {
+                    PreviewDropOnCanvasCommand.Execute(canvasMouseEventArgs);
+                }
+            }
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
             var posOnCanvas = e.GetPosition(Canvas);
 
-            if (MouseMovedOnCanvasCommand != null)
+            if (MouseMoveOnCanvasCommand != null)
             {
                 var offsetPosOnCanvasX = posOnCanvas.X - Offset.X;
                 var offsetPosOnCanvasY = posOnCanvas.Y - Offset.Y;
-                var canvasMouseEventArgs = new CanvasMouseEventArgs(new Point(offsetPosOnCanvasX, offsetPosOnCanvasY), e.MouseDevice, e.Timestamp);
+                var canvasMouseEventArgs = new CanvasMouseEventArgs(new Point(offsetPosOnCanvasX, offsetPosOnCanvasY));
 
-                if (MouseMovedOnCanvasCommand.CanExecute(canvasMouseEventArgs))
+                if (MouseMoveOnCanvasCommand.CanExecute(canvasMouseEventArgs))
                 {
-                    MouseMovedOnCanvasCommand.Execute(canvasMouseEventArgs);
+                    MouseMoveOnCanvasCommand.Execute(canvasMouseEventArgs);
                 }
             }
 

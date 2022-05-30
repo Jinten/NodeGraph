@@ -8,7 +8,7 @@
         xmlns:ctrl="clr-namespace:NodeGraph.Controls;assembly=NodeGraph"
         xmlns:local="clr-namespace:NodeGraph.PreviewTest"
         mc:Ignorable="d"
-        Title="NodeGraph - prototype" Height="600" Width="1600">
+        Title="NodeGraph - prototype" Height="600" Width="1000">
 
     <Window.DataContext>
         <vm:MainWindowViewModel/>
@@ -110,25 +110,30 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
+            <RowDefinition Height="64"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <DockPanel Grid.Row="0" LastChildFill="False">
-            <Button Margin="4" Height="24" Content="AddTestNodeLink" Command="{Binding AddTestNodeLinkCommand}"/>
-            <Button Margin="4" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
-            <Button Margin="4" Height="24" Content="ClearNodes" Command="{Binding ClearNodesCommand}"/>
-            <Button Margin="4" Height="24" Content="ClearNodeLinks" Command="{Binding ClearNodeLinksCommand}"/>
-            <Button Margin="4" Height="24" Content="MoveGroupNode" Command="{Binding MoveGroupNodeCommand}"/>
-            <Button Margin="4" Height="24" Content="ChangeGroupInnerSize" Command="{Binding ChangeGroupInnerSizeCommand}"/>
-            <Button Margin="4" Height="24" Content="ChangeGroupInnerPosition" Command="{Binding ChangeGroupInnerPositionCommand}"/>
-            <Button Margin="4" Height="24" Content="ResetScale" Command="{Binding ResetScaleCommand}"/>
-            <ComboBox Margin="4" Height="24" ItemsSource="{Binding GroupIntersectTypes, Mode=OneTime}" SelectedItem="{Binding SelectedGroupIntersectType}"/>
-            <ComboBox Margin="4" Height="24" ItemsSource="{Binding RangeSelectionModes, Mode=OneTime}" SelectedItem="{Binding SelectedRangeSelectionMode}"/>
-            <CheckBox Margin="4" Height="24" Content="IsLockedAllNodeLinks" IsChecked="{Binding IsLockedAllNodeLinks}" VerticalContentAlignment="Center"/>
-            <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
-            <CheckBox Margin="4" Height="24" Content="AllowToOverrideConnection" IsChecked="{Binding AllowToOverrideConnection}" VerticalContentAlignment="Center" ToolTip="You can't connect multiple links if true."/>
-            <CheckBox Margin="4" Height="24" Content="ClipToBounds" IsChecked="{Binding ClipToBounds}" VerticalContentAlignment="Center"/>
-        </DockPanel>
+        <StackPanel Grid.Row="0">
+            <DockPanel LastChildFill="False">
+                <Button Margin="4" Height="24" Content="AddTestNodeLink" Command="{Binding AddTestNodeLinkCommand}"/>
+                <Button Margin="4" Height="24" Content="MoveTestNode" Command="{Binding MoveTestNodesCommand}"/>
+                <Button Margin="4" Height="24" Content="ClearNodes" Command="{Binding ClearNodesCommand}"/>
+                <Button Margin="4" Height="24" Content="ClearNodeLinks" Command="{Binding ClearNodeLinksCommand}"/>
+                <Button Margin="4" Height="24" Content="MoveGroupNode" Command="{Binding MoveGroupNodeCommand}"/>
+                <Button Margin="4" Height="24" Content="ChangeGroupInnerSize" Command="{Binding ChangeGroupInnerSizeCommand}"/>
+                <Button Margin="4" Height="24" Content="ChangeGroupInnerPosition" Command="{Binding ChangeGroupInnerPositionCommand}"/>
+                <Button Margin="4" Height="24" Content="ResetScale" Command="{Binding ResetScaleCommand}"/>
+            </DockPanel>
+
+            <DockPanel>
+                <ComboBox Margin="4" Height="24" ItemsSource="{Binding GroupIntersectTypes, Mode=OneTime}" SelectedItem="{Binding SelectedGroupIntersectType}" ToolTip="group intersection type."/>
+                <ComboBox Margin="4" Height="24" ItemsSource="{Binding RangeSelectionModes, Mode=OneTime}" SelectedItem="{Binding SelectedRangeSelectionMode}" ToolTip="range selection mode."/>
+                <CheckBox Margin="4" Height="24" Content="IsLockedAllNodeLinks" IsChecked="{Binding IsLockedAllNodeLinks}" VerticalContentAlignment="Center"/>
+                <CheckBox Margin="4" Height="24" Content="IsEnableAllNodeConnectors" IsChecked="{Binding IsEnableAllNodeConnectors}" VerticalContentAlignment="Center"/>
+                <CheckBox Margin="4" Height="24" Content="AllowToOverrideConnection" IsChecked="{Binding AllowToOverrideConnection}" VerticalContentAlignment="Center" ToolTip="You can't connect multiple links if true."/>
+                <CheckBox Margin="4" Height="24" Content="ClipToBounds" IsChecked="{Binding ClipToBounds}" VerticalContentAlignment="Center"/>
+            </DockPanel>
+        </StackPanel>
         <ctrl:NodeGraph Grid.Row="3"
                         x:Name="NodeGraph"
                         MoveWithMouse="Right"
