@@ -1279,6 +1279,14 @@ namespace NodeGraph.Controls
             }
             else
             {
+                // exclusive selection.
+                var selectableContents = Canvas.Children.OfType<ISelectableObject>();
+
+                foreach(var selectableContent in selectableContents)
+                {
+                    selectableContent.IsSelected = false;
+                }
+
                 item.IsSelected = true;
                 UpdateSelectedItems(item);
             }
