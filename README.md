@@ -9,8 +9,14 @@ You can keep MVVM design because pure binding V-VM only on xaml.
 * [XamlBehaviorsWpf v1.1.19](https://github.com/microsoft/XamlBehaviorsWpf/releases/tag/v1.1.19)
 
 # Environment
-* .NET Framework 4.7.2
+* .NET Framework 4.7.2 or .NET6
 * VisualStudio 2019/2022
+
+# note
+<code>NodeGraph.csproj</code> is using .NET Framework.  
+<code>NodeGraph.NET6.csproj</code> is using .NET6.
+
+Also <code>NodeGraph.PreviewTest.csproj</code> and <code>NodeGraphPreviewTest.NET6.csproj</code> same above rule.
 
 # Demo 
 Basic operations.  
@@ -32,8 +38,8 @@ You can change connector color, node header color, node content color and all te
 Used MaterialEditor in my Engine.  
 ![CamouflageShader](https://user-images.githubusercontent.com/9315925/85938058-7f20eb80-b944-11ea-9c21-7296a0325f8f.gif)  
 
+
 # Roadmap
-* upgrade to .NET 6.
 * optimize for rendering.
 　  
 # License
