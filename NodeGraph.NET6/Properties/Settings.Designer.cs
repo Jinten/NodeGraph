@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NodeGraph.Properties
+namespace NodeGraph.NET6.Properties
 {
 
 
