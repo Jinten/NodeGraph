@@ -1,0 +1,17 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:NodeGraph.NET7.Controls">
+    
+    <Style TargetType="{x:Type local:RangeSelector}">
+        <Setter Property="Fill" Value="#22CCCCCC"/>
+        <Setter Property="Stroke" Value="LightGray"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Style.Triggers>
+            <Trigger Property="IsIntersects" Value="True">
+                <Setter Property="Fill" Value="#5500DD00"/>
+                <Setter Property="Stroke" Value="Aqua"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+</ResourceDictionary>

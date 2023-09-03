@@ -1,0 +1,46 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:NodeGraph.NET7.Controls">
+
+    <Storyboard x:Key="NodeLinkMouseOver" RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetProperty="DashOffset">
+            <LinearDoubleKeyFrame KeyTime="00:00:01" Value="-16"/>
+        </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+
+    <Style x:Key="__NodeLinkAnimationStyle__" TargetType="{x:Type local:NodeLink}">
+        <Style.Triggers>            
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True"/>
+                </MultiTrigger.Conditions>
+
+                <MultiTrigger.Setters>
+                    <Setter Property="Fill" Value="Violet"/>
+                </MultiTrigger.Setters>
+
+                <MultiTrigger.ExitActions>
+                    <RemoveStoryboard BeginStoryboardName="__NodeLinkAnimation__"/>
+                </MultiTrigger.ExitActions>
+                
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="__NodeLinkAnimation__" Storyboard="{StaticResource NodeLinkMouseOver}"/>
+                </MultiTrigger.EnterActions>
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="{x:Type local:NodeLink}" BasedOn="{StaticResource __NodeLinkAnimationStyle__}">
+        <Setter Property="LinkSize" Value="2"/>
+        <Setter Property="Fill" Value="#FFAAAAAA"/>
+        <Setter Property="StrokeThickness" Value="10"/>
+        <Setter Property="StrokeEndLineCap" Value="Round"/>
+        <Setter Property="StrokeStartLineCap" Value="Round"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Fill" Value="Aqua"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+</ResourceDictionary>

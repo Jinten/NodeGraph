@@ -1,0 +1,46 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:NodeGraph.NET7.Controls">
+
+    <Style TargetType="{x:Type local:GroupNode}">
+        <Setter Property="BorderThickness" Value="{Binding BorderSize, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="BorderBrush" Value="#FF888888"/>
+        <Setter Property="Width" Value="{x:Static local:GroupNodeDefault.Width}"/>
+        <Setter Property="Height" Value="{x:Static local:GroupNodeDefault.Height}"/>
+        <Setter Property="MinWidth" Value="{x:Static local:GroupNodeDefault.MinWidth}"/>
+        <Setter Property="MinHeight" Value="{x:Static local:GroupNodeDefault.MinHeight}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="True">
+                <Setter Property="BorderBrush" Value="Aqua"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <ControlTemplate x:Key="__GroupNodeTemplate__" TargetType="{x:Type local:GroupNode}">
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+            <StackPanel>
+                <Border x:Name="__GroupNodeHeader__" BorderThickness="0,0,0,1" BorderBrush="Black">
+                    <ContentPresenter VerticalAlignment="Stretch"
+                                      HorizontalAlignment="Stretch"
+                                      Content="{TemplateBinding DataContext}"
+                                      ContentTemplate="{Binding HeaderContentTemplate, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"/>
+                </Border>
+
+                <Canvas Width="{TemplateBinding InnerWidth}"
+                        Height="{TemplateBinding InnerHeight}"                        
+                        Background="{TemplateBinding InnerColor}"
+                        IsHitTestVisible="False"
+                        ClipToBounds="True">
+                    <TextBlock Text="{Binding Comment, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"
+                               Margin="{Binding CommentMargin, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"
+                               FontSize="{Binding CommentSize, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"
+                               Foreground="{Binding CommentForeground, RelativeSource={RelativeSource AncestorType={x:Type local:GroupNode}}}"/>
+                </Canvas>
+            </StackPanel>
+        </Border>
+    </ControlTemplate>
+
+</ResourceDictionary>
