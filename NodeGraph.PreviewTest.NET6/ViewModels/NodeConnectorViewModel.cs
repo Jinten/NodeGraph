@@ -3,14 +3,14 @@ using System;
 
 namespace NodeGraph.PreviewTest.NET6.ViewModels
 {
-    public interface NodeConnectorViewModel
+    public interface INodeConnectorViewModel
     {
         Guid Guid { get; set; }
         string Label { get; set; }
         bool IsEnable { get; set; }
     }
 
-    public class NodeInputViewModel : ViewModel, NodeConnectorViewModel
+    public class NodeInputViewModel : ViewModel, INodeConnectorViewModel
     {
         public Guid Guid
         {
@@ -47,7 +47,7 @@ namespace NodeGraph.PreviewTest.NET6.ViewModels
         }
     }
 
-    public class NodeOutputViewModel : ViewModel, NodeConnectorViewModel
+    public class NodeOutputViewModel : ViewModel, INodeConnectorViewModel
     {
         public Guid Guid
         {
