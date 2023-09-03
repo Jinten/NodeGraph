@@ -1,7 +1,7 @@
 ﻿using Livet;
 using System;
 
-namespace NodeGraph.PreviewTest.ViewModels
+namespace NodeGraph.PreviewTest.NET6.ViewModels
 {
     public interface NodeConnectorViewModel
     {

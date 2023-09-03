@@ -1,5 +1,5 @@
 ﻿using Livet;
-using NodeGraph.Utilities;
+using NodeGraph.PreviewTest.NET6.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
-namespace NodeGraph.PreviewTest.ViewModels
+namespace NodeGraph.PreviewTest.NET6.ViewModels
 {
     public interface INodeViewModel
     {
@@ -169,7 +169,7 @@ namespace NodeGraph.PreviewTest.ViewModels
                 if (i % 2 == 0)
                 {
                     var label = $"Input{i}";
-                    if(i > 1)
+                    if (i > 1)
                     {
                         label += " Allow to connect multiple";
                     }
