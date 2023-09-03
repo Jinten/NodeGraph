@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeGraph.NET6", "NodeGraph
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeGraph.NET7", "NodeGraph.NET7\NodeGraph.NET7.csproj", "{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeGraph.PreviewTest.NET7", "NodeGraph.PreviewTest.NET7\NodeGraph.PreviewTest.NET7.csproj", "{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}.Release|Any CPU.Build.0 = Release|Any CPU
+		{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
