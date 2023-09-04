@@ -4,9 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:NodeGraph.PreviewTest.ViewModels"
+        xmlns:vm="clr-namespace:NodeGraph.PreviewTest.NET6.ViewModels"
         xmlns:ctrl="clr-namespace:NodeGraph.NET6.Controls;assembly=NodeGraph.NET6"
-        xmlns:local="clr-namespace:NodeGraph.PreviewTest"
+        
         mc:Ignorable="d"
         Title="NodeGraph - prototype" Height="600" Width="1000">
 

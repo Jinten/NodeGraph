@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Threading;
 
 namespace NodeGraph.NET6.Utilities
@@ -14,12 +9,12 @@ namespace NodeGraph.NET6.Utilities
         {
             if (_Resource == null)
             {
-                _Resource = Application.Current.TryFindResource(resourceName) as T;
+                _Resource = (Application.Current.TryFindResource(resourceName) as T)!;
             }
 
-            return _Resource;
+            return _Resource!;
         }
 
-        T _Resource = null;
+        T _Resource = null!;
     }
 }

@@ -1,15 +1,13 @@
 ﻿using Livet;
-using NodeGraph.Utilities;
+using NodeGraph.PreviewTest.NET6.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
-namespace NodeGraph.PreviewTest.ViewModels
+namespace NodeGraph.PreviewTest.NET6.ViewModels
 {
     public interface INodeViewModel
     {
@@ -130,10 +128,10 @@ namespace NodeGraph.PreviewTest.ViewModels
         public ICommand SizeChangedCommand => _SizeChangedCommand.Get(SizeChanged);
         ViewModelCommandHandler<Size> _SizeChangedCommand = new ViewModelCommandHandler<Size>();
 
-        public abstract IEnumerable<NodeConnectorViewModel> Inputs { get; }
-        public abstract IEnumerable<NodeConnectorViewModel> Outputs { get; }
+        public abstract IEnumerable<INodeConnectorViewModel> Inputs { get; }
+        public abstract IEnumerable<INodeConnectorViewModel> Outputs { get; }
 
-        public abstract NodeConnectorViewModel FindConnector(Guid guid);
+        public abstract INodeConnectorViewModel FindConnector(Guid guid);
 
         void SizeChanged(Size newSize)
         {
@@ -158,10 +156,10 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         string _Body = string.Empty;
 
-        public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
+        public override IEnumerable<INodeConnectorViewModel> Inputs => _Inputs;
         readonly ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 
-        public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
+        public override IEnumerable<INodeConnectorViewModel> Outputs => _Outputs;
         readonly ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
         public Test1DefaultNodeViewModel()
@@ -171,7 +169,7 @@ namespace NodeGraph.PreviewTest.ViewModels
                 if (i % 2 == 0)
                 {
                     var label = $"Input{i}";
-                    if(i > 1)
+                    if (i > 1)
                     {
                         label += " Allow to connect multiple";
                     }
@@ -189,7 +187,7 @@ namespace NodeGraph.PreviewTest.ViewModels
             }
         }
 
-        public override NodeConnectorViewModel FindConnector(Guid guid)
+        public override INodeConnectorViewModel FindConnector(Guid guid)
         {
             var input = Inputs.FirstOrDefault(arg => arg.Guid == guid);
             if (input != null)
@@ -218,10 +216,10 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         string _Body = string.Empty;
 
-        public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
+        public override IEnumerable<INodeConnectorViewModel> Inputs => _Inputs;
         readonly ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 
-        public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
+        public override IEnumerable<INodeConnectorViewModel> Outputs => _Outputs;
         readonly ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
         public Test2DefaultNodeViewModel()
@@ -242,7 +240,7 @@ namespace NodeGraph.PreviewTest.ViewModels
             }
         }
 
-        public override NodeConnectorViewModel FindConnector(Guid guid)
+        public override INodeConnectorViewModel FindConnector(Guid guid)
         {
             var input = Inputs.FirstOrDefault(arg => arg.Guid == guid);
             if (input != null)
@@ -271,10 +269,10 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         string _Body = string.Empty;
 
-        public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
+        public override IEnumerable<INodeConnectorViewModel> Inputs => _Inputs;
         readonly ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 
-        public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
+        public override IEnumerable<INodeConnectorViewModel> Outputs => _Outputs;
         readonly ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
         public Test3DefaultNodeViewModel()
@@ -285,7 +283,7 @@ namespace NodeGraph.PreviewTest.ViewModels
             }
         }
 
-        public override NodeConnectorViewModel FindConnector(Guid guid)
+        public override INodeConnectorViewModel FindConnector(Guid guid)
         {
             return Outputs.FirstOrDefault(arg => arg.Guid == guid);
         }
@@ -307,10 +305,10 @@ namespace NodeGraph.PreviewTest.ViewModels
         }
         string _Body = string.Empty;
 
-        public override IEnumerable<NodeConnectorViewModel> Inputs => _Inputs;
+        public override IEnumerable<INodeConnectorViewModel> Inputs => _Inputs;
         readonly ObservableCollection<NodeInputViewModel> _Inputs = new ObservableCollection<NodeInputViewModel>();
 
-        public override IEnumerable<NodeConnectorViewModel> Outputs => _Outputs;
+        public override IEnumerable<INodeConnectorViewModel> Outputs => _Outputs;
         readonly ObservableCollection<NodeOutputViewModel> _Outputs = new ObservableCollection<NodeOutputViewModel>();
 
         public Test4DefaultNodeViewModel()
@@ -326,7 +324,7 @@ namespace NodeGraph.PreviewTest.ViewModels
             }
         }
 
-        public override NodeConnectorViewModel FindConnector(Guid guid)
+        public override INodeConnectorViewModel FindConnector(Guid guid)
         {
             return Inputs.FirstOrDefault(arg => arg.Guid == guid);
         }

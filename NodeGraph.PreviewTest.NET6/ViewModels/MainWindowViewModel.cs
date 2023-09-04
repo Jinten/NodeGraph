@@ -1,18 +1,15 @@
 ﻿using Livet;
 using Livet.Commands;
 using NodeGraph.NET6.Operation;
-using NodeGraph.PreviewTest.ViewModels;
-using NodeGraph.Utilities;
+using NodeGraph.PreviewTest.NET6.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
-namespace NodeGraph.PreviewTest.ViewModels
+namespace NodeGraph.PreviewTest.NET6.ViewModels
 {
     public enum GroupIntersectType
     {

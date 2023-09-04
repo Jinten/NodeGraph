@@ -7,9 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeGraph.PreviewTest", "No
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeGraph", "NodeGraph\NodeGraph.csproj", "{2E2AB11C-015D-40F2-97F6-0E0768FC7069}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeGraph.PreviewTest.NET6", "NodeGraph.PreviewTest.NET6\NodeGraph.PreviewTest.NET6.csproj", "{43BBA8F8-A4A3-42CB-855F-917395E9F99C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeGraph.PreviewTest.NET6", "NodeGraph.PreviewTest.NET6\NodeGraph.PreviewTest.NET6.csproj", "{43BBA8F8-A4A3-42CB-855F-917395E9F99C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeGraph.NET6", "NodeGraph.NET6\NodeGraph.NET6.csproj", "{8E201488-F251-4352-9953-3FB06F2D0654}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeGraph.NET6", "NodeGraph.NET6\NodeGraph.NET6.csproj", "{8E201488-F251-4352-9953-3FB06F2D0654}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeGraph.NET7", "NodeGraph.NET7\NodeGraph.NET7.csproj", "{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NodeGraph.PreviewTest.NET7", "NodeGraph.PreviewTest.NET7\NodeGraph.PreviewTest.NET7.csproj", "{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{8E201488-F251-4352-9953-3FB06F2D0654}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E201488-F251-4352-9953-3FB06F2D0654}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E201488-F251-4352-9953-3FB06F2D0654}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F0C31AD-3CEC-4851-A93D-D8BF3AE7B119}.Release|Any CPU.Build.0 = Release|Any CPU
+		{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{605A68A2-9EE9-4E28-A3E1-0DEED8BF153F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
